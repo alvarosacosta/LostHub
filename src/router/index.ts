@@ -5,13 +5,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: { hasSidebar: true }
   },
-  {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue')
-  }
+  // {
+  //   path: '/about',
+  //   name: 'about',
+  //   component: () => import('../views/AboutView.vue')
+  // }
 ]
 
 const router = createRouter({
