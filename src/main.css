@@ -1,13 +1,13 @@
 :root {
     /* 🎨 Colores principales */
-    --text-color: #FFFFFF;
+    --text-color: #FFF0DC;
 
-    --dutch-white: #FFEBC6;
-    --beaver: #8A7968;
-    --darker-beaver: #695C4F;
-    --raisin-black: #2D2327;
-    --periwinkle: #BEB7DF;
-    --english-violet: #443850;
+    --fourth-color: #FFF0DC;
+    --third-color: #8A7968;
+    --second-color: #695C4F;
+    --first-color: #2D2327;
+    --second-accent-color: #724b5b;
+    --first-accent-color: #533642;
 
     /* 🖋️ Tipografías */
     --font-poppins: "Poppins", sans-serif;
@@ -15,11 +15,25 @@
 }
 
 html {
-    background-color: var(--dutch-white);
+    background-image: url('@/assets/fondo.png');
     background-repeat: repeat;
     background-size: auto;
 }
 
 #app {
     font-family: var(--font-poppins);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+  
+
+/* Animaciones */
+
+@keyframes aparecer {
+    to {
+        opacity: 1;
+    }
 }
