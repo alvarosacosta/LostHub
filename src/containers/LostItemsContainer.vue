@@ -17,8 +17,8 @@ const rawData = LostItems;
 const items: Ref<LostItem[]> = ref(
     rawData.map(item => ({
         ...item,
-        type: item.type = 'lost',
-        gender: item.gender === 'male' ? item.gender = 'male' : item.gender === 'female' ? item.gender = 'female' : undefined,
+        type: item.type = 'Perdido',
+        gender: item.gender === 'Macho' ? item.gender = 'Macho' : item.gender === 'Hembra' ? item.gender = 'Hembra' : undefined,
     }))
 );
 

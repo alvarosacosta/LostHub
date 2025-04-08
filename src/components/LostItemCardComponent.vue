@@ -1,27 +1,44 @@
 <template>
     <main class="LostItemCardComponent">
         <article class="item-card">
-            <h1 class="name">{{ item.name }}</h1>
-            <p class="category">{{ item.category }}</p>
-            <p v-if="item.subcategory" class="subcategory">{{ item.subcategory }}</p>
-            <p class="description">{{ item.detailedDescription }}</p>
+            <v-window class="carousel" show-arrows>
+                <template v-slot:prev="{ props }">
+                    <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
+                </template>
 
-            <p class="date-time">{{ item.dateTime }}</p>
+                <template v-slot:next="{ props }">
+                    <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
+                </template>
 
-            <section class="files" v-if="item.files && item.files.length > 0">
-                <ul class="files-list">
-                    <li class="file" v-for="file in item.files" :key="file">{{ file }}</li>
-                </ul>
+                <v-window-item class="files" v-for="(file, index) in item.files" :key="index">
+                    <img :src="file" alt="file-image" class="file-image" />
+                </v-window-item>
+            </v-window>
+
+            <section class="main-text">
+                <span class="name">{{ item.name }}</span>
+
+                <span class="category">{{ item.category }}</span>
+
+                <section class="color-gender">
+                    <span class="color">{{ item.color }}</span>
+                    <span class="gender">{{ item.gender }}</span>
+                </section>
+
+                <p class="small-description">{{ item.detailedDescription }}</p>
+
+                <section class="date-time-location">
+                    <span class="date-time">{{ item.dateTime }}</span>
+                    <span class="location">{{ item.location }}r</span>
+                </section>
+
+                <section class="reward-arrow">
+                    <span class="reward">{{ item.reward + " €" }}</span>
+                    <router-link to="item.card">
+                        <v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon>
+                    </router-link>
+                </section>
             </section>
-
-            <p class="color">{{ item.color }}</p>
-            <p v-if="item.gender" class="gender">{{ item.gender }}</p>
-
-            <p class="location">{{ item.location }}</p>
-            <p v-if="item.locationDescription" class="location-description">{{ item.locationDescription }}</p>
-
-            <p class="public-transport-status">{{ item.isLostInPublicTransport ? 'Perdido en transporte público' : 'No perdido en transporte público' }}</p>
-            <p class="public-status">{{ item.isPublic ? 'Es público' : 'No es público' }}</p>
         </article>
     </main>
 </template>
@@ -37,20 +54,131 @@ import { LostItem } from '@/interfaces/items';
 
 <style scoped lang="css">
     .item-card {
-        background-color: var(--first-color);
         color: var(--text-color);
-
-        padding: 1em;
         border-radius: .5em;
+
+        width: 900px;
+        height: 500px;
+
+        display: grid;
+        grid-template-columns: 320px auto;
 
         opacity: 0;
         animation: aparecer 1s forwards;
+
+        box-shadow: 10px 10px 20px rgba(0, 0, 0, .8);
+
     }
 
-    .files-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
+    .files {
+        width: 320px;
+        height: 500px;
+        
+        overflow: visible;
+        position: relative;
+    }
+
+    .file-image {
+        width: 100%;
+        height: 100%;
+        object-fit:cover;
+
+        border-radius: .5em 0em 0em .5em;
+    }
+
+    .main-text {
+        background-color: var(--second-color);
+        border-radius: 0em .5em .5em 0em;
+        grid-column: 2;
+
+        display: flex;
+        flex-direction: column;
+
+        padding: 18px;
+        gap: 1em;
+    }
+
+    .name, .category, .color, .gender, .date-time, .location, .reward, .small-description {
+        background-color: var(--first-color);
+        border-radius: 10px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+        padding: .6em .5em .5em .8em;
+        width: 80%;
+        height: 2.6em;
+
+        white-space: nowrap;         
+        overflow: hidden;            
+        text-overflow: ellipsis;        
+        
+    }
+
+    .name {
+        margin-bottom: .9em;
+        width: 100%;
+
+        font-weight: bold;
+
+    }
+
+    .small-description {
+        height: 9.7em;   
+        padding-top: .4em;
+
+        white-space: normal; 
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 6;
+    }
+
+    .color-gender, .date-time-location {
+        display: flex;
+        width: 80%;
+
+        gap: 15px;
+    }
+
+    .reward-arrow {
+        display: flex;
+        height: 3em;
+    }
+
+    .view-details-arrow, .carousel-arrow-prev, .carousel-arrow-next {
+        filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
+        color: var(--first-accent-color);
+
+        position: relative;
+    }
+
+    .view-details-arrow:hover, .carousel-arrow-prev:hover, .carousel-arrow-next:hover {
+        color: var(--second-accent-color);
+
+    }
+
+    .view-details-arrow {
+        bottom: 56px;
+        left: 15px;
+    }
+
+    .carousel-arrow-prev, .carousel-arrow-next {
+        transform: translateX(0); 
+        transition: transform 0.5s ease; 
+    }
+
+    .carousel:hover .carousel-arrow-next{
+        transform: translateX(20px);
+    }
+
+    .carousel:not(:hover) .carousel-arrow-next{
+        transform: translateX(100px);
+    }
+
+    .carousel:hover .carousel-arrow-prev{
+        transform: translateX(-20px);
+    }
+
+    .carousel:not(:hover) .carousel-arrow-prev{
+        transform: translateX(-100px);
     }
     
 </style>

@@ -1,11 +1,11 @@
 export type MixedItem = FoundItem | LostItem;
 
 export interface Item {
-    type: 'found' | 'lost';
+    type: 'Encontrado' | 'Perdido';
     id: string,
     name: string,
     category: string,
-    gender: 'male' | 'female' | undefined,
+    gender: 'Macho' | 'Hembra' | undefined,
     dateTime: string,
     location: string,
     files: string[] | undefined,
@@ -18,13 +18,13 @@ export interface Item {
 }
 
 export interface LostItem extends Item {
-    type: 'lost',
+    type: 'Perdido',
     reward: number
     
 }
 
 export interface FoundItem extends Item {
-    type: 'found',
+    type: 'Encontrado',
     deliveryLocation: string
     
 }

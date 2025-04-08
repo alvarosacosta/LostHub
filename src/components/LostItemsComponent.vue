@@ -1,11 +1,11 @@
 <template>
     <main class="LostItemsComponent">
         <article class="items" v-if="items.length > 0">
-            <router-link class="router-to-item" v-for="(item, index) in items" :key="index" to="item.card">
+            <section class="item" v-for="(item, index) in items" :key="index">
                 <LostItemCardContainer
                     :item
                 />
-            </router-link>
+            </section>
         </article>
         <p v-else class="no-events-label">No events available.</p>
     </main>
@@ -27,12 +27,15 @@ import { LostItem } from '@/interfaces/items';
         flex-direction: column;
         gap: 5em;
 
-        margin: 5em;
+        margin: 5em 0em 5em 0em;
     }
 
-    .router-to-item {
+    .item {
         text-decoration: none;
         color: inherit;
+
+        display: flex;
+        justify-content: center;
     }
 
 </style>
