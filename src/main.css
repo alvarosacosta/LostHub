@@ -29,9 +29,7 @@ body {
     padding: 0;
 }
   
-
 /* Animaciones */
-
 @keyframes aparecer {
     to {
         opacity: 1;

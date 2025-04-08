@@ -10,11 +10,11 @@
                     <p class='info-text'>Nuestro objetivo es aportar una solución tecnológica simple que ayude a devolver los objetos perdidos de tu zona a su propietario. 
                         Conectar y crear una comunidad de usuarios dispuesta a ayudarse entre ellos.</p>
                 </section>
-                <img class="about-us-img" src="https://placehold.co/600x400" alt="Imagen 1">
+                <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 1">
             </section>
 
             <section class="about-us-item">
-                <img class="about-us-img" src="https://placehold.co/600x400" alt="Imagen 2">
+                <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 2">
                 <section class="about-us-text">
                     <h3 class='info-title'>Razón de ser</h3>
                     <p class='info-text'>A día de hoy hay una gran cantidad de objetos extraviados en todo el mundo, muchos acaban abarrotando 
@@ -28,7 +28,7 @@
                     <p class='info-text'>La propuesta fue desarrollada a principios de 2025 por solo un desarrollador. Su visión culmina en el portal web Lost Hub. Un lugar cuya comunidad 
                         no conoce límites a la hora de ayudar a encontrar todos esos objetos queridos que una vez fueron perdidos.</p>
                 </section>
-                <img class="about-us-img" src="https://placehold.co/600x400" alt="Imagen 3">
+                <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 3">
             </section>
         </article>
     </main>
@@ -91,6 +91,7 @@
 
         box-shadow: 0px 4px 5px rgba(0, 0, 0, 1);
     }
+    
 
     .about-us-text {
         padding: 2em;

@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import LostObjectsView from '@/views/LostObjectsView.vue'
+import LostItemsView from '@/views/LostItemsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'lost-objects',
-    component: LostObjectsView,
+    component: LostItemsView,
     meta: { hasSidebar: true }
   },
   {
