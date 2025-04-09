@@ -1,5 +1,5 @@
 :root {
-    /* 🎨 Colores principales */
+    /* 🎨 Colors */
     --text-color: #FFF0DC;
 
     --fourth-color: #FFF0DC;
@@ -9,7 +9,7 @@
     --second-accent-color: #724b5b;
     --first-accent-color: #533642;
 
-    /* 🖋️ Tipografías */
+    /* 🖋️ Tipos */
     --font-poppins: "Poppins", sans-serif;
     --font-inter: "Inter", sans-serif;
 }
@@ -29,7 +29,7 @@ body {
     padding: 0;
 }
   
-/* Animaciones */
+/* Animations */
 @keyframes aparecer {
     to {
         opacity: 1;

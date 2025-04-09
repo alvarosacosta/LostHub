@@ -1,7 +1,7 @@
 <template>
-    <main class="LostItemCardComponent">
-        <article class="item-card">
-            <v-window v-if="item.files !== undefined" class="carousel" show-arrows>
+    <main class="LostItemDetailsComponent">
+        <article class="item">
+            <v-window v-if="item?.files !== undefined" class="carousel" show-arrows>
                 <template v-slot:prev="{ props }">
                     <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
                 </template>
@@ -10,7 +10,7 @@
                     <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                 </template>
 
-                <v-window-item class="files" v-for="(file, index) in item.files" :key="index">
+                <v-window-item class="files" v-for="(file, index) in item?.files" :key="index">
                     <img :src="file" alt="file-image" class="file-image" />
                 </v-window-item>
             </v-window>
@@ -26,25 +26,25 @@
             <div class="vertical-line"></div>
 
             <section class="main-text">
-                <span class="name">{{ item.name }}</span>
+                <span class="name">{{ item?.name }}</span>
 
-                <span class="category">{{ item.category }}</span>
+                <span class="category">{{ item?.category }}</span>
 
                 <section class="color-gender">
-                    <span class="color">{{ item.color }}</span>
-                    <span v-if="item.gender !== undefined" class="gender">{{ item.gender }}</span>
+                    <span class="color">{{ item?.color }}</span>
+                    <span v-if="item?.gender !== undefined" class="gender">{{ item?.gender }}</span>
                 </section>
 
-                <p class="small-description">{{ item.detailedDescription }}</p>
+                <p class="small-description">{{ item?.detailedDescription }}</p>
 
                 <section class="date-time-location">
-                    <span class="date-time">{{ item.dateTime }}</span>
-                    <span class="location">{{ item.location }}r</span>
+                    <span class="date-time">{{ item?.dateTime }}</span>
+                    <span class="location">{{ item?.location }}r</span>
                 </section>
 
                 <section class="reward-arrow">
-                    <span class="reward">{{ item.reward + " €" }}</span>
-                    <router-link :to="{ name: 'item-details', params: { id: item.id },  }">
+                    <span class="reward">{{ item?.reward + " €" }}</span>
+                    <router-link :to="{ name: 'item-details', params: { id: item?.id },  }">
                         <v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon>
                     </router-link>
                 </section>
@@ -57,13 +57,21 @@
 import { LostItem } from '@/interfaces/items';
     
     defineProps<{
-        item: LostItem
+        item: LostItem | undefined
     }>()
 
 </script>
 
 <style scoped lang="css">
-    .item-card {
+    .LostItemDetailsComponent {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 100vh;
+    }
+
+    .item {
         color: var(--text-color);
         border-radius: .5em;
 

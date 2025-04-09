@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import LostItemsView from '@/views/LostItemsView.vue'
+import LostItemDetailsContainer from '@/containers/LostItemDetailsContainer.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -13,6 +14,13 @@ const routes: Array<RouteRecordRaw> = [
     name: 'about-us',
     component: () => import('@/views/AboutUsView.vue'),
     meta: { hasSidebar: false }
+  },
+  {
+    path: '/item/:id',
+    name: 'item-details',
+    component: LostItemDetailsContainer,
+    meta: { hasSidebar: false },
+    props: true
   }
 ]
 
