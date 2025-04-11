@@ -97,9 +97,9 @@
                         <span class="color">{{ item?.color }}</span>
                     </section>
 
-                    <section class="gender-section">
+                    <section v-if="item?.gender !== undefined" class="gender-section">
                         <label for="gender">SEXO</label>
-                        <span v-if="item?.gender !== undefined" class="gender">{{ item?.gender }}</span>
+                        <span class="gender">{{ item?.gender }}</span>
                     </section>
                 </section>
 

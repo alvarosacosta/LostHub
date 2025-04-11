@@ -7,7 +7,7 @@
     "gender": "Macho",
     "dateTime": "2025-04-07 | 10:00",
     "location": "Calle 123, Madrid",
-    "files": ["https://placehold.co/320x500", "https://picsum.photos/260/300", "https://picsum.photos/200/180", "https://media1.tenor.com/m/59sJ5iq9VnMAAAAd/aatrox-gyattrox.gif"],
+    "files": ["https://placehold.co/320x500", "https://picsum.photos/260/300"],
     "isPublic": true,
     "color": "Marrón",
     "subcategory": "Personal",
