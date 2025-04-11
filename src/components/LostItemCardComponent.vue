@@ -26,7 +26,11 @@
             <div class="vertical-line"></div>
 
             <section class="main-text">
-                <span class="name">{{ item.name }}</span>
+                <section class="head-text">
+                    <span class="type">{{ item.type }}</span>
+                    <span class="name">{{ item.name }}</span>
+
+                </section>
 
                 <span class="category">{{ item.category }}</span>
 
@@ -39,7 +43,7 @@
 
                 <section class="date-time-location">
                     <span class="date-time">{{ item.dateTime }}</span>
-                    <span class="location">{{ item.location }}r</span>
+                    <span class="location">{{ item.location }}</span>
                 </section>
 
                 <section class="reward-arrow">
@@ -63,9 +67,19 @@ import { LostItem } from '@/interfaces/items';
 </script>
 
 <style scoped lang="css">
+
+    .LostItemCardComponent {
+        border: 3px solid var(--first-color);
+        border-radius: .7em;
+
+        opacity: 0;
+        animation: aparecer 1s forwards;
+
+    }
+
     .item-card {
         color: var(--text-color);
-        border-radius: .5em;
+        border-radius: .7em;
 
         width: 900px;
         height: 500px;
@@ -76,8 +90,12 @@ import { LostItem } from '@/interfaces/items';
         opacity: 0;
         animation: aparecer 1s forwards;
 
-        box-shadow: 10px 10px 20px rgba(0, 0, 0, .8);
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
 
+    }
+
+    .carousel {
+        border-radius: .5em 0em 0em .5em;
     }
 
     .files {
@@ -86,6 +104,7 @@ import { LostItem } from '@/interfaces/items';
         
         overflow: visible;
         position: relative;
+
     }
 
     .file-image {
@@ -96,118 +115,9 @@ import { LostItem } from '@/interfaces/items';
         border-radius: .5em 0em 0em .5em;
     }
 
-    .main-text {
-        background-color: var(--second-color);
-        border-radius: 0em .5em .5em 0em;
-        grid-column: 3;
-
-        display: flex;
-        flex-direction: column;
-
-        padding: 18px;
-        gap: 1em;
-    }
-
-    .name, .category, .color, .gender, .date-time, .location, .reward, .small-description {
-        background-color: var(--first-color);
-        border-radius: 10px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
-
-        padding: .6em .5em .5em .8em;
-        width: 80%;
-        height: 2.6em;
-
-        white-space: nowrap;         
-        overflow: hidden;            
-        text-overflow: ellipsis;        
-        
-    }
-
-    .name {
-        margin-bottom: .9em;
-        width: 100%;
-
-        font-weight: bold;
-
-    }
-    
-    .small-description {
-        height: 9.7em;   
-        padding-top: .4em;
-
-        white-space: normal; 
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 6;
-    }
-
-    .color-gender, .date-time-location {
-        display: flex;
-        width: 80%;
-
-        gap: 15px;
-    }
-
-    .color {
-        width: 100%;
-    }
-
-    .reward-arrow {
-        display: flex;
-        height: 3em;
-    }
-
-    .view-details-arrow {
-        bottom: 56px;
-        left: 15px;
-    }
-
-    .view-details-arrow, .carousel-arrow-prev, .carousel-arrow-next {
-        filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
-        color: var(--first-accent-color);
-
-        position: relative;
-    }
-
-    .view-details-arrow:hover, .carousel-arrow-prev:hover, .carousel-arrow-next:hover {
-        color: var(--second-accent-color);
-
-    }
-
-    .carousel-arrow-prev, .carousel-arrow-next {
-        transform: translateX(0); 
-        transition: transform 0.5s ease; 
-    }
-
-    .carousel:hover .carousel-arrow-next{
-        transform: translateX(20px);
-    }
-
-    .carousel:not(:hover) .carousel-arrow-next{
-        transform: translateX(100px);
-    }
-
-    .carousel:hover .carousel-arrow-prev{
-        transform: translateX(-20px);
-    }
-
-    .carousel:not(:hover) .carousel-arrow-prev{
-        transform: translateX(-100px);
-    }
-
-    .vertical-line {
-        width: 3px;
-        height: 500px;
-        background-color: var(--first-color);
-
-        grid-column: 2;
-        box-shadow: 2.5px 1px 5px rgba(0, 0, 0, .8);
-        z-index: 1;
-
-    }
-
     .no-image {
         background-color: var(--second-color);
+        border-radius: .5em 0em 0em .5em;
 
         display: flex;
         align-items: center;
@@ -223,6 +133,140 @@ import { LostItem } from '@/interfaces/items';
 
         display: flex;
         gap: .6em;
+    }
+
+    .vertical-line {
+        width: 3px;
+        height: 500px;
+        background-color: var(--first-color);
+
+        grid-column: 2;
+        box-shadow: 2.5px 1px 5px rgba(0, 0, 0, .8);
+        z-index: 2;
+
+    }
+
+    .main-text {
+        background-color: var(--second-color);
+        border-radius: 0em .5em .5em 0em;
+        grid-column: 3;
+
+        display: flex;
+        flex-direction: column;
+
+        padding: 18px;
+        gap: 1em;
+
+        height: 500px;
+    }
+
+    .name, .category, .color, .gender, .date-time, .location, .reward, .small-description {
+        background-color: var(--first-color);
+        border-radius: 10px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+        padding: .6em .5em .5em .8em;
+        width: 100%;
+        height: 2.6em;
+
+        white-space: nowrap;         
+        overflow: hidden;            
+        text-overflow: ellipsis;        
+        
+    }
+
+    .head-text {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+
+        gap: 15px;
+    }
+
+    .name {
+        width: 100%;
+    }
+
+    .type {
+        background-color: var(--first-color);
+
+        font-size: large;
+        padding: .8em;
+
+        width: fit-content;
+        text-transform: uppercase;
+
+        border-radius: 10px;
+        border: 2px solid var(--fourth-color);
+
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+    }
+    
+    .small-description {
+        height: 9.7em;   
+        padding-top: .4em;
+
+        white-space: normal; 
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 6;
+    }
+
+    .color-gender, .date-time-location {
+        display: flex;
+        gap: 15px;
+    }
+
+    .date-time-location, .reward {
+        width: 80%;
+    }
+
+    .reward-arrow {
+        display: flex;
+        height: 3em;
+    }
+
+    .view-details-arrow {
+        bottom: 56px;
+        left: 15px;
+    }
+
+    /* Carousel arrows */
+    .view-details-arrow, .carousel-arrow-prev, .carousel-arrow-next {
+        filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
+        color: var(--first-accent-color);
+
+        position: relative;
+    }
+
+    .view-details-arrow:hover, .carousel-arrow-prev:hover, .carousel-arrow-next:hover {
+        color: var(--second-accent-color);
+
+    }
+
+    .carousel-arrow-prev, .carousel-arrow-next {
+        transition: transform 0.5s ease; 
+        
+    }
+
+    .carousel:hover .carousel-arrow-next{
+        transform: translateX(20px);
+        animation: aparecer 0.5s
+    }
+
+    .carousel:not(:hover) .carousel-arrow-next{
+        transform: translateX(100px);
+        animation: desaparecer 0.5s
+    }
+
+    .carousel:hover .carousel-arrow-prev{
+        transform: translateX(-20px);
+        animation: aparecer 0.5s
+    }
+
+    .carousel:not(:hover) .carousel-arrow-prev{
+        transform: translateX(-100px);
+        animation: desaparecer 0.5s
     }
     
 </style>

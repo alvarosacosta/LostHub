@@ -26,9 +26,13 @@
                 <section class="about-us-text">
                     <h3 class='info-title'>Creadores</h3>
                     <p class='info-text'>La propuesta fue desarrollada a principios de 2025 por solo un desarrollador. Su visión culmina en el portal web Lost Hub. Un lugar cuya comunidad 
-                        no conoce límites a la hora de ayudar a encontrar todos esos objetos queridos que una vez fueron perdidos.</p>
+                        no conoce límites a la hora de ayudar a encontrar todos esos objetos que una vez fueron perdidos.</p>
                 </section>
                 <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 3">
+            </section>
+
+            <section class="footer">
+                <v-icon class="penguin">mdi-penguin</v-icon>
             </section>
         </article>
     </main>
@@ -39,25 +43,6 @@
 </script>
 
 <style scoped lang="css">
-    .back-button {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        padding: 10px 20px;
-
-        background-color: var(--first-accent-color);
-        color: var(--text-color);
-
-        box-shadow: 2px 2px 2px rgba(0, 0, 0, 1);
-        border-radius: 5px;
-
-        z-index: 999;
-    }
-
-    .back-button:hover {
-        background-color: var(--second-accent-color);
-    }
-    
     .about-us-title {
         justify-self: center;
         margin-top: 1em;
@@ -75,7 +60,7 @@
         flex-direction: column;
         gap: 10em;
 
-        margin: 5em 0em 7em 0em;
+        margin-top: 5em;
     }
 
     .about-us-item {
@@ -92,9 +77,21 @@
         box-shadow: 0px 4px 5px rgba(0, 0, 0, 1);
     }
     
-
     .about-us-text {
         padding: 2em;
+    }
+
+    .footer {
+        height: 5em;
+        background-color: var(--first-color);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .penguin {
+        color: var(--text-color);
     }
 
 </style>
