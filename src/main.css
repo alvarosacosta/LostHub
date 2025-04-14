@@ -1,25 +1,65 @@
 :root {
-    /* 🎨 Colores principales */
-    --text-color: #FFFFFF;
+    /* 🎨 Colors */
+    --text-color: #FFF0DC;
 
-    --dutch-white: #FFEBC6;
-    --beaver: #8A7968;
-    --darker-beaver: #695C4F;
-    --raisin-black: #2D2327;
-    --periwinkle: #BEB7DF;
-    --english-violet: #443850;
+    --fourth-color: #FFF0DC;
+    --third-color: #8A7968;
+    --second-color: #695C4F;
+    --first-color: #2D2327;
+    --second-accent-color: #724b5b;
+    --first-accent-color: #533642;
 
-    /* 🖋️ Tipografías */
+    /* 🖋️ Tipos */
     --font-poppins: "Poppins", sans-serif;
     --font-inter: "Inter", sans-serif;
 }
 
+/* Main styles */
 html {
-    background-color: var(--dutch-white);
+    background-image: url('@/assets/fondo.png');
     background-repeat: repeat;
     background-size: auto;
 }
 
 #app {
     font-family: var(--font-poppins);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+  
+/* Animations */
+@keyframes aparecer {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes desaparecer {
+    to {
+        opacity: 0;
+    }
+}
+
+
+/* Global styles */
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+
+    background-color: var(--first-accent-color);
+    color: var(--text-color);
+
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 1);
+    border-radius: 5px;
+
+    z-index: 2;
+}
+
+.back-button:hover {
+    background-color: var(--second-accent-color);
 }

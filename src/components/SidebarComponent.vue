@@ -1,75 +1,246 @@
 <template>
-    <main class="sidebar">
-        <section class="user">
-            <img class="user-icon" src="@/assets/imagen_de_perfil.png" />
-            <span class="user-name">{{ msg }}</span>
+    <v-icon class="hamburger" @click="toggleSidebar()" v-if="isClosed">mdi-menu</v-icon>
+    <main v-else class="SidebarComponent">
+        <article class="main-content">
+            <section class="user-section">
+                <v-icon class="close" @click="toggleSidebar()" size="38">mdi-close-thick</v-icon>
+                <section class="user-content">
+                    <img class="user-icon" src="@/assets/imagen_de_perfil.png" alt="user-icon" />
+                    <router-link class="login-button" to="/login">Iniciar sesión</router-link>
+                </section>
+            </section>
+
+            <section class="navigation">
+                <router-link class="navigation-button" to="/profile">Perfil de usuario</router-link>
+                <router-link class="navigation-button" to="/">Objetos perdidos</router-link>
+                <router-link class="navigation-button" to="/notifications">Notificaciones</router-link>
+                <router-link class="navigation-button" to="/about-us">Quiénes somos</router-link>
+            </section>
+        </article>
+
+        <section class="secondary-content">
+            <a class='github-ref' href="https://github.com/alvarosacosta">
+                <img class="github-icon" src="@/assets/github.png" alt="github-icon"/>
+            </a>
+
+            <router-link class="publish-button" to="/new-post">
+                <img class="new-post-icon" src="@/assets/pluma-publicación.png" alt="new-post-icon" />
+            </router-link>
         </section>
-        <button class="event-button" @click="sendEvent">Crear evento</button>
     </main>
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
 
-    const emit = defineEmits(['sendEvent']);
+    var isClosed : Ref<boolean> = ref(false);   
+    const windowWidth = ref(window.innerWidth);
 
-    const props = defineProps<{
-        msg: string
+    const emit = defineEmits<{
+        (e: 'toggle-sidebar', closed: boolean): void
     }>()
 
-    function sendEvent(): void {
-        emit('sendEvent');
-    }
+    const isTablet = computed(() => windowWidth.value < 1220);
 
+    const updateWindowWidth = () => {
+        windowWidth.value = window.innerWidth;
+    };
+
+    onMounted(() => {
+        window.addEventListener('resize', updateWindowWidth);
+
+        if (window.innerWidth < 1220) {
+            isClosed.value = true;
+            emit('toggle-sidebar', true);
+        }
+    });
+
+    onBeforeUnmount(() => {
+        window.removeEventListener('resize', updateWindowWidth);
+    });
+
+    watch(isTablet, (val) => {
+        if (val) {
+            isClosed.value = true;
+            emit('toggle-sidebar', isClosed.value);
+        }
+    });
+
+    function toggleSidebar() : void {
+        isClosed.value = !isClosed.value;
+        emit('toggle-sidebar', isClosed.value)
+    }
+    
 </script>
   
 <style scoped lang="css">
-    .sidebar {
-        width: 17em;
-        height: 100vh;
-        background-color: var(--beaver);
+    .hamburger {
+        position: fixed;
+        cursor: pointer;
+        top: 20px;
+        left: 20px;
+
+        padding: 1em;
+
+        background-color: var(--first-accent-color);
         color: var(--text-color);
+
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 1);
+        border-radius: 5px;
+
+        z-index: 2;
+    }
+
+    .hamburger:hover {
+        background-color: var(--second-accent-color);
+    }
+
+    .SidebarComponent {
+        width: 17em;
+        height: 100%;
+
+        background-color: var(--third-color);
+        color: var(--text-color);
+
         display: flex;
         flex-direction: column;
         justify-content: space-between;
 
-        box-shadow: 4px 0px 10px rgba(0, 0, 0, 0.5);
+        box-shadow: 4px 0px 15px rgba(0, 0, 0, 0.5);
+        position: fixed;
+
+        border-right: 3.5px solid var(--first-color);
+
+        z-index: 2;
     }
 
-    .user {
+    .closed {
+        display: none;
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-section {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 1em;
+        justify-content: space-between;
+        padding: .7em;
+        padding-right: .9em;
 
-        background-color: var(--darker-beaver);
+        background-color: var(--second-color);
+        height: 4.8em;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
+    }
+
+    .close {
+        color: var(--first-accent-color);
+        filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, .6));
+    }
+
+    .close:hover {
+        cursor: pointer;
+        color: var(--second-accent-color);
+    }
+
+    .user-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        background-color: var(--first-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        padding: 8.5px;
+        border-radius: 10px;
     }
 
     .user-icon {
-        width: 24px;
-        border-radius: 5px;
+        width: 35px;
     }
 
-    .user-name {
-        position: relative;
-        top: 1px;
-    }
+    .login-button {
+        text-decoration: none;
+        background-color: var(--first-accent-color);
+        color: inherit;
 
-    .event-button {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
+        padding: 5px;
         cursor: pointer;
+        text-align: center;
+
         border-radius: 5px;
-        box-shadow: 4px 4px 10px rgba(0, 0, 0, 1);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+        width: 10em;
+        font-size: small;
+    }
+
+    .login-button:hover {
+        background-color: var(--second-accent-color);
+    }
+
+    .navigation {
+        display: flex;
+        flex-direction: column;
+        margin-top: .8em;
+    }
+
+    .navigation-button {
+        text-decoration: none;
+        background-color: var(--first-accent-color);
+        color: inherit;
+
+        padding: 10px;
+        cursor: pointer;
+        text-align: center;
+
+        border-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
         margin: 1em;
+        margin-right: 1.2em;
     }
 
-    .event-button:hover {
-        background-color: #2980b9;
-        box-shadow: none;
+    .navigation-button:hover {
+        background-color: var(--second-accent-color);
+    }
+
+    .secondary-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        margin-left: .9em;
+    }
+
+    .github-icon {
+        width: 50px;
+    }
+
+    .publish-button {
+        background-color: var(--first-accent-color);
+        border-radius: 10em;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+        width: 70px;
+        height: 70px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        position: relative;
+        bottom: 30px;
+        left: 20px;
+        
+    }
+
+    .publish-button:hover {
+        background-color: var(--second-accent-color);
+    }
+
+    .new-post-icon {
+        width: 35px;
     }
 
 </style>
