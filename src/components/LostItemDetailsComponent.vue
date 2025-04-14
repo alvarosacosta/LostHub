@@ -1,6 +1,7 @@
 <template>
     <main class="LostItemDetailsComponent">
-        <button class='back-button' onclick="history.back()"> Volver </button>
+        <span class="type">{{"OBJETO " + item?.type }}</span>
+        <button class='back-button' @click="$router.back()"> Volver </button>
         <article class="item">
             <article v-if="item?.files !== undefined" class="carousel-container">
                 <section class="list">
@@ -49,13 +50,16 @@
                     <figure class="profile-image-container">
                         <img class="profile-image" src="@\assets\mock-profile.png" alt="profile-image">
                     </figure>
-                    <label class="profile-name" for="profile-image-container">Nombre de usuario</label>
+                    <button class="profile-button">Perfil de usuario</button>
                 </section>
                 
-                <section class="navigation-buttons-and-type">
-                    <span class="type">{{"OBJETO " + item?.type }}</span>
-                    <button class="profile-button">Perfil de usuario</button>
-                    <button class="notification-button">¡LO ENCONTRÉ!</button>
+                <section class="secondary-info">
+                    <label class="rating-label" for="rating-container">GUARDAR PETICIÓN</label>
+                    <section class="rating-container">
+                        <v-icon class="rating-icon" @click="toggleRated()" :class="{'rated': rated}" size="80">mdi-content-save</v-icon>
+                        <span class="rating">0</span>
+                    </section>
+                    <button class="notification-button">Notificar coincidencia</button>
                 </section>
             </article>
 
@@ -140,18 +144,26 @@ import { Ref, ref } from 'vue';
 
     const selectedIndex: Ref<number> = ref(0)
 
+    var rating: Ref<number> = ref(0)
+    var rated: Ref<boolean> = ref(false)
+
+    function toggleRated() : void {
+        rated.value = !rated.value;
+    }
+
 </script>
 
 <style scoped lang="css">
     .LostItemDetailsComponent {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
 
         opacity: 0;
         animation: aparecer 1s forwards;
 
-        padding: 5em;
+        padding: 5em 0 5em 0;
     }
 
     .item {
@@ -192,6 +204,9 @@ import { Ref, ref } from 'vue';
         border: 3px solid var(--first-color);
 
         box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
+
+        position: relative;
+        top: 3px;
     }
     
     .list {
@@ -247,11 +262,16 @@ import { Ref, ref } from 'vue';
         justify-content: center;
 
         background-color: var(--third-color);
+
+        grid-column: 1;
+        grid-row-start: 1;
+        grid-row-end: 3;
     }
 
     .no-image {
         background-color: var(--second-color);
         border: 3px solid var(--first-color);
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
         border-radius: 10px;
 
         display: flex;
@@ -278,7 +298,6 @@ import { Ref, ref } from 'vue';
 
         display: flex;
         align-items: center;
-        justify-content: center;
 
         gap: 2.5em;
     }
@@ -286,14 +305,14 @@ import { Ref, ref } from 'vue';
     .profile {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        padding-left: 1em;
 
         gap: 1em;
     }
     
     .profile-image-container {
-        width: 150px;
-        height: 170px;
+        width: 12em;
+        height: 12em;
         
         overflow: visible;
         position: relative;
@@ -310,13 +329,16 @@ import { Ref, ref } from 'vue';
         box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
     }
 
-    .navigation-buttons-and-type {
+    .secondary-info {
         display: flex;
         flex-direction: column;
+
+        gap: 2em;
     }
 
     .type {
         background-color: var(--first-color);
+        color: var(--text-color);
 
         font-size: larger;
         font-weight: bold;
@@ -333,8 +355,60 @@ import { Ref, ref } from 'vue';
         text-align: center;
         align-self: center;
 
+        width: auto;
+        min-width: 10.5em;
+
         position: relative;
-        bottom: 4em;
+        top: 1.5em;
+
+    }
+
+    .rating-label {
+        font-size: large;
+
+        position: relative;
+        top: .8em;
+
+        z-index: 1;
+    }
+
+    .rating-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 2em;
+
+        position: relative;
+        bottom: 1em;
+
+        background-color: var(--second-color);
+        border: 3px solid var(--first-color);
+
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        padding: 1em;
+        border-radius: 1.5em;
+
+        width: 14em;
+
+    }
+
+    .rating-icon {
+        cursor: pointer;
+        color: var(--first-accent-color);
+        filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
+    }
+
+    .rating {
+        font-weight: bold;
+        font-size: larger;
+
+        position: relative;
+        top: 4px;
+    }
+
+    .rating-icon:hover, .rated {
+        color: var(--second-accent-color);
     }
 
     .notification-button, .profile-button {
@@ -349,13 +423,16 @@ import { Ref, ref } from 'vue';
         border-radius: 5px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
-        margin: 1em;
-        margin-right: 1.2em;
-
         width: 12em;
+    }
+
+    .notification-button {
+        font-weight: bold;
+        font-size: large;
+        height: 4em;
 
         position: relative;
-        bottom: 2em;
+        bottom: .7em;
     }
 
     .notification-button:hover, .profile-button:hover {
@@ -375,6 +452,12 @@ import { Ref, ref } from 'vue';
 
         grid-column: 2;
         grid-row: 2;
+    }
+
+    .down-section {
+        display: flex;
+
+        gap: 1.5em;
     }
 
     .reward {
@@ -397,28 +480,17 @@ import { Ref, ref } from 'vue';
 
     }
     
-    .down-section {
-        display: flex;
-        align-self: center;
-        justify-content: center;
-
-        gap: 5em;
-    }
-
     .categories-section {
         display: flex;
         flex-direction: column;
-        align-self: center;
 
+        width: 100%;
         gap: 2em;
         padding-top: .8em;
     }
 
     .category, .subcategory {
         display: flex;
-        justify-content: center; 
-        align-items: center;     
-        text-align: center; 
     }
 
     .main-text {
@@ -442,15 +514,17 @@ import { Ref, ref } from 'vue';
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
         padding: .6em .5em .5em .8em;
-        height: 2.6em;
+
+        min-height: 2.6em;
+        height: auto;
         width: 100%;
 
-        white-space: nowrap;         
-        overflow: hidden;            
-        text-overflow: ellipsis;        
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;        
     }
 
-    .name-section, .category-section, .reward-section, .public-transport-section, .color-section, .gender-section, .date-time-section, .location-section {
+    .name-section, .category-section, .public-transport-section, .color-section, .gender-section, .date-time-section, .location-section {
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -462,7 +536,6 @@ import { Ref, ref } from 'vue';
     
     .description, .location-description {
         min-height: 10em;
-        height: auto;   
     }
 
     .color-gender, .date-time-location {
@@ -510,6 +583,178 @@ import { Ref, ref } from 'vue';
     .carousel:not(:hover) .carousel-arrow-prev{
         transform: translateX(-100px);
         animation: desaparecer 0.5s;
+
+    }
+
+    @media (max-width: 1090px) {
+        .item {
+            width: 650px;
+
+            display: grid;
+            grid-template-columns: auto;
+            grid-template-rows: auto auto auto auto;
+
+            padding-bottom: 0;
+
+        }
+
+        .profile-article {
+            grid-column: 1;
+            grid-row: 4;
+
+            align-items: center;
+            justify-content: center;
+            gap: 7em;
+        }
+
+        .rating-container {
+            position: relative;
+            right: .3em;
+
+        }
+
+        .carousel-container {
+            grid-column: 1;
+            grid-row: 1;
+
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-image-container {
+            grid-column: 1;
+            grid-row: 1;
+
+            padding: 4.7em 0 4em 0;
+        }
+
+        .resume-article {
+            padding: 0 40px 0 40px;
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .main-text {
+            grid-column: 1;
+            grid-row: 3;
+        }
+
+    }
+
+    @media (max-width: 700px) { 
+        .item {
+            width: 350px;
+            font-size: smaller;
+
+            padding-bottom: 0;
+        }
+
+        .list {
+            display: none;
+        }
+
+        .carousel-container {
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .files {
+            width: 280px;
+            height: 400px;
+        }
+
+        .no-image {
+            font-size: medium;
+
+            width: 280px;
+            height: 400px;
+
+        }
+
+        .no-image-container {
+            grid-column: 1;
+            grid-row: 1;
+
+            width: 344px;
+            height: 510px;
+
+            padding: 0 0 1em 0;
+        }
+
+        .resume-article {
+            padding: 0 1em 0 1em;
+        }
+
+        .main-text {
+            padding: 0 1em 0 1em;
+            width: 344px;
+        }
+
+        .profile-article {
+            grid-column: 1;
+            grid-row: 4;
+
+            height: auto;
+            width: 344px;
+            gap: 1.5em;
+
+            padding: 2em 0 2em 0;
+        }
+
+        .profile {
+            padding-left: 0;
+        }
+
+        .secondary-info {
+            gap: 0em;
+
+            display: flex;
+            align-items: center;
+
+            position: relative;
+            top: 3em;
+        }
+
+        .rating-label {
+            font-size: medium;
+            position: relative;
+            top: -3.5em;
+            right: .4em;
+
+        }
+
+        .rating-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: .8em;
+
+            position: relative;
+            bottom: 4em;
+
+            width: 10em;
+
+        }
+
+        .rating {
+            font-weight: bold;
+            font-size: small;
+
+            right: .5em;
+        }
+
+        .notification-button {
+            font-weight: normal;
+            font-size: medium;
+
+            height: auto;
+            width: 8em;
+
+            bottom: 2em;
+        }
 
     }
 

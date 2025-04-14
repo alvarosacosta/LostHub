@@ -23,7 +23,7 @@
                     
             </section>
 
-            <div class="vertical-line"></div>
+            <div class="line"></div>
 
             <section class="main-text">
                 <section class="head-text">
@@ -135,7 +135,7 @@ import { LostItem } from '@/interfaces/items';
         gap: .6em;
     }
 
-    .vertical-line {
+    .line {
         width: 3px;
         height: 500px;
         background-color: var(--first-color);
@@ -267,6 +267,113 @@ import { LostItem } from '@/interfaces/items';
     .carousel:not(:hover) .carousel-arrow-prev{
         transform: translateX(-100px);
         animation: desaparecer 0.5s
+    }
+
+    @media (max-width: 950px) {
+        .LostItemCardComponent {
+            border: 3px solid var(--first-color);
+            border-radius: .7em;
+
+            opacity: 0;
+            animation: aparecer 1s forwards;
+
+        }
+
+        .item-card {
+            width: 320px;
+            height: 600px;
+
+            grid-template-columns: auto;
+            grid-template-rows: 250px 3px auto;
+
+        }
+
+        .carousel {
+            grid-row: 1;
+            grid-column: 1;
+
+            border-radius: .5em .5em 0 0;
+        }
+
+        .files {
+            width: 320px;
+            height: 250px;
+            
+            overflow: visible;
+            position: relative;
+
+            border-radius: .5em .5em 0 0;
+
+        }
+
+
+        .file-image {
+            width: 100%;
+            height: 100%;
+            object-fit:cover;
+
+            border-radius: .5em .5em 0 0;
+
+        }
+
+        .no-image {
+            grid-row: 1;
+            grid-column: 1;
+
+            background-color: var(--second-color);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: larger;
+
+            border-radius: .3em .3em 0 0;
+        }
+
+        .line {
+            grid-row: 2;
+            grid-column: 1;
+
+            width: 320px;
+            height: 3px;
+
+            box-shadow: 0px 1.5px 3px rgba(0, 0, 0, .6);
+
+        }
+
+        .main-text {
+            grid-column: 1;
+            grid-row: 3;
+            
+            border-radius: 0 0 .5em .5em;
+
+            height: 347px;
+            width: 320px;
+            font-size: small;
+
+        }
+
+        .type {
+            font-size: small;
+        }
+
+        .category {
+            display: flex;
+            text-align: center;
+            align-items: center;
+            height: 4.5em;   
+            
+        }
+
+        .date-time-location, .reward {
+            width: 65%;
+        }
+
+        .small-description {
+            padding-top: .2em;
+            -webkit-line-clamp: 3;
+        }
     }
     
 </style>

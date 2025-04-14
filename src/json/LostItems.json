@@ -7,7 +7,7 @@
     "gender": "Macho",
     "dateTime": "2025-04-07 | 10:00",
     "location": "Calle 123, Madrid",
-    "files": ["https://placehold.co/320x500", "https://picsum.photos/260/300"],
+    "files": ["https://placehold.co/320x500", "https://picsum.photos/260/300", "https://picsum.photos/260/301", "https://picsum.photos/260/302", "https://picsum.photos/260/303", "https://picsum.photos/260/300"],
     "isPublic": true,
     "color": "Marrón",
     "subcategory": "Personal",

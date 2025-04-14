@@ -1,6 +1,6 @@
 <template>
     <main class="AboutUsComponent">
-        <button class='back-button' onclick="history.back()"> Volver </button>
+        <button class='back-button' @click="$router.back()"> Volver </button>
         <h1 class="about-us-title">¿Quiénes somos?</h1>
 
         <article class="about-us-content">
@@ -92,6 +92,39 @@
 
     .penguin {
         color: var(--text-color);
+    }
+
+    @media (max-width: 850px) {
+        .about-us-content {
+            gap: 3em;
+            margin-top: 1em;
+        }
+
+        .about-us-item {
+            flex-direction: column;
+            padding: 2em;
+            margin: 2em;
+            gap: 1em;
+
+            border-radius: 1em;
+        }
+
+        .about-us-text {
+            padding: .5em;
+            text-align: justify;
+        }
+
+        .about-us-img {
+            width: 100%;
+
+            border-radius: 1em;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        }
+
+        .about-us-item:nth-child(even) {
+            justify-content: flex-start;
+        }
+
     }
 
 </style>
