@@ -1,5 +1,7 @@
 <template>
   <main class='main'>
+    <LoadingOverlay :loading></LoadingOverlay>
+
     <SidebarContainer @toggle-sidebar="toggleSidebar" v-if="showSidebar" msg="Mi nombre"></SidebarContainer>
     <router-view class="main-content" :class="sidebarOptions()"/>
 
@@ -8,14 +10,20 @@
 
 <script setup lang="ts">
 import SidebarContainer from '@/containers/SidebarContainer.vue';
+import LoadingOverlay from './components/LoadingOverlay.vue';
 import { useRoute } from 'vue-router';
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
+import router from './router';
+
+  const loading : Ref<boolean> = ref(false)
+  const loadingRoutes : RegExp = /^\/item(\/.*)?$/
 
   const route = useRoute();
+
   const showSidebar = computed(() => route.meta.hasSidebar !== false);
-  const windowWidth = ref(window.innerWidth);
   var isClosed : Ref<boolean> = ref(false);
 
+  const windowWidth = ref(window.innerWidth);
   const isTablet = computed(() => windowWidth.value < 1220);
 
   const updateWindowWidth = () => {
@@ -46,6 +54,18 @@ import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
     ? 'main-content-without-sidebar'
     : 'main-content'
   }
+
+  router.beforeEach((to, from, next) => {
+    const showLoader = loadingRoutes.test(to.path)
+    loading.value = showLoader
+    next()
+  })
+
+  router.afterEach(() => {
+    setTimeout(() => {
+      loading.value = false
+    }, 300)
+  })
 
 </script>
 

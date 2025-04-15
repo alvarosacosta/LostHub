@@ -20,6 +20,15 @@ const vuetify = createVuetify({
           mdi,
       },
   },
+  theme: {
+    themes: {
+      light: {
+        colors: {
+          error: '#533642',
+        }
+      }
+    }
+  }
 });
 const pinia = createPinia();
 

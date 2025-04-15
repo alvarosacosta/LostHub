@@ -6,7 +6,20 @@
                 <v-icon class="close" @click="toggleSidebar()" size="38">mdi-close-thick</v-icon>
                 <section class="user-content">
                     <img class="user-icon" src="@/assets/imagen_de_perfil.png" alt="user-icon" />
-                    <router-link class="login-button" to="/login">Iniciar sesión</router-link>
+                    <v-dialog max-width="500" max-height="600" scroll-strategy="close">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <button 
+                                v-bind="activatorProps" 
+                                class="login-button"
+                                >
+                                Iniciar sesión
+                            </button>
+                        </template>
+
+                        <template v-slot>
+                            <LogInContainer></LogInContainer>
+                        </template>
+                    </v-dialog>
                 </section>
             </section>
 
@@ -32,6 +45,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
+import LogInContainer from '@/containers/LogInContainer.vue';
 
     var isClosed : Ref<boolean> = ref(false);   
     const windowWidth = ref(window.innerWidth);

@@ -30,7 +30,7 @@
                         <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                     </template>
     
-                    <v-window-item class="files" v-for="(file, index) in item?.files" :key="index">
+                    <v-window-item eager class="files" v-for="(file, index) in item?.files" :key="index">
                         <img :src="file" alt="file-image" class="file-image" />
                     </v-window-item>
                 </v-window>
