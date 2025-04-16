@@ -18,7 +18,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/register',
     name: 'register',
-    component: () => import('@/views/SignInView.vue'),
+    component: () => import('@/views/SignUpView.vue'),
     meta: { hasSidebar: false }
   },
   {

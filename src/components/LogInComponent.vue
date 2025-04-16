@@ -23,12 +23,13 @@
                         bg-color="var(--fourth-color)"
                         v-model="password"
                         :rules="passwordRules"
+                        :type="showPassword ? 'text' : 'password'"
+                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                        @click:append="showPassword = !showPassword"
                         label="Contraseña"
                         variant="solo-filled"
                         required
-                    ></v-text-field>
-
-                    
+                    ></v-text-field>  
                 </section>
                 
                 <section class="footer">
@@ -51,16 +52,12 @@ import { ref, Ref } from 'vue';
 
     const email : Ref<string> = ref('');
     const password : Ref<string> = ref('');
+    const showPassword : Ref<boolean> = ref(false);
 
     const passwordRules = [
         (value: string) => {
             if (value) return true
             return 'La contraseña es obligatoria.'
-        },
-
-        (value: string) => {
-            if (value?.length >= 10) return true
-            return 'La contraseña debe tener al menos 10 carácteres.'
         },
     ]
 
@@ -85,7 +82,6 @@ import { ref, Ref } from 'vue';
         };
 
         emit('logIn', user);
-        console.log('Login event emitted with:', user);
     };
 
 </script>
@@ -103,27 +99,26 @@ import { ref, Ref } from 'vue';
         flex-direction: column;
         align-items: center;
 
-        gap: 3em;
+        gap: 2em;
         padding: 2em;
 
         width: 100%;
-        height: 460px;
+        height: 450px;
 
     }
 
     .title{
-        background-color: var(--first-color);
         padding: 15px;
-        border-radius: 8px;
-
-        box-shadow: 2px 2px 3px rgba(0, 0, 0, 1);
         color: var(--text-color);
-        font-size: xx-large;
+        font-size: 2em;
         font-weight: bold;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 
         width: 90%;
         text-align: center;
+
+        border-bottom: 2px solid var(--first-color);
+        border-radius: 0.5em 0.5em 0 0;
     }
 
     .form {
@@ -162,7 +157,7 @@ import { ref, Ref } from 'vue';
         font-size: smaller;
 
         position: relative;
-        bottom: 2.5em;
+        bottom: 1em;
         left: 1em;
     }
 
@@ -194,16 +189,23 @@ import { ref, Ref } from 'vue';
 
     }
 
-    @media (max-width: 455px) {
+    @media (max-width: 530px) {
 
         .log-in-container {
-            height: 500px;
+
+            gap: 2em;
+        }
+
+        .title {
+            font-size: xx-large;
+
+            width: 100%;
         }
 
         .footer{
             height: 2.5em;
             justify-content: center;
-            gap: 0;
+            gap: 1em;
 
             position: relative;
             top: 1em;
@@ -212,17 +214,12 @@ import { ref, Ref } from 'vue';
         .register-label{
             position: relative;
             bottom: 0;
-            left: 1em;
         }
 
         .register-button{
             position: relative;
             top: 0;
             right: 0;
-
-        }
-
-        .view-details-arrow {
 
         }
     }

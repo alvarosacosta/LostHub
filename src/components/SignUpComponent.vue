@@ -1,18 +1,40 @@
+
 <template>
-    <main class="SignInComponent">
+    <main class="SignUpComponent">
         <button class='back-button' @click="$router.back()"> Volver </button>
         <article class="sign-in-container">
-            <h1 class="title">¡Bienvenido!</h1>
+            <h1 class="title">¡Bienvenido! Regístrate aquí.</h1>
 
             <form class="form" @submit.prevent="onSubmit">
                 <article class="text-fields">
                     <section class="upper-right">
-                        <figure class="preview-container">
-                            <img :src="previewUrl ? previewUrl : noImage" alt="Preview" class="profile-preview" />
-                        </figure>
+
+                        <article class="image-container">
+                            <figure class="preview-container">
+                                <img :src="previewUrl ? previewUrl : noImage" alt="Preview" class="profile-preview" />
+                            </figure>
+    
+                            <v-file-input
+                                class="profile-picture-input field"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                label="Foto de perfil"
+                                accept="image/*"
+                                :rules="fileSizeRule"
+                                v-model="profilePicture"
+                                density="comfortable"
+                                prepend-icon="mdi-camera"
+                                variant="solo-filled"
+                                truncate-length="0"
+                                clearable
+                            >
+                                <template v-slot:selection>
+                                    <span class="text-in-file-input">¡Listo!</span>
+                                </template>
+                            </v-file-input>
+                        </article>
                         
                         <article class="basic-information">
-                            <p class="sign-in-label" >¿Ya tienes una cuenta? <router-link class="sign-in-button" to="/">Inicia sesión</router-link> </p>
                             <v-text-field
                                 class="name field"
                                 color="var(--first-color)"
@@ -34,7 +56,7 @@
                                 variant="solo-filled"
                                 required
                             ></v-text-field>
-                            
+
                             <v-text-field
                                 class="phone field"
                                 color="var(--first-color)"
@@ -44,82 +66,73 @@
                                 label="Teléfono"
                                 variant="solo-filled"
                             ></v-text-field>
-        
-                            <v-file-input
-                                class="profile-picture-input field"
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                label="Foto de perfil"
-                                accept="image/*"
-                                :rules="fileSizeRule"
-                                v-model="profilePicture"
-                                show-size
-                                prepend-icon="mdi-camera"
-                                variant="solo-filled"
-                                clearable
-                            />
+
+                            <p class="sign-in-label" >¿Ya tienes una cuenta? <router-link class="sign-in-button" to="/">Inicia sesión</router-link> </p>
 
                         </article>
                     </section>
                     
-                    <v-text-field
-                        class="password field"
-                        color="var(--first-color)"
-                        bg-color="var(--fourth-color)"
-                        v-model="password"
-                        :type="showPassword ? 'text' : 'password'"
-                        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                        @click:append="showPassword = !showPassword"
-                        :rules="passwordRules"
-                        label="Contraseña *"
-                        variant="solo-filled"
-                        required
-                    ></v-text-field>
+                    <section class="password-section">
+                        <v-text-field
+                            class="password field"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            v-model="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            :prepend-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                            @click:prepend="showPassword = !showPassword"
+                            :rules="passwordRules"
+                            label="Contraseña *"
+                            variant="solo-filled"
+                            required
+                        ></v-text-field>
+    
+                        <v-text-field
+                            class="confirm-password field"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            v-model="confirmPassword"
+                            :type="showPassword ? 'text' : 'password'"
+                            :rules="confirmPasswordRules"
+                            label="Confirmar contraseña  *"
+                            variant="solo-filled"
+                            required
+                        ></v-text-field>
+                    </section>
 
-                    <v-text-field
-                        class="confirm-password field"
-                        color="var(--first-color)"
-                        bg-color="var(--fourth-color)"
-                        v-model="confirmPassword"
-                        :type="showPassword ? 'text' : 'password'"
-                        :rules="confirmPasswordRules"
-                        label="Confirmar contraseña  *"
-                        variant="solo-filled"
-                        required
-                    ></v-text-field>
-
-                    <v-autocomplete
-                        class="region field "
-                        color="var(--first-color)"
-                        bg-color="var(--fourth-color)"
-                        v-model="selectedRegion"
-
-                        :items="regions"
-                        item-title="label"
-                        item-value="code"
-                        label="Comunidad Autónoma"
-                        variant="solo-filled"
-                        @update:modelValue="onRegionChange()"
-                        clearable
-                    />
-
-                    <v-autocomplete
-                        class="province field "
-                        color="var(--first-color)"
-                        bg-color="var(--fourth-color)"
-                        v-model="selectedProvince"
-                        :items="filteredProvinces"
-                        item-title="label"
-                        item-value="code"
-                        label="Provincia"
-                        variant="solo-filled"
-                        :disabled="!selectedRegion"
-                        @update:modelValue="onProvinceChange()"
-                        clearable
-                    />
-
+                    <section class="region-province">
+                        <v-autocomplete
+                            class="region field "
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            v-model="selectedRegion"
+    
+                            :items="regions"
+                            item-title="label"
+                            item-value="code"
+                            label="Comunidad Autónoma"
+                            variant="solo-filled"
+                            @update:modelValue="onRegionChange()"
+                            clearable
+                        />
+    
+                        <v-autocomplete
+                            class="province field "
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            v-model="selectedProvince"
+                            :items="filteredProvinces"
+                            item-title="label"
+                            item-value="code"
+                            label="Provincia"
+                            variant="solo-filled"
+                            :disabled="!selectedRegion"
+                            @update:modelValue="onProvinceChange()"
+                            clearable
+                        />
+                    </section>
                     
-                    <section class="footer">
+                    <section class="municipality-arrow">
                         <v-autocomplete
                             class="municipality field"
                             color="var(--first-color)"
@@ -146,10 +159,10 @@ import noImage from '@/assets/no-image.png';
 import regions from '@/json/ccaa.json';
 import provinces from '@/json/provincias.json';
 import municipalities from '@/json/poblaciones.json';
-import { User, UserDetails, UserProfile } from '@/interfaces/user';
+import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
 
     const emit = defineEmits<{
-        (e: 'signIn', user: User, userDetails: UserDetails, userImage: UserProfile): void
+        (e: 'signUp', user: User, userDetails: UserDetails, userImage: UserProfileImage): void
     }>()
 
     const email : Ref<string> = ref('');
@@ -283,21 +296,21 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
             municipality: selectedMunicipality.value,
         }
 
-        const userImage: UserProfile = {
+        const userImage: UserProfileImage = {
             profilePicture: profilePicture.value,
         }
 
-        emit('signIn', user, userDetails, userImage);
-        console.log('Login event emitted with:', user, userDetails, userImage);
+        emit('signUp', user, userDetails, userImage);
     };
 
 </script>
 
 <style scoped lang="css">
-    .SignInComponent {
+    .SignUpComponent {
         display: flex;
         justify-content: center;
-        align-items: center;
+
+        padding-top: 2em;
 
         width: 100%;
         height: auto;
@@ -311,7 +324,7 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
 
         background-color: var(--third-color);
         border: 3px solid var(--first-color);
-        box-shadow: 4px 4px 5px rgba(0, 0, 0, 1);
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
         border-radius: 1em;
         
         display: flex;
@@ -321,7 +334,6 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
 
         gap: 1em;
         padding: 2em 1em 3em 1em;
-        padding-bottom: 3.5em;
         margin: 2em;
 
         width: 55em;
@@ -334,6 +346,13 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
         font-size: 2em;
         font-weight: bold;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+
+        text-align: center;
+
+        border-bottom: 2px solid var(--first-color);
+        border-radius: 0.5em 0.5em 0 0;
+
+        margin-bottom: 1em;
     }
 
     .form {
@@ -343,9 +362,6 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
         justify-content: space-between;
 
         width: 95%;
-
-        margin-top: 1em;
-
     }
 
     .text-fields{
@@ -361,16 +377,27 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
     .upper-right {
         display: grid;
         grid-template-columns: 1fr 1fr;
-
+        gap: 1em;
         width: 100%;
     }
 
+    .image-container{
+        display: flex;
+        justify-self: center;
+        flex-direction: column;
+        gap: 1em;
+
+        width: 14em;
+
+    }
+
     .preview-container{
-        width: 20em;
-        height: 20em;
+        width: 14em;
+        height: 13em;
 
         overflow: visible;
         position: relative;
+
     }
 
     .profile-preview {
@@ -386,6 +413,15 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
     .basic-information{
         display: flex;
         flex-direction: column;
+        width: 100%;
+        height: 1em;
+        gap: 1em;
+    }
+
+    .password-section{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
         width: 100%;
         gap: 1em;
@@ -395,12 +431,19 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
         width: 100%;
     }
 
+    .profile-picture-input{
+        align-self: center;
+        cursor: pointer;
+
+        width: 95%;
+    }
+
     .sign-in-label{
         color: var(--text-color);
         font-size: smaller;
 
         position: relative;
-        bottom: 4px;
+        bottom: 1.5em;
     }
 
     .sign-in-button{
@@ -408,16 +451,21 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
         font-weight: bold;
     }
 
-    .footer{
+    .region-province {
         display: flex;
         align-items: center;
         justify-content: space-between;
 
         width: 100%;
-        height: 1em;
         gap: 1em;
+    }
 
-        margin-top: 2em;
+    .municipality-arrow{
+        display: flex;
+
+        width: 100%;
+        height: 5em;
+        gap: 1em;
     }
 
     .view-details-arrow {
@@ -436,22 +484,42 @@ import { User, UserDetails, UserProfile } from '@/interfaces/user';
     @media (max-width: 885px) {
         .upper-right {
             grid-template-columns: auto;
-            grid-template-rows: auto auto;
-
-            gap: 3em
+            grid-template-rows: auto 300px;
         }
 
         .preview-container{
-            width: 15em;
-            height: 15em;
-
             display: flex;
             align-self: center;
             justify-self: center;
         }
 
-        .sign-in-label{
-            bottom: .8em;
+    }
+
+    @media (max-width: 690px) {
+        .password-section{
+            flex-direction: column;
+        }
+
+        .text-fields{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            width: 95%;
+            gap: 1em;
+        }
+
+        .municipality-arrow{
+            height: auto;
+        }
+
+        .municipality-arrow, .region-province {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 1em;
         }
 
     }

@@ -3,8 +3,9 @@ export interface User {
     password: string;
 }
 
-export interface UserProfile {
+export interface UserProfileImage {
     profilePicture: File | undefined;
+    profilePictureURL?: string;
 }
 
 export interface UserDetails {
@@ -13,4 +14,5 @@ export interface UserDetails {
     region?: string;
     province?: string;
     municipality?: string;
+    profilePictureURL?: string;
 }

@@ -6,7 +6,7 @@
                 <v-icon class="close" @click="toggleSidebar()" size="38">mdi-close-thick</v-icon>
                 <section class="user-content">
                     <img class="user-icon" src="@/assets/imagen_de_perfil.png" alt="user-icon" />
-                    <v-dialog max-width="500" max-height="600" scroll-strategy="close">
+                    <v-dialog v-model="dialogVisible" max-width="450" max-height="600" scroll-strategy="close">
                         <template v-slot:activator="{ props: activatorProps }">
                             <button 
                                 v-bind="activatorProps" 
@@ -17,7 +17,7 @@
                         </template>
 
                         <template v-slot>
-                            <LogInContainer></LogInContainer>
+                            <LogInContainer @logged-in="loggedIn"></LogInContainer>
                         </template>
                     </v-dialog>
                 </section>
@@ -48,10 +48,12 @@ import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
 import LogInContainer from '@/containers/LogInContainer.vue';
 
     var isClosed : Ref<boolean> = ref(false);   
+    const dialogVisible = ref(false);
     const windowWidth = ref(window.innerWidth);
 
     const emit = defineEmits<{
         (e: 'toggle-sidebar', closed: boolean): void
+        (e: 'loggedIn', error?: string): void
     }>()
 
     const isTablet = computed(() => windowWidth.value < 1220);
@@ -83,6 +85,11 @@ import LogInContainer from '@/containers/LogInContainer.vue';
     function toggleSidebar() : void {
         isClosed.value = !isClosed.value;
         emit('toggle-sidebar', isClosed.value)
+    }
+
+    function loggedIn(error: string | undefined) : void {
+        emit('loggedIn', error);
+        dialogVisible.value = false;
     }
     
 </script>

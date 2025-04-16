@@ -2,8 +2,9 @@
   <main class='main'>
     <LoadingOverlay :loading></LoadingOverlay>
 
-    <SidebarContainer @toggle-sidebar="toggleSidebar" v-if="showSidebar" msg="Mi nombre"></SidebarContainer>
+    <SidebarContainer @show-success="useStatusBarText" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar" msg="Mi nombre"></SidebarContainer>
     <router-view class="main-content" :class="sidebarOptions()"/>
+    <StatusBar v-if="statusBarError || statusBartext" :msg="statusBartext" :error="statusBarError"></StatusBar>
 
   </main>
 </template>
@@ -11,14 +12,20 @@
 <script setup lang="ts">
 import SidebarContainer from '@/containers/SidebarContainer.vue';
 import LoadingOverlay from './components/LoadingOverlay.vue';
+import StatusBar from './components/StatusBar.vue';
 import { useRoute } from 'vue-router';
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import router from './router';
+import { UserDetails } from './interfaces/user';
 
   const loading : Ref<boolean> = ref(false)
-  const loadingRoutes : RegExp = /^\/item(\/.*)?$/
+  const itemDetailsRoute : RegExp = /^\/item(\/.*)?$/
 
   const route = useRoute();
+
+  const statusBarError : Ref<string> = ref('');
+  const statusBartext : Ref<string> = ref('');
 
   const showSidebar = computed(() => route.meta.hasSidebar !== false);
   var isClosed : Ref<boolean> = ref(false);
@@ -30,8 +37,22 @@ import router from './router';
       windowWidth.value = window.innerWidth;
   };
 
+  const authStore = useAuthStore();
+  async function restartUser() : Promise<void> {
+    await authStore.init();
+  }
+
   onMounted(() => {
-      window.addEventListener('resize', updateWindowWidth);
+    restartUser();
+    window.addEventListener('resize', updateWindowWidth);
+    watch(
+      () => authStore.userProfile,
+      (profile) => {
+        if (profile) {
+          console.log('Perfil cargado:', profile);
+        }
+      }
+    );
   });
 
   onBeforeUnmount(() => {
@@ -55,8 +76,26 @@ import router from './router';
     : 'main-content'
   }
 
+  function useStatusBarText(text: string) : void {
+    statusBartext.value = text; 
+    startTimeOfStatusBar();
+  }
+
+  function useStatusBarError(error: string) : void {
+    statusBarError.value = error;
+    startTimeOfStatusBar();
+  }
+
+  function startTimeOfStatusBar() : void {
+    setTimeout(() => {
+      statusBarError.value = '';
+      statusBartext.value = '';
+    }, 5500); 
+  
+  }
+
   router.beforeEach((to, from, next) => {
-    const showLoader = loadingRoutes.test(to.path)
+    const showLoader = itemDetailsRoute.test(to.path) || to.path === '/';
     loading.value = showLoader
     next()
   })
@@ -71,19 +110,19 @@ import router from './router';
 
 <style>
 
-.main {
-  display: grid;
-  grid-template-columns: 17.05em 1fr;
-  
-}
+  .main {
+    display: grid;
+    grid-template-columns: 17.05em 1fr;
+    
+  }
 
-.main-content {
-  grid-column: 2;
-}
+  .main-content {
+    grid-column: 2;
+  }
 
-.main-content-without-sidebar {
-  grid-column-start: 1;
-  grid-column-end: 3;
-}
+  .main-content-without-sidebar {
+    grid-column-start: 1;
+    grid-column-end: 3;
+  }
 
 </style>
