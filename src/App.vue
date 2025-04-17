@@ -1,9 +1,9 @@
 <template>
   <main class='main'>
-    <LoadingOverlay :loading></LoadingOverlay>
+    <LoadingOverlay v-if="loading" v-model:loading="loading" ></LoadingOverlay>
 
-    <SidebarContainer @show-success="useStatusBarText" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar" msg="Mi nombre"></SidebarContainer>
-    <router-view class="main-content" :class="sidebarOptions()"/>
+    <SidebarContainer @show-success="useStatusBarMessage" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar"></SidebarContainer>
+    <router-view @show-success="useStatusBarMessage"  @show-error="useStatusBarError" class="main-content" :class="sidebarOptions()"/>
     <StatusBar v-if="statusBarError || statusBartext" :msg="statusBartext" :error="statusBarError"></StatusBar>
 
   </main>
@@ -13,16 +13,14 @@
 import SidebarContainer from '@/containers/SidebarContainer.vue';
 import LoadingOverlay from './components/LoadingOverlay.vue';
 import StatusBar from './components/StatusBar.vue';
-import { useRoute } from 'vue-router';
-import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref, Ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import router from './router';
-import { UserDetails } from './interfaces/user';
 
   const loading : Ref<boolean> = ref(false)
-  const itemDetailsRoute : RegExp = /^\/item(\/.*)?$/
 
   const route = useRoute();
+  const router = useRouter();
 
   const statusBarError : Ref<string> = ref('');
   const statusBartext : Ref<string> = ref('');
@@ -38,33 +36,16 @@ import { UserDetails } from './interfaces/user';
   };
 
   const authStore = useAuthStore();
+
   async function restartUser() : Promise<void> {
     await authStore.init();
   }
-
+  
   onMounted(() => {
     restartUser();
     window.addEventListener('resize', updateWindowWidth);
-    watch(
-      () => authStore.userProfile,
-      (profile) => {
-        if (profile) {
-          console.log('Perfil cargado:', profile);
-        }
-      }
-    );
-  });
 
-  onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateWindowWidth);
   });
-
-  watch(
-    () => route.fullPath,
-    () => {
-      isClosed.value = false;
-    }
-  )
 
   function toggleSidebar(closed: boolean): void {
     isClosed.value = closed;
@@ -76,8 +57,8 @@ import { UserDetails } from './interfaces/user';
     : 'main-content'
   }
 
-  function useStatusBarText(text: string) : void {
-    statusBartext.value = text; 
+  function useStatusBarMessage(message: string) : void {
+    statusBartext.value = message; 
     startTimeOfStatusBar();
   }
 
@@ -93,17 +74,15 @@ import { UserDetails } from './interfaces/user';
     }, 5500); 
   
   }
-
+  
+  const loaderRoutes = ['/', '/profile'];
   router.beforeEach((to, from, next) => {
-    const showLoader = itemDetailsRoute.test(to.path) || to.path === '/';
-    loading.value = showLoader
-    next()
-  })
+    isClosed.value = false;
 
-  router.afterEach(() => {
-    setTimeout(() => {
-      loading.value = false
-    }, 300)
+    const showLoader = loaderRoutes.includes(to.path);
+    loading.value = showLoader
+
+    next()
   })
 
 </script>

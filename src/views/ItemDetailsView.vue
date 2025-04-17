@@ -1,13 +1,13 @@
 <template>
-    <main class="LostItemDetailsView">
-        <LostItemDetailsContainer 
+    <main class="ItemDetailsView">
+        <ItemDetailsContainer 
             :id
         />
     </main>
 </template>
 
 <script setup lang="ts">
-import LostItemDetailsContainer from '@/containers/LostItemDetailsContainer.vue';
+import ItemDetailsContainer from '@/containers/ItemDetailsContainer.vue';
 
     const props = defineProps<{
         id: string

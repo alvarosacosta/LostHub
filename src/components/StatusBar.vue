@@ -22,10 +22,6 @@
     .StatusBar {
         box-shadow: 0 2px 5px rgba(0, 0, 0, .8);
 
-        border-right: 1px solid var(--first-color); 
-        border-left: 1px solid var(--first-color);
-        border-bottom: 1px solid var(--first-color);
-
         display: flex;
         align-items: center;
         justify-content: center;

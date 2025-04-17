@@ -1,16 +1,21 @@
 <template>
     <main class="SidebarContainer">
-        <SidebarComponent @logged-in="loggedIn" @toggle-sidebar="toggleSidebar"></SidebarComponent>
+        <SidebarComponent :userProfile  @logged-in="loggedIn" @toggle-sidebar="toggleSidebar"></SidebarComponent>
     </main>
 </template>
   
 <script setup lang="ts">
 import SidebarComponent from '@/components/SidebarComponent.vue';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+
+    const authStore = useAuthStore();
+    const { userProfile } = storeToRefs(authStore); 
 
     const emit = defineEmits<{
         (e: 'toggle-sidebar', closed: boolean): void
+        (e: 'showSuccess', message: string): void
         (e: 'showError', error: string): void
-        (e: 'showSuccess', text: string): void
     }>()
 
     function toggleSidebar(closed : boolean) : void {

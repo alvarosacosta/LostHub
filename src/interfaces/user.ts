@@ -5,11 +5,11 @@ export interface User {
 
 export interface UserProfileImage {
     profilePicture: File | undefined;
-    profilePictureURL?: string;
 }
 
 export interface UserDetails {
     username: string;
+    email: string;
     phone?: string;
     region?: string;
     province?: string;

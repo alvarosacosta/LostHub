@@ -1,13 +1,13 @@
 <template>
-    <main class="LostItemDetailsContainer">
-        <LostItemDetailsComponent 
+    <main class="ItemDetailsContainer">
+        <ItemDetailsComponent 
             :item
         />
     </main>
 </template>
   
 <script setup lang="ts">
-import LostItemDetailsComponent from '@/components/LostItemDetailsComponent.vue';
+import ItemDetailsComponent from '@/components/ItemDetailsComponent.vue';
 import LostItems from '@/json/LostItems.json';
 import { LostItem } from '@/interfaces/items';
 import { onBeforeMount, ref, Ref } from 'vue';

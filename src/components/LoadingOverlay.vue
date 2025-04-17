@@ -1,13 +1,29 @@
 <template>
-    <div v-if="loading" class="loader-overlay">
+    <div class="loader-overlay">
       <v-progress-circular indeterminate size="64" color="var(--first-color)" />
     </div>
 </template>
   
 <script setup lang="ts">
+import { onMounted } from 'vue';
+
+    const emit = defineEmits<{
+        (e: 'update:loading', value: boolean): void
+    }>()
+
     defineProps<{ 
         loading: boolean 
     }>()
+
+    onMounted(() => {
+        setTimeout(() => {
+            closeOverlay()
+        }, 600)
+    })
+
+    function closeOverlay() {
+        emit('update:loading', false)
+    }
 
 </script>
 

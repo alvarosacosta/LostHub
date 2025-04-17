@@ -196,22 +196,12 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
             if (value) return true
             return 'La contraseña es obligatoria.'
         },
-
-        (value: string) => {
-            if (value?.length >= 10) return true
-            return 'La contraseña debe tener al menos 10 carácteres.'
-        },
     ]
 
     const confirmPasswordRules = [
         (value: string) => {
             if (value) return true
             return 'La contraseña es obligatoria.'
-        },
-
-        (value: string) => {
-            if (value?.length >= 10) return true
-            return 'La contraseña debe tener al menos 10 carácteres.'
         },
 
         (value: string) => {
@@ -290,10 +280,11 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
 
         const userDetails: UserDetails = {
             username: username.value,
+            email: email.value,
             phone: phone.value,
             region: selectedRegionLabel,
             province: selectedProvinceLabel,
-            municipality: selectedMunicipality.value,
+            municipality: selectedMunicipality.value ?? '',
         }
 
         const userImage: UserProfileImage = {

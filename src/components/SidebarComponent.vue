@@ -4,7 +4,8 @@
         <article class="main-content">
             <section class="user-section">
                 <v-icon class="close" @click="toggleSidebar()" size="38">mdi-close-thick</v-icon>
-                <section class="user-content">
+
+                <section v-if="!userProfile" class="user-content">
                     <img class="user-icon" src="@/assets/imagen_de_perfil.png" alt="user-icon" />
                     <v-dialog v-model="dialogVisible" max-width="450" max-height="600" scroll-strategy="close">
                         <template v-slot:activator="{ props: activatorProps }">
@@ -21,23 +22,28 @@
                         </template>
                     </v-dialog>
                 </section>
+
+                <section v-else class="user-content">
+                        <img class="logged-user-icon" :src="userProfile.profilePictureURL" alt="logged-user-icon" />
+                        <p class="user-name">{{ userProfile.username }}</p>
+                </section>
             </section>
 
             <section class="navigation">
-                <router-link class="navigation-button" to="/profile">Perfil de usuario</router-link>
+                <router-link v-if="userProfile" class="navigation-button" to="/profile">Perfil de usuario</router-link>
                 <router-link class="navigation-button" to="/">Objetos perdidos</router-link>
-                <router-link class="navigation-button" to="/notifications">Notificaciones</router-link>
+                <router-link v-if="userProfile" class="navigation-button" to="/">Notificaciones</router-link>
                 <router-link class="navigation-button" to="/about-us">Quiénes somos</router-link>
             </section>
         </article>
 
         <section class="secondary-content">
             <a class='github-ref' href="https://github.com/alvarosacosta">
-                <img class="github-icon" src="@/assets/github.png" alt="github-icon"/>
+                <v-icon class="github-icon" size="50" color="var(--first-accent-color)">mdi-github</v-icon>
             </a>
 
-            <router-link class="publish-button" to="/new-post">
-                <img class="new-post-icon" src="@/assets/pluma-publicación.png" alt="new-post-icon" />
+            <router-link class="publish-button" to="/">
+                <v-icon class="new-post-icon" size="40" color="var(--fourth-color)">mdi-feather</v-icon>
             </router-link>
         </section>
     </main>
@@ -46,10 +52,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
 import LogInContainer from '@/containers/LogInContainer.vue';
+import { UserDetails } from '@/interfaces/user';
 
     var isClosed : Ref<boolean> = ref(false);   
     const dialogVisible = ref(false);
     const windowWidth = ref(window.innerWidth);
+
+    const props = defineProps<{
+        userProfile : UserDetails | null
+    }>()
 
     const emit = defineEmits<{
         (e: 'toggle-sidebar', closed: boolean): void
@@ -147,7 +158,7 @@ import LogInContainer from '@/containers/LogInContainer.vue';
     .user-section {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        gap: 1em;
         padding: .7em;
         padding-right: .9em;
 
@@ -169,7 +180,9 @@ import LogInContainer from '@/containers/LogInContainer.vue';
     .user-content {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 9px;
+
+        width: 75%;
 
         background-color: var(--first-color);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -235,10 +248,19 @@ import LogInContainer from '@/containers/LogInContainer.vue';
     }
 
     .github-icon {
-        width: 50px;
+        filter: drop-shadow(1px 1px 2.5px rgba(0, 0, 0, .7));
+
+        position: relative;
+        bottom: 7px;
+    }
+
+    .new-post-icon {
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 1));
+        text-decoration: none;
     }
 
     .publish-button {
+        text-decoration: none;
         background-color: var(--first-accent-color);
         border-radius: 10em;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -260,8 +282,22 @@ import LogInContainer from '@/containers/LogInContainer.vue';
         background-color: var(--second-accent-color);
     }
 
-    .new-post-icon {
-        width: 35px;
+    .logged-user-icon{
+        width: 2em;
+        height: 2em;
+        border-radius: 5em;
+        border: 2px solid var(--fourth-color);
+        object-fit:cover;
+    }
+
+    .user-name {
+        font-size: 1em;
+        color: var(--text-color);
+        text-align: center;
+        font-weight: 600;
+
+        position: relative;
+        top: 2px;
     }
 
 </style>

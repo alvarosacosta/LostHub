@@ -7,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const user = ref<any>(null);
   const userProfile = ref<UserDetails | null>(null);
-  const loading = ref<boolean>(false);
+  const userLoading = ref<boolean>(false);
 
   const init = async () =>{
     const { data: { session } } = await supabase.auth.getSession(); 
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const fetchCurrentUserProfile = async () => {
-    loading.value = true;
+    userLoading.value = true;
 
     try {
       const userID = user.value.id;
@@ -40,6 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (data) {
         userProfile.value = {
           username: data.Username,
+          email: data.Email,
           phone: data.Phone,
           region: data.Region,
           province: data.Province,
@@ -52,12 +53,12 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Error fetching user profile:', err.message);
 
     } finally {
-      loading.value = false;
+      userLoading.value = false;
     }
   };
 
   const logIn = async (email: string, password: string) => {
-    loading.value = true;
+    userLoading.value = true;
     
     try {
       const { data: logInData, error: logInError } = await supabase.auth.signInWithPassword({
@@ -69,15 +70,16 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = logInData.user;
 
     } catch (err: any) {
-      console.error('Error during sign up:', err.message);
+      const error = 'Error during log in: ' + err.message;
+      throw error;
 
     } finally {
-      loading.value = false;
+      userLoading.value = false;
     }
   };
 
   const logOut = async () => {
-    loading.value = true;
+    userLoading.value = true;
 
     try {
       await supabase.auth.signOut();
@@ -87,12 +89,12 @@ export const useAuthStore = defineStore('auth', () => {
       throw err;
 
     } finally {
-      loading.value = false;
+      userLoading.value = false;
     }
   };
 
   const signUp = async ( user: User, userDetails: UserDetails, userProfileImage: UserProfileImage) => {
-    loading.value = true;
+    userLoading.value = true;
     var filePath = `user-profiles-images/no-image.png`;
   
     try {
@@ -141,18 +143,24 @@ export const useAuthStore = defineStore('auth', () => {
       if (profileError) throw profileError;
 
     } catch (err: any) {
-      console.error('Error during sign up:', err.message);
+      const error = 'Error during sign up: ' + err.message;
+      throw error;
   
     } finally {
-      loading.value = false;
+      userLoading.value = false;
     }
   };
+
+  const updateUserInfo = async ( userUpdatedInfo : UserDetails) => {
+    console.log("Updating...")
+  }
 
 
   return {
     user,
     userProfile,
-    loading,
+    userLoading,
+    updateUserInfo,
     init,
     fetchCurrentUserProfile,
     logIn,

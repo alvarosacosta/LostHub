@@ -1,5 +1,5 @@
 <template>
-    <main class="LostItemDetailsComponent">
+    <main class="ItemDetailsComponent">
         <span class="type">{{"OBJETO " + item?.type }}</span>
         <button class='back-button' @click="$router.back()"> Volver </button>
         <article class="item">
@@ -50,7 +50,7 @@
                     <figure class="profile-image-container">
                         <img class="profile-image" src="@\assets\mock-profile.png" alt="profile-image">
                     </figure>
-                    <button class="profile-button">Perfil de usuario</button>
+                    <router-link class="profile-button" to="/profile">Perfil de usuario</router-link>
                 </section>
                 
                 <section class="secondary-info">
@@ -154,7 +154,7 @@ import { Ref, ref } from 'vue';
 </script>
 
 <style scoped lang="css">
-    .LostItemDetailsComponent {
+    .ItemDetailsComponent {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -698,30 +698,24 @@ import { Ref, ref } from 'vue';
 
             height: auto;
             width: 344px;
-            gap: 1.5em;
+            gap: 3.2em;
+
+            flex-direction: column;
 
             padding: 2em 0 2em 0;
         }
 
-        .profile {
-            padding-left: 0;
+        .profile-image-container{
+            display: none;
         }
 
         .secondary-info {
-            gap: 0em;
+            height: 100%;
 
-            display: flex;
-            align-items: center;
-
-            position: relative;
-            top: 3em;
         }
 
         .rating-label {
-            font-size: medium;
-            position: relative;
-            top: -3.5em;
-            right: .4em;
+            display: none;
 
         }
 
@@ -730,12 +724,9 @@ import { Ref, ref } from 'vue';
             align-items: center;
             justify-content: center;
 
-            gap: .8em;
+            gap: 2em;
 
-            position: relative;
-            bottom: 4em;
-
-            width: 10em;
+            width: 18.5em;
 
         }
 
@@ -743,17 +734,23 @@ import { Ref, ref } from 'vue';
             font-weight: bold;
             font-size: small;
 
-            right: .5em;
         }
 
         .notification-button {
-            font-weight: normal;
             font-size: medium;
 
-            height: auto;
-            width: 8em;
+            height: 5em;
 
-            bottom: 2em;
+            width: 15em;
+        }
+
+        .profile-button {
+            width: 15em;
+
+            position: relative;
+            right: .7em;
+
+            font-size: medium;
         }
 
     }

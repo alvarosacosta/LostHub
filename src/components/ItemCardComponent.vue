@@ -1,5 +1,5 @@
 <template>
-    <main class="LostItemCardComponent">
+    <main class="ItemCardComponent">
         <article class="item-card">
             <v-window v-if="item.files !== undefined" class="carousel" show-arrows>
                 <template v-slot:prev="{ props }">
@@ -68,7 +68,7 @@ import { LostItem } from '@/interfaces/items';
 
 <style scoped lang="css">
 
-    .LostItemCardComponent {
+    .ItemCardComponent {
         border: 3px solid var(--first-color);
         border-radius: .7em;
 
