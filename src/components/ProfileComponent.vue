@@ -1,10 +1,11 @@
 <template>
     <main class="ProfileComponent">
-        <article v-if="editableProfile" class="profile-card">
+        <v-form ref="formRef" v-if="editableProfile" @submit.prevent="onSubmit" class="profile-card" v-slot="{ isValid }">
             <section class="picture-file">
                 <figure class="profile-picture-container">
                     <img class="profile-picture" :src="editableProfile.profilePictureURL" alt="">
                 </figure>
+                <button type="button" class="log-out-button" @click="logOut()">Cerrar Sesión</button>
             </section>
 
             <section class="username">
@@ -16,7 +17,9 @@
                     bg-color="var(--fourth-color)"
                     variant="solo-filled"
                     density="comfortable"
+                    :rules="usernameRules"
                     :disabled="!isEditable"
+                    required
                 ></v-text-field>
             </section>
 
@@ -30,7 +33,9 @@
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
                         density="comfortable"
-                        :disabled="!isEditable"
+                        :rules="emailRules"
+                        disabled
+                        required
                     ></v-text-field>
                 </section>
 
@@ -43,65 +48,83 @@
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
                         density="comfortable"
+                        :rules="phoneRules"
                         :disabled="!isEditable"
                     ></v-text-field>
                 </section>
             </section>
 
             <section class="region-province">
-                <section v-if="editableProfile.region" class="region">
+                <section v-if="isEditable || editableProfile.region" class="region">
                     <label class="label">Comunidad</label>
-                    <v-text-field 
+                    <v-autocomplete  
                         class="field"
-                        v-model=editableProfile.region
+                        v-model=selectedRegion
                         color="var(--first-color)"
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
                         density="comfortable"
+                        item-title="label"
+                        item-value="code"
+                        :items="regions"
+                        @update:modelValue="onRegionChange()"
                         :disabled="!isEditable"
-                    ></v-text-field>
+                    ></v-autocomplete>
                 </section>
 
-                <section v-if="editableProfile.province" class="province">
+                <section v-if="isEditable || editableProfile.province" class="province">
                     <label class="label">Provincia</label>
-                    <v-text-field 
+                    <v-autocomplete  
                         class="field"
-                        v-model=editableProfile.province
+                        v-model=selectedProvince
                         color="var(--first-color)"
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
                         density="comfortable"
-                        :disabled="!isEditable"
-                    ></v-text-field>
+                        item-title="label"
+                        item-value="code"
+                        :items="filteredProvinces"
+                        @update:modelValue="onProvinceChange()"
+                        :disabled="!isEditable || !selectedRegion"
+                    ></v-autocomplete>
                 </section>
             </section>
 
-            <section class="municipality-province">
-                <section v-if="editableProfile.municipality" class="municipality">
+            <section class="municipality-update-button">
+                <section v-if="isEditable || editableProfile.municipality" class="municipality">
                     <label class="label">Población</label>
-                    <v-text-field 
+                    <v-autocomplete 
                         class="field"
-                        v-model=editableProfile.municipality
+                        v-model=selectedMunicipality
                         color="var(--first-color)"
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
                         density="comfortable"
-                        :disabled="!isEditable"
-                    ></v-text-field>
+                        item-title="label"
+                        :items="filteredMunicipalities"
+                        :disabled="!isEditable || !selectedProvince"
+                    ></v-autocomplete>
                 </section>
-                <button class="update-button" @click="toggleEditable">{{ isEditable ? 'Guardar' : 'Actualizar perfil' }}</button>
+                <button type="submit" class="update-button">{{ isEditable ? 'Guardar' : 'Actualizar perfil' }}</button>
             </section>
-        </article>
+        </v-form>
     </main>
 </template>
 
 <script setup lang="ts">
 import { UserDetails } from '@/interfaces/user';
-import { Ref, ref, watch } from 'vue';
+import { computed, Ref, ref, watch } from 'vue';
+import regions from '@/json/ccaa.json';
+import provinces from '@/json/provincias.json';
+import municipalities from '@/json/poblaciones.json';
+import isEqual from 'lodash/isEqual';
 
     const emit = defineEmits<{
         (e: 'updateUserInfo', userUpdatedInfo: UserDetails): void;
-        (e: 'restartSuccess', success: boolean): void;
+        (e: 'update:success', success: boolean): void;
+        (e: 'failure', error: string): void;
+        (e: 'logOut'): void;
+
     }>()
 
     const props = defineProps<{
@@ -110,38 +133,134 @@ import { Ref, ref, watch } from 'vue';
     }>();
 
     var editableProfile : Ref<UserDetails | null> = ref(null)
+    const selectedRegion = ref<string | undefined>(undefined)
+    const selectedProvince = ref<string | undefined>(undefined)
+    const selectedMunicipality = ref<string | undefined>(undefined)
 
     watch(
         () => props.userProfile,
         (newVal) => {
             if (newVal) {
                 editableProfile.value = { ...newVal }
+                selectedRegion.value = newVal.region
+                selectedProvince.value = newVal.province
+                selectedMunicipality.value = newVal.municipality
             }
         },
         { immediate: true }
     )
+
+    const usernameRules = [
+        (value: string) => {
+            if (value) return true
+            return 'El nombre es obligatorio.'
+        },
+
+        (value: string) => {
+            if (value?.length <= 10) return true
+            return 'El nombre debe de tener menos de 10 carácteres.'
+        },
+    ]
+
+    const emailRules = [
+        (value: string) => {
+            if (value) return true
+            return 'El email es obligatorio.'
+        },
+
+        (value: string) => {
+            if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+                return 'Debe ser un email válido.';
+            }
+                return true;
+        },
+    ]
+    
+    const phoneRules = [
+        (value: string) => {
+            if (!value) return true
+            if (!/^(?:\+34)?[6-9]\d{8}$/.test(value)) {
+                return 'Debe ser un teléfono válido.';
+            }
+                return true;
+        },
+    ]
+
+    const filteredProvinces = computed(() =>
+        provinces.filter(p => p.parent_code === selectedRegion.value)
+    )
+
+    const filteredMunicipalities = computed(() =>
+        municipalities.filter(m => m.parent_code === selectedProvince.value)
+    )
+
+    function onRegionChange() : void {
+        selectedProvince.value = undefined
+        selectedMunicipality.value = undefined
+    }
+
+    function onProvinceChange() : void {
+        selectedMunicipality.value = undefined
+    }
+
+    const isEditable : Ref<boolean> = ref(false)
+    
+    const formRef = ref()
+    async function onSubmit() : Promise<void> {
+        
+        if (isEditable.value){
+            const { valid } = await formRef.value.validate()
+            if (!valid) {
+                emit('failure', 'Actualización fallida. Asegúrate de que los datos sean válidos.');
+                return;
+            }
+
+            if (editableProfile.value && props.userProfile) {
+                const selectedRegionLabel = regions.find(r => r.code === selectedRegion.value)?.label || ''
+                const selectedProvinceLabel = provinces.find(p => p.code === selectedProvince.value)?.label || ''
+
+                if (selectedRegionLabel) {
+                    editableProfile.value = {
+                        ...editableProfile.value,
+                        region: selectedRegionLabel,
+                        province: selectedProvinceLabel,
+                        municipality: selectedMunicipality.value ?? '',
+                    }
+                }
+                
+                if(!isEqual(props.userProfile, editableProfile.value)){
+
+                    emit('updateUserInfo', editableProfile.value)
+
+                } else {
+                    toggleEditable()
+                }
+            }
+
+        } else {
+            toggleEditable()
+        }
+        
+    }
+
+    function logOut() : void {
+        emit("logOut")
+    }
+
+    function toggleEditable() : void {
+        isEditable.value = !isEditable.value
+    }
 
     watch(
         () => props.success,
         (newVal) => {
             if (newVal) {
                 isEditable.value = false
-                emit('restartSuccess', false)
+                emit('update:success', false)
             }
         },
         { immediate: true }
     )
-
-    const isEditable = ref(false)
-
-    function toggleEditable() : void {
-        if (isEditable.value && editableProfile.value) {
-            emit('updateUserInfo', editableProfile.value)
-            
-        } else if (!isEditable.value){
-            isEditable.value = true
-        }
-    }
 
 </script>
 
@@ -180,13 +299,14 @@ import { Ref, ref, watch } from 'vue';
     .picture-file{
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-evenly;
         width: 100%;
         margin-bottom: 1em;
 
         background-color: var(--second-color);
         box-shadow: 0px 2px 5px rgba(0, 0, 0, 1);
         border-radius: 1em 1em 0 0;
+
     }
 
     .profile-picture-container {
@@ -221,7 +341,7 @@ import { Ref, ref, watch } from 'vue';
         width: 100%;
     }
 
-    .email-phone, .region-province, .municipality-province {
+    .email-phone, .region-province, .municipality-update-button {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -237,7 +357,7 @@ import { Ref, ref, watch } from 'vue';
         word-break: break-word; 
     }
 
-    .update-button {
+    .update-button, .log-out-button {
         text-decoration: none;
         background-color: var(--first-accent-color);
         color: inherit;
@@ -253,7 +373,11 @@ import { Ref, ref, watch } from 'vue';
         height: 3em;
     }
 
-    .update-button:hover {
+    .log-out-button {
+        width: 10em;
+    }
+
+    .update-button:hover, .log-out-button:hover {
         background-color: var(--second-accent-color);
     }
 
@@ -266,7 +390,6 @@ import { Ref, ref, watch } from 'vue';
             width: 60%;
 
         }
-
     }
 
     @media (max-width: 660px){
@@ -275,7 +398,7 @@ import { Ref, ref, watch } from 'vue';
 
         }
 
-        .email-phone, .region-province, .municipality-province {
+        .email-phone, .region-province, .municipality-update-button {
             flex-direction: column;
             gap: 0em
         }
@@ -283,6 +406,16 @@ import { Ref, ref, watch } from 'vue';
         .update-button{
             width: 10em;
         }
+
+        .update-button{
+            margin-top: 1em;
+        }
+
+        .picture-file{
+            flex-direction: column;
+            padding-bottom: 1em;
+        }
+
     }
 
 </style>

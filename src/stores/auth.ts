@@ -7,37 +7,56 @@ export const useAuthStore = defineStore('auth', () => {
 
   const user = ref<any>(null);
   const userProfile = ref<UserDetails | null>(null);
-  const userLoading = ref<boolean>(false);
+  const isFetchingProfile = ref<boolean>(false);
 
   const init = async () =>{
     const { data: { session } } = await supabase.auth.getSession(); 
     if (session) user.value = session.user; 
+
     supabase.auth.onAuthStateChange((event, session) => {
       user.value = session?.user || null;
       if (user.value) {
-        setTimeout(() => {
           fetchCurrentUserProfile();
-        }, 250);
       }
     });
   }
 
   const fetchCurrentUserProfile = async () => {
-    userLoading.value = true;
+    if (isFetchingProfile.value) return;
+    isFetchingProfile.value = true;
 
     try {
       const userID = user.value.id;
       if (!userID) throw new Error('Could not get user ID.');
       
-      const { data, error } = await supabase
-        .from('user_details')
-        .select('*')
-        .eq('id', userID)
-        .single(); 
+      var data = null;
+      var error = null;
+
+      var retries = 0;
+      const maxRetries = 5
+      const interval = 400
+
+      while (retries < maxRetries) {
+        const result = await supabase
+          .from('user_details')
+          .select('*')
+          .eq('id', userID)
+          .single();
+
+        data = result.data;
+        error = result.error;
+
+        if (data && !error) {
+          break;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, interval));
+        retries++;
+      }
 
       if (error) throw error;
       
-      if (data) {
+      if (data){
         userProfile.value = {
           username: data.Username,
           email: data.Email,
@@ -53,13 +72,11 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Error fetching user profile:', err.message);
 
     } finally {
-      userLoading.value = false;
+      isFetchingProfile.value = false;
     }
   };
 
   const logIn = async (email: string, password: string) => {
-    userLoading.value = true;
-    
     try {
       const { data: logInData, error: logInError } = await supabase.auth.signInWithPassword({
         email,
@@ -73,28 +90,22 @@ export const useAuthStore = defineStore('auth', () => {
       const error = 'Error during log in: ' + err.message;
       throw error;
 
-    } finally {
-      userLoading.value = false;
     }
   };
 
   const logOut = async () => {
-    userLoading.value = true;
-
     try {
       await supabase.auth.signOut();
       user.value = null;
+      userProfile.value = null;
 
     } catch (err: any) {
       throw err;
 
-    } finally {
-      userLoading.value = false;
     }
   };
 
   const signUp = async ( user: User, userDetails: UserDetails, userProfileImage: UserProfileImage) => {
-    userLoading.value = true;
     var filePath = `user-profiles-images/no-image.png`;
   
     try {
@@ -139,32 +150,55 @@ export const useAuthStore = defineStore('auth', () => {
             Municipality: userDetails.municipality,
           },
         ]);
-  
       if (profileError) throw profileError;
 
     } catch (err: any) {
       const error = 'Error during sign up: ' + err.message;
       throw error;
   
-    } finally {
-      userLoading.value = false;
     }
   };
 
-  const updateUserInfo = async ( userUpdatedInfo : UserDetails) => {
-    console.log("Updating...")
+  const updateUserInfo = async (userUpdatedInfo : UserDetails) => {
+    try {
+      const userID = user.value.id;
+      if (!userID) throw new Error('Could not get user ID.');
+
+      // Al cambiar el email, se hacen comprobaciones que no se hacen al hacer el log-in, por lo que emails
+      // que antes eran válidos, ahora pueden no serlo.
+      
+      // const { error : updateUserError } = await supabase.auth.updateUser({
+      //   email: userUpdatedInfo.email,
+      // })
+      // if (updateUserError) throw updateUserError;
+
+      const { error : updateProfileError } = await supabase
+        .from('user_details')
+        .update({
+          id: userID,
+          Email: userUpdatedInfo.email,
+          Phone: userUpdatedInfo.phone,
+          Region: userUpdatedInfo.region,
+          Province: userUpdatedInfo.province,
+          Municipality: userUpdatedInfo.municipality
+        })
+        .eq('id', userID)
+        
+      if (updateProfileError) throw updateProfileError;
+  
+    } catch (err: any) {
+      console.error('Error updating the user:', err)
+    }
   }
 
 
   return {
     user,
     userProfile,
-    userLoading,
-    updateUserInfo,
     init,
-    fetchCurrentUserProfile,
     logIn,
+    signUp,
     logOut,
-    signUp
+    updateUserInfo,
   };
 });

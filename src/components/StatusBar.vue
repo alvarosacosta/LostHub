@@ -10,12 +10,28 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
+    const emit = defineEmits<{
+        (e: 'update:msg', msg: string): void
+        (e: 'update:error', msg: string): void
+    }>()
 
     defineProps<{
         msg: string,
         error: string
     }>()
 
+    onMounted(() => {
+        setTimeout(() => {
+            closeStatusBar()
+        }, 5500); 
+    });
+
+    function closeStatusBar() : void {
+        emit('update:msg', '')
+        emit('update:error', '')
+    }
+  
 </script>
 
 <style lang="css" scoped>

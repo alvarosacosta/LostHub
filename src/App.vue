@@ -4,7 +4,7 @@
 
     <SidebarContainer @show-success="useStatusBarMessage" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar"></SidebarContainer>
     <router-view @show-success="useStatusBarMessage"  @show-error="useStatusBarError" class="main-content" :class="sidebarOptions()"/>
-    <StatusBar v-if="statusBarError || statusBartext" :msg="statusBartext" :error="statusBarError"></StatusBar>
+    <StatusBar v-if="statusBarError || statusBarMessage" v-model:msg="statusBarMessage" v-model:error="statusBarError"></StatusBar>
 
   </main>
 </template>
@@ -23,7 +23,7 @@ import { useAuthStore } from '@/stores/auth';
   const router = useRouter();
 
   const statusBarError : Ref<string> = ref('');
-  const statusBartext : Ref<string> = ref('');
+  const statusBarMessage : Ref<string> = ref('');
 
   const showSidebar = computed(() => route.meta.hasSidebar !== false);
   var isClosed : Ref<boolean> = ref(false);
@@ -47,8 +47,8 @@ import { useAuthStore } from '@/stores/auth';
 
   });
 
-  function toggleSidebar(closed: boolean): void {
-    isClosed.value = closed;
+  function toggleSidebar(sidebarStatus: boolean): void {
+    isClosed.value = sidebarStatus;
   }
 
   function sidebarOptions(): string {
@@ -58,32 +58,32 @@ import { useAuthStore } from '@/stores/auth';
   }
 
   function useStatusBarMessage(message: string) : void {
-    statusBartext.value = message; 
-    startTimeOfStatusBar();
+    showLoader()
+
+    setTimeout(() => {
+        statusBarMessage.value = message;
+    }, 620) 
   }
 
   function useStatusBarError(error: string) : void {
     statusBarError.value = error;
-    startTimeOfStatusBar();
-  }
-
-  function startTimeOfStatusBar() : void {
-    setTimeout(() => {
-      statusBarError.value = '';
-      statusBartext.value = '';
-    }, 5500); 
-  
   }
   
   const loaderRoutes = ['/', '/profile'];
   router.beforeEach((to, from, next) => {
     isClosed.value = false;
 
-    const showLoader = loaderRoutes.includes(to.path);
-    loading.value = showLoader
+    const isAValidRoute = loaderRoutes.includes(to.path);
+    if (isAValidRoute) {
+      showLoader()
+    }
 
     next()
   })
+
+  function showLoader() : void {
+    loading.value = true
+  }
 
 </script>
 

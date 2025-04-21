@@ -5,7 +5,7 @@
         <article class="sign-in-container">
             <h1 class="title">¡Bienvenido! Regístrate aquí.</h1>
 
-            <form class="form" @submit.prevent="onSubmit">
+            <v-form ref="formRef" class="form" @submit.prevent="onSubmit" v-slot="{ isValid }">
                 <article class="text-fields">
                     <section class="upper-right">
 
@@ -106,7 +106,6 @@
                             color="var(--first-color)"
                             bg-color="var(--fourth-color)"
                             v-model="selectedRegion"
-    
                             :items="regions"
                             item-title="label"
                             item-value="code"
@@ -148,7 +147,7 @@
                         <button class="submit-button"><v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon></button>
                     </section>
                 </article>
-            </form>
+            </v-form>
         </article>
     </main>
 </template>
@@ -163,6 +162,7 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
 
     const emit = defineEmits<{
         (e: 'signUp', user: User, userDetails: UserDetails, userImage: UserProfileImage): void
+        (e: 'failure', error: string): void
     }>()
 
     const email : Ref<string> = ref('');
@@ -195,6 +195,11 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         (value: string) => {
             if (value) return true
             return 'La contraseña es obligatoria.'
+        },
+
+        (value: string) => {
+            if (value.length >= 6) return true
+            return 'Debe tener mínimo 6 caractéres.'
         },
     ]
 
@@ -269,7 +274,14 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         selectedMunicipality.value = undefined
     }
 
-    function onSubmit() : void {
+    const formRef = ref()
+    async function onSubmit() : Promise<void> {
+        const { valid } = await formRef.value.validate()
+        if (!valid) {
+            emit('failure', 'Registro de usuario fallido. Asegúrate de que los datos sean válidos.');
+            return;
+        }
+
         const user: User = {
             email: email.value,
             password: password.value,

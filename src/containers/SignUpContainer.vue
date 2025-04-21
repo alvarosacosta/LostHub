@@ -1,6 +1,6 @@
 <template>
     <main class="SignUpContainer">
-        <SignUpComponent @sign-up="signUp"></SignUpComponent>
+        <SignUpComponent @failure="showError" @sign-up="signUp"></SignUpComponent>
     </main>
 </template>
   
@@ -30,13 +30,17 @@ import { useRouter } from 'vue-router';
 
         } catch (error : any) {
             if (error === 'Error during sign up: User already registered'){
-                emit('showError', "Registro de usuario fallido. Este email ya está asociado a un usuario.");
+                showError("Registro de usuario fallido. Este email ya está asociado a un usuario.");
 
             } else {
                 console.error(error);
-                emit('showError', "Registro de usuario fallido. Error desconocido.");
+                showError("Registro de usuario fallido. Error desconocido.");
             }
         }
+    }
+
+    function showError(error: string) : void {
+        emit('showError', error);
     }
 
 </script>
