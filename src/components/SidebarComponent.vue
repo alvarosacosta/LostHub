@@ -31,7 +31,7 @@
 
             <section class="navigation">
                 <router-link v-if="userProfile" class="navigation-button" to="/profile">Perfil de usuario</router-link>
-                <router-link class="navigation-button" to="/">Objetos perdidos</router-link>
+                <router-link class="navigation-button" to="/hub">Objetos perdidos</router-link>
                 <router-link v-if="userProfile" class="navigation-button" to="/">Notificaciones</router-link>
                 <router-link class="navigation-button" to="/about-us">Quiénes somos</router-link>
             </section>
@@ -42,7 +42,7 @@
                 <v-icon class="github-icon" size="50" color="var(--first-accent-color)">mdi-github</v-icon>
             </a>
 
-            <router-link class="publish-button" to="/">
+            <router-link v-if="userProfile" class="publish-button" to="/">
                 <v-icon class="new-post-icon" size="40" color="var(--fourth-color)">mdi-feather</v-icon>
             </router-link>
         </section>
@@ -53,10 +53,14 @@
 import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
 import LogInContainer from '@/containers/LogInContainer.vue';
 import { UserDetails } from '@/interfaces/user';
+import router from '@/router';
+import { useRoute } from 'vue-router';
 
     var isClosed : Ref<boolean> = ref(false);   
-    const dialogVisible = ref(false);
+    const dialogVisible : Ref<boolean> = ref(false);
     const windowWidth = ref(window.innerWidth);
+
+    const route = useRoute()
 
     const props = defineProps<{
         userProfile : UserDetails | null
@@ -80,11 +84,19 @@ import { UserDetails } from '@/interfaces/user';
             isClosed.value = true;
             emit('toggle-sidebar', true);
         }
+
+        if (route.query.login === 'true') {
+            dialogVisible.value = true
+
+            router.replace({ query: { ...route.query, login: undefined } })
+        }
     });
 
     onBeforeUnmount(() => {
         window.removeEventListener('resize', updateWindowWidth);
     });
+
+    console.log(props.userProfile)
 
     watch(isTablet, (val) => {
         if (val) {

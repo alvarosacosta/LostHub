@@ -26,7 +26,7 @@ import { useRouter } from 'vue-router';
                 emit('showSuccess', "Registro de usuario exitoso. ¡Bienvenido a Lost Hub!");
             }
 
-            router.push('/');
+            router.push('/hub');
 
         } catch (error : any) {
             if (error === 'Error during sign up: User already registered'){

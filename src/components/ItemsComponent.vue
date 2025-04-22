@@ -7,7 +7,9 @@
                 />
             </section>
         </article>
-        <p v-else class="no-events-label">No events available.</p>
+        <section v-else class="no-items">
+            <p class="no-items-label">No hay objetos que mostrar</p>
+        </section>
     </main>
 </template>
 
@@ -36,6 +38,32 @@ import { MixedItem } from '@/interfaces/items';
 
         display: flex;
         justify-content: center;
+    }
+
+    .no-items{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 100vh;
+        width: 100%;
+    }
+
+    .no-items-label{
+        background-color: var(--second-color);
+        color: var(--text-color);
+        text-shadow: 0px 4px 5px rgba(0, 0, 0, 1);
+        padding: 1em;
+        border-radius: .4em;
+
+        box-shadow: 0px 4px 5px rgba(0, 0, 0, 1);
+    }
+
+    @media (max-width: 429px) {
+        .no-items-label{
+            font-size: 1em;
+        }
+
     }
 
 </style>

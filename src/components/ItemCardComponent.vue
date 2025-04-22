@@ -89,9 +89,6 @@ import { ref, Ref, watch } from 'vue';
 <style scoped lang="css">
 
     .ItemCardComponent {
-        border: 3px solid var(--first-color);
-        border-radius: .7em;
-
         opacity: 0;
         animation: aparecer 1s forwards;
 
@@ -99,7 +96,6 @@ import { ref, Ref, watch } from 'vue';
 
     .item-card {
         color: var(--text-color);
-        border-radius: .7em;
 
         width: 900px;
         height: 500px;
@@ -110,6 +106,7 @@ import { ref, Ref, watch } from 'vue';
         opacity: 0;
         animation: aparecer 1s forwards;
 
+        border-radius: 1em;
         box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
 
     }
@@ -135,6 +132,10 @@ import { ref, Ref, watch } from 'vue';
         cursor: pointer;
 
         border-radius: .5em 0em 0em .5em;
+
+        border-top: 3px solid var(--first-color);
+        border-left: 3px solid var(--first-color);
+        border-bottom: 3px solid var(--first-color);
     }
 
     .full-file-image{
@@ -150,13 +151,18 @@ import { ref, Ref, watch } from 'vue';
 
     .no-image {
         background-color: var(--second-color);
-        border-radius: .5em 0em 0em .5em;
-
+        
         display: flex;
         align-items: center;
         justify-content: center;
-
+    
         font-size: larger;
+        
+        border-radius: .5em 0em 0em .5em;
+
+        border-top: 3px solid var(--first-color);
+        border-left: 3px solid var(--first-color);
+        border-bottom: 3px solid var(--first-color);
     }
 
     .no-image-content {
@@ -182,6 +188,11 @@ import { ref, Ref, watch } from 'vue';
     .main-text {
         background-color: var(--second-color);
         border-radius: 0em .5em .5em 0em;
+
+        border-right: 3px solid var(--first-color);
+        border-top: 3px solid var(--first-color);
+        border-bottom: 3px solid var(--first-color);
+        
         grid-column: 3;
 
         display: flex;

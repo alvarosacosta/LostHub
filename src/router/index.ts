@@ -3,6 +3,12 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
+    name: 'lading-page',
+    component: () => import('@/views/LandingPageView.vue'),
+    meta: { hasSidebar: false }
+  },
+  {
+    path: '/hub',
     name: 'lost-objects',
     component: () => import('@/views/ItemsView.vue'),
     meta: { hasSidebar: true }

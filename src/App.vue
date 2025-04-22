@@ -1,10 +1,10 @@
 <template>
   <main class='main'>
     <LoadingOverlay v-if="loading" v-model:loading="loading" ></LoadingOverlay>
+    <StatusBar v-if="statusBarError || statusBarMessage" v-model:msg="statusBarMessage" v-model:error="statusBarError"></StatusBar>
 
     <SidebarContainer @show-success="useStatusBarMessage" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar"></SidebarContainer>
     <router-view @show-success="useStatusBarMessage"  @show-error="useStatusBarError" class="main-content" :class="sidebarOptions()"/>
-    <StatusBar v-if="statusBarError || statusBarMessage" v-model:msg="statusBarMessage" v-model:error="statusBarError"></StatusBar>
 
   </main>
 </template>
@@ -69,7 +69,7 @@ import { useAuthStore } from '@/stores/auth';
     statusBarError.value = error;
   }
   
-  const loaderRoutes = ['/', '/profile'];
+  const loaderRoutes = ['/hub', '/profile', '/register'];
   router.beforeEach((to, from, next) => {
     isClosed.value = false;
 
