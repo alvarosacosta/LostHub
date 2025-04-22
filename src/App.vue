@@ -69,7 +69,7 @@ import { useAuthStore } from '@/stores/auth';
     statusBarError.value = error;
   }
   
-  const loaderRoutes = ['/hub', '/profile', '/register'];
+  const loaderRoutes = ['/', '/hub', '/profile', '/register'];
   router.beforeEach((to, from, next) => {
     isClosed.value = false;
 
