@@ -1,6 +1,6 @@
 <template>
     <main class="ItemsComponent">
-        <article class="items" v-if="items.length > 0">
+        <article class="items" v-if="items && items.length > 0">
             <section class="item" v-for="(item, index) in items" :key="index">
                 <ItemCardContainer
                     :item
@@ -13,10 +13,10 @@
 
 <script setup lang="ts">
 import ItemCardContainer from '@/containers/ItemCardContainer.vue';
-import { LostItem } from '@/interfaces/items';
+import { MixedItem } from '@/interfaces/items';
 
     defineProps<{
-        items: LostItem[]
+        items: MixedItem[]  | undefined
     }>()
 
 </script>

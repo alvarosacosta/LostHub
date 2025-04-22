@@ -1,7 +1,7 @@
 <template>
     <main class="ItemCardComponent">
         <article class="item-card">
-            <v-window v-if="item.files !== undefined" class="carousel" show-arrows>
+            <v-window v-if="item?.url_images && item?.url_images.length > 0" class="carousel" show-arrows>
                 <template v-slot:prev="{ props }">
                     <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
                 </template>
@@ -10,8 +10,16 @@
                     <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                 </template>
 
-                <v-window-item eager class="files" v-for="(file, index) in item.files" :key="index">
-                    <img :src="file" alt="file-image" class="file-image" />
+                <v-window-item eager class="files" v-for="(file, index) in item?.url_images" :key="index">
+                    <v-dialog max-width="450" max-height="600" scroll-strategy="close">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <img v-bind=activatorProps :src="file" alt="file-image" class="file-image" />
+                        </template>
+
+                        <template v-slot>
+                            <img :src="file" alt="file-image" class="full-file-image" />
+                        </template>
+                    </v-dialog>
                 </v-window-item>
             </v-window>
 
@@ -27,28 +35,28 @@
 
             <section class="main-text">
                 <section class="head-text">
-                    <span class="type">{{ item.type }}</span>
-                    <span class="name">{{ item.name }}</span>
+                    <span class="type">{{ item?.type }}</span>
+                    <span class="name">{{ item?.name }}</span>
 
                 </section>
 
-                <span class="category">{{ item.category }}</span>
+                <span class="category">{{ item?.category }}</span>
 
                 <section class="color-gender">
-                    <span class="color">{{ item.color }}</span>
-                    <span v-if="item.gender !== undefined" class="gender">{{ item.gender }}</span>
+                    <span class="color">{{ item?.color }}</span>
+                    <span v-if="item?.gender" class="gender">{{ item?.gender }}</span>
                 </section>
 
-                <p class="small-description">{{ item.detailedDescription }}</p>
+                <p class="small-description">{{ item?.detailedDescription }}</p>
 
                 <section class="date-time-location">
-                    <span class="date-time">{{ item.dateTime }}</span>
-                    <span class="location">{{ item.location }}</span>
+                    <span class="date-time">{{ formattedDateTime }}</span>
+                    <span class="location">{{ item?.location }}</span>
                 </section>
 
                 <section class="reward-arrow">
-                    <span class="reward">{{ item.reward + " €" }}</span>
-                    <router-link :to="{ name: 'item-details', params: { id: item.id },  }">
+                    <span v-if="item?.type === 'Perdido'" class="reward">{{ item?.reward + " €" }}</span>
+                    <router-link :to="{ name: 'item-details', params: { id: item?.id },  }">
                         <v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon>
                     </router-link>
                 </section>
@@ -58,11 +66,23 @@
 </template>
 
 <script setup lang="ts">
-import { LostItem } from '@/interfaces/items';
+import { MixedItem } from '@/interfaces/items';
+import { ref, Ref, watch } from 'vue';
     
-    defineProps<{
-        item: LostItem
+    const props = defineProps<{
+        item: MixedItem | undefined
     }>()
+
+    const formattedDateTime : Ref<string| undefined> = ref(props.item?.dateTime)
+    watch(
+        () => props.item?.dateTime,
+        (newDateTime) => {
+            if (newDateTime) {
+            formattedDateTime.value = newDateTime.replace('T', ' ');
+            }
+        },
+        { immediate: true }
+    );
 
 </script>
 
@@ -112,7 +132,15 @@ import { LostItem } from '@/interfaces/items';
         height: 100%;
         object-fit:cover;
 
+        cursor: pointer;
+
         border-radius: .5em 0em 0em .5em;
+    }
+
+    .full-file-image{
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
     }
 
     .no-image {
@@ -204,7 +232,7 @@ import { LostItem } from '@/interfaces/items';
     
     .small-description {
         height: 9.7em;   
-        padding-top: .4em;
+        padding-top: .3em;
 
         white-space: normal; 
         display: -webkit-box;

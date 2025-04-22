@@ -1,6 +1,6 @@
 <template>
     <main class="ProfileContainer">
-        <ProfileComponent v-model:success="success" :userProfile @log-out="logOut()" @failure="showError" @update-user-info="updateUserInfo"></ProfileComponent>
+        <ProfileComponent v-model:success="success" :foreignUserProfile :userProfile @log-out="logOut()" @failure="showError" @update-user-info="updateUserInfo"></ProfileComponent>
     </main>
 </template>
 
@@ -10,10 +10,12 @@ import { UserDetails } from '@/interfaces/user';
 import router from '@/router';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
-import { Ref, ref } from 'vue';
+import { onMounted, Ref, ref } from 'vue';
 
-    const authStore = useAuthStore();
-    const { userProfile } = storeToRefs(authStore); 
+    const props = defineProps<{
+        userID?: string
+    }>()
+    
     const success : Ref<boolean> = ref(false); 
 
     const emit = defineEmits<{
@@ -21,9 +23,22 @@ import { Ref, ref } from 'vue';
         (e: 'showError', error: string): void
     }>()
 
+    const AuthStore = useAuthStore();
+    const { foreignUserProfile, userProfile } = storeToRefs(AuthStore);
+
+    onMounted( async() => {
+        if (props.userID){
+            await AuthStore.fetchUserById(props.userID);
+
+        } else {
+            AuthStore.cleanForeignUser()
+        }
+        
+    })
+
     async function updateUserInfo(userUpdatedInfo : UserDetails) : Promise<void>{
         try {
-            await authStore.updateUserInfo(userUpdatedInfo);
+            await AuthStore.updateUserInfo(userUpdatedInfo);
 
             success.value = true
             emit("showSuccess", "¡Éxito al actualizar tus datos!")
@@ -39,7 +54,7 @@ import { Ref, ref } from 'vue';
 
     async function logOut() : Promise<void> {
         try {
-            await authStore.logOut();
+            await AuthStore.logOut();
 
             emit("showSuccess", "Se ha cerrado sesión de forma satisfactoria.")
             router.push('/')

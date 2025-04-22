@@ -8,10 +8,10 @@
   
 <script setup lang="ts">
 import ItemCardComponent from '@/components/ItemCardComponent.vue';
-import { LostItem } from '@/interfaces/items';
+import { MixedItem } from '@/interfaces/items';
 
     defineProps<{
-        item: LostItem
+        item:  MixedItem | undefined
     }>()
 
     

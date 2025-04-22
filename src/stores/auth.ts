@@ -7,9 +7,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   const user = ref<any>(null);
   const userProfile = ref<UserDetails | null>(null);
-  const isFetchingProfile = ref<boolean>(false);
+  const foreignUserProfile = ref<UserDetails | null>(null)
+  const isFetchingOwnProfile = ref<boolean>(false);
 
-  const init = async () =>{
+  async function init() : Promise<void> {
     const { data: { session } } = await supabase.auth.getSession(); 
     if (session) user.value = session.user; 
 
@@ -21,9 +22,9 @@ export const useAuthStore = defineStore('auth', () => {
     });
   }
 
-  const fetchCurrentUserProfile = async () => {
-    if (isFetchingProfile.value) return;
-    isFetchingProfile.value = true;
+  async function fetchCurrentUserProfile() : Promise<void> {
+    if (isFetchingOwnProfile.value) return;
+    isFetchingOwnProfile.value = true;
 
     try {
       const userID = user.value.id;
@@ -72,11 +73,11 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Error fetching user profile:', err.message);
 
     } finally {
-      isFetchingProfile.value = false;
+      isFetchingOwnProfile.value = false;
     }
   };
 
-  const logIn = async (email: string, password: string) => {
+  async function logIn(email: string, password: string) : Promise<void> {
     try {
       const { data: logInData, error: logInError } = await supabase.auth.signInWithPassword({
         email,
@@ -93,7 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const logOut = async () => {
+  async function logOut() : Promise<void> {
     try {
       await supabase.auth.signOut();
       user.value = null;
@@ -105,7 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const signUp = async ( user: User, userDetails: UserDetails, userProfileImage: UserProfileImage) => {
+  async function signUp(user: User, userDetails: UserDetails, userProfileImage: UserProfileImage) : Promise<void>{
     var filePath = `user-profiles-images/no-image.png`;
   
     try {
@@ -159,13 +160,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const updateUserInfo = async (userUpdatedInfo : UserDetails) => {
+  async function updateUserInfo(userUpdatedInfo : UserDetails) : Promise<void>{
     try {
       const userID = user.value.id;
       if (!userID) throw new Error('Could not get user ID.');
 
       // Al cambiar el email, se hacen comprobaciones que no se hacen al hacer el log-in, por lo que emails
-      // que antes eran válidos, ahora pueden no serlo.
+      // que antes eran válidos, ahora pueden no serlo. Es mejor impedir que se cambie el email por ahora.
       
       // const { error : updateUserError } = await supabase.auth.updateUser({
       //   email: userUpdatedInfo.email,
@@ -191,14 +192,49 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function fetchUserById(id : string) : Promise<void> {
+
+    try {
+      const { data, error } = await supabase
+      .from('user_details')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+      if (error) throw error;
+      
+      if (data){
+        foreignUserProfile.value = {
+          username: data.Username,
+          email: data.Email,
+          phone: data.Phone,
+          region: data.Region,
+          province: data.Province,
+          municipality: data.Municipality,
+          profilePictureURL: data.ProfileImageURL,
+        };
+      }
+      
+    } catch(err : any) {
+      console.error('Error fetching foreign user profile:' + err.message)
+    }
+    
+  }
+
+  async function cleanForeignUser() : Promise<void> {
+    foreignUserProfile.value = null;
+  }
 
   return {
     user,
     userProfile,
+    foreignUserProfile,
     init,
     logIn,
     signUp,
     logOut,
     updateUserInfo,
+    fetchUserById,
+    cleanForeignUser,
   };
 });

@@ -1,18 +1,19 @@
 <template>
     <main class="ProfileComponent">
-        <v-form ref="formRef" v-if="editableProfile" @submit.prevent="onSubmit" class="profile-card" v-slot="{ isValid }">
+        <button v-if="isForeignUser" class='back-button' @click="$router.back()"> Volver </button>
+        <v-form ref="formRef" v-if="profileShown" @submit.prevent="onSubmit" class="profile-card" v-slot="{ isValid }">
             <section class="picture-file">
                 <figure class="profile-picture-container">
-                    <img class="profile-picture" :src="editableProfile.profilePictureURL" alt="">
+                    <img class="profile-picture" :src="profileShown.profilePictureURL" alt="">
                 </figure>
-                <button type="button" class="log-out-button" @click="logOut()">Cerrar Sesión</button>
+                <button v-if="!isForeignUser" type="button" class="log-out-button" @click="logOut()">Cerrar Sesión</button>
             </section>
 
             <section class="username">
                 <label class="label">Nombre</label>
                 <v-text-field 
                     class="field"
-                    v-model=editableProfile.username
+                    v-model=profileShown.username
                     color="var(--first-color)"
                     bg-color="var(--fourth-color)"
                     variant="solo-filled"
@@ -28,7 +29,7 @@
                     <label class="label">Email</label>
                     <v-text-field 
                         class="field"
-                        v-model=editableProfile.email
+                        v-model=profileShown.email
                         color="var(--first-color)"
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
@@ -39,11 +40,11 @@
                     ></v-text-field>
                 </section>
 
-                <section v-if="editableProfile.phone" class="phone">
+                <section v-if="profileShown.phone" class="phone">
                     <label class="label">Teléfono</label>
                     <v-text-field 
                         class="field"
-                        v-model=editableProfile.phone
+                        v-model=profileShown.phone
                         color="var(--first-color)"
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
@@ -55,7 +56,7 @@
             </section>
 
             <section class="region-province">
-                <section v-if="isEditable || editableProfile.region" class="region">
+                <section v-if="isEditable || profileShown.region" class="region">
                     <label class="label">Comunidad</label>
                     <v-autocomplete  
                         class="field"
@@ -72,7 +73,7 @@
                     ></v-autocomplete>
                 </section>
 
-                <section v-if="isEditable || editableProfile.province" class="province">
+                <section v-if="isEditable || profileShown.province" class="province">
                     <label class="label">Provincia</label>
                     <v-autocomplete  
                         class="field"
@@ -91,7 +92,7 @@
             </section>
 
             <section class="municipality-update-button">
-                <section v-if="isEditable || editableProfile.municipality" class="municipality">
+                <section v-if="isEditable || profileShown.municipality" class="municipality">
                     <label class="label">Población</label>
                     <v-autocomplete 
                         class="field"
@@ -105,7 +106,7 @@
                         :disabled="!isEditable || !selectedProvince"
                     ></v-autocomplete>
                 </section>
-                <button type="submit" class="update-button">{{ isEditable ? 'Guardar' : 'Actualizar perfil' }}</button>
+                <button v-if="!isForeignUser" type="submit" class="update-button">{{ isEditable ? 'Guardar' : 'Actualizar perfil' }}</button>
             </section>
         </v-form>
     </main>
@@ -129,26 +130,37 @@ import isEqual from 'lodash/isEqual';
 
     const props = defineProps<{
         userProfile : UserDetails | null,
+        foreignUserProfile : UserDetails | null,
         success? : boolean
     }>();
 
-    var editableProfile : Ref<UserDetails | null> = ref(null)
+    var profileShown : Ref<UserDetails | null> = ref(null)
+    var isForeignUser : Ref<boolean> = ref(false)
     const selectedRegion = ref<string | undefined>(undefined)
     const selectedProvince = ref<string | undefined>(undefined)
     const selectedMunicipality = ref<string | undefined>(undefined)
 
     watch(
-        () => props.userProfile,
-        (newVal) => {
-            if (newVal) {
-                editableProfile.value = { ...newVal }
-                selectedRegion.value = newVal.region
-                selectedProvince.value = newVal.province
-                selectedMunicipality.value = newVal.municipality
+        () => [props.userProfile, props.foreignUserProfile],
+        ([valUserProfile, valForeignUser]) => { 
+            if (valForeignUser) {
+                profileShown.value = { ...valForeignUser };
+                selectedRegion.value = valForeignUser.region;
+                selectedProvince.value = valForeignUser.province;
+                selectedMunicipality.value = valForeignUser.municipality;
+
+                isForeignUser.value = true
+            } else if (valUserProfile) {
+                profileShown.value = { ...valUserProfile };
+                selectedRegion.value = valUserProfile.region;
+                selectedProvince.value = valUserProfile.province;
+                selectedMunicipality.value = valUserProfile.municipality;
+
+                isForeignUser.value = false
             }
         },
         { immediate: true }
-    )
+    );
 
     const usernameRules = [
         (value: string) => {
@@ -215,22 +227,22 @@ import isEqual from 'lodash/isEqual';
                 return;
             }
 
-            if (editableProfile.value && props.userProfile) {
+            if (profileShown.value && props.userProfile) {
                 const selectedRegionLabel = regions.find(r => r.code === selectedRegion.value)?.label || ''
                 const selectedProvinceLabel = provinces.find(p => p.code === selectedProvince.value)?.label || ''
 
                 if (selectedRegionLabel) {
-                    editableProfile.value = {
-                        ...editableProfile.value,
+                    profileShown.value = {
+                        ...profileShown.value,
                         region: selectedRegionLabel,
                         province: selectedProvinceLabel,
                         municipality: selectedMunicipality.value ?? '',
                     }
                 }
                 
-                if(!isEqual(props.userProfile, editableProfile.value)){
+                if(!isEqual(props.userProfile, profileShown.value)){
 
-                    emit('updateUserInfo', editableProfile.value)
+                    emit('updateUserInfo', profileShown.value)
 
                 } else {
                     toggleEditable()

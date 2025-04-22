@@ -1,11 +1,15 @@
 <template>
     <main class="ProfileView">
-        <ProfileContainer @show-success="showSuccess" @show-error="showError"></ProfileContainer>
+        <ProfileContainer :userID @show-success="showSuccess" @show-error="showError"></ProfileContainer>
     </main>
 </template>
 
 <script setup lang="ts">
 import ProfileContainer from '@/containers/ProfileContainer.vue';
+
+    defineProps<{
+        userID?: string
+    }>()
 
     const emit = defineEmits<{
         (e: 'showSuccess', message: string): void

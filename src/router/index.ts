@@ -1,12 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import ItemsView from '@/views/ItemsView.vue'
-import ItemDetailsView from '@/views/ItemDetailsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'lost-objects',
-    component: ItemsView,
+    component: () => import('@/views/ItemsView.vue'),
     meta: { hasSidebar: true }
   },
   {
@@ -28,12 +26,20 @@ const routes: Array<RouteRecordRaw> = [
     meta: { hasSidebar: true }
   },
   {
-    path: '/item/:id',
-    name: 'item-details',
-    component: ItemDetailsView,
+    path: '/profile/:userID',
+    name: 'foreign-profile',
+    component: () => import('@/views/ProfileView.vue'),
     meta: { hasSidebar: false },
     props: true
-  }
+  },
+  {
+    path: '/item/:id',
+    name: 'item-details',
+    component: () => import('@/views/ItemDetailsView.vue'),
+    meta: { hasSidebar: false },
+    props: true
+  },
+  
 ]
 
 const router = createRouter({

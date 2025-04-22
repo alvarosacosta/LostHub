@@ -1,13 +1,13 @@
 <template>
     <main class="ItemDetailsComponent">
-        <span class="type">{{"OBJETO " + item?.type }}</span>
+        <span class="type">{{"OBJETO " + singleItem?.type }}</span>
         <button class='back-button' @click="$router.back()"> Volver </button>
         <article class="item">
-            <article v-if="item?.files !== undefined" class="carousel-container">
+            <article v-if="singleItem?.url_images && singleItem?.url_images.length > 0" class="carousel-container">
                 <section class="list">
-                    <ul v-if="item?.files.length > 1" class="list-preview-image">
+                    <ul v-if="singleItem?.url_images.length > 1" class="list-preview-image">
                         <li 
-                            v-for="(file, index) in item?.files" 
+                            v-for="(file, index) in singleItem?.url_images" 
                             :key="index" 
                             @click="selectedIndex = index"
                         >
@@ -30,8 +30,16 @@
                         <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                     </template>
     
-                    <v-window-item eager class="files" v-for="(file, index) in item?.files" :key="index">
-                        <img :src="file" alt="file-image" class="file-image" />
+                    <v-window-item eager class="files" v-for="(file, index) in singleItem?.url_images" :key="index">
+                        <v-dialog max-width="450" max-height="600" scroll-strategy="close">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <img v-bind=activatorProps :src="file" alt="file-image" class="file-image" />
+                            </template>
+
+                            <template v-slot>
+                                <img :src="file" alt="file-image" class="full-file-image" />
+                            </template>
+                        </v-dialog>
                     </v-window-item>
                 </v-window>
             </article>
@@ -46,11 +54,11 @@
             </article>
 
             <article class="profile-article">
-                <section class="profile">
+                <section v-if="foreignUserProfile && fetchedUserID" class="profile">
                     <figure class="profile-image-container">
-                        <img class="profile-image" src="@\assets\mock-profile.png" alt="profile-image">
+                        <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
-                    <router-link class="profile-button" to="/profile">Perfil de usuario</router-link>
+                    <router-link class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
                 </section>
                 
                 <section class="secondary-info">
@@ -66,67 +74,67 @@
             <article class="resume-article">
                 <section class="name-section">
                     <label for="name">NOMBRE DEL OBJETO</label>
-                    <span class="name">{{ item?.name }}</span>
+                    <span class="name">{{ singleItem?.name }}</span>
                 </section>
 
                 <section class="down-section">
-                    <section class="reward-section">
+                    <section v-if="singleItem?.type === 'Perdido'" class="reward-section">
                         <label for="reward">RECOMPENSA</label>
-                        <span class="reward">{{ item?.reward + " €" }}</span>
+                        <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
     
                     <section class="categories-section">
                         <section class="category-section">
                             <label for="category">CATEGORÍA</label>
-                            <span class="category">{{ item?.category }}</span>
+                            <span class="category">{{ singleItem?.category }}</span>
                         </section>
         
-                        <section v-if="item?.subcategory !== undefined" class="subcategory-section">
+                        <section v-if="singleItem?.subcategory" class="subcategory-section">
                             <label for="subcategory">SUBCATEGORÍA</label>
-                            <span class="subcategory">{{ item?.subcategory }}</span>
+                            <span class="subcategory">{{ singleItem?.subcategory }}</span>
                         </section>
                     </section>
                 </section>
             </article>
 
             <article class="main-text">
-                <section v-if="item?.isLostInPublicTransport" class="public-transport-section">
-                    <label for="found-public-transport">ENCONTRADO EN</label>
-                    <span class="found-public-transport">Taxi</span>
+                <section v-if="singleItem?.isLostInPublicTransport && singleItem?.type === 'Perdido'" class="public-transport-section">
+                    <label for="found-public-transport">PERDIDO EN</label>
+                    <span class="found-public-transport">{{ singleItem?.isLostInPublicTransport }}</span>
                 </section>
 
                 <section class="color-gender">
                     <section class="color-section">
                         <label for="color">COLOR</label>
-                        <span class="color">{{ item?.color }}</span>
+                        <span class="color">{{ singleItem?.color }}</span>
                     </section>
 
-                    <section v-if="item?.gender !== undefined" class="gender-section">
+                    <section v-if="singleItem?.gender" class="gender-section">
                         <label for="gender">SEXO</label>
-                        <span class="gender">{{ item?.gender }}</span>
+                        <span class="gender">{{ singleItem?.gender }}</span>
                     </section>
                 </section>
 
                 <section class="date-time-location">
                     <section class="date-time-section">
                         <label for="date-time">FECHA Y HORA</label>
-                        <span class="date-time">{{ item?.dateTime }}</span>
+                        <span class="date-time">{{ formattedDateTime }}</span>
                     </section>
 
                     <section class="location-section">
                         <label for="location">LOCALIZACIÓN</label>
-                        <span class="location">{{ item?.location }}</span>
+                        <span class="location">{{ singleItem?.location }}</span>
                     </section>
                 </section>
 
                 <section class="description-section">
                     <label for="description">DESCRIPCIÓN DEL OBJETO</label>
-                    <p class="description">{{ item?.detailedDescription }}</p>
+                    <p class="description">{{ singleItem?.detailedDescription }}</p>
                 </section>
 
-                <section v-if="item?.locationDescription !== undefined" class="location-description-section">
+                <section v-if="singleItem?.locationDescription" class="location-description-section">
                     <label for="location-description">DESCRIPCIÓN DE LUGAR DE PÉRDIDA</label>
-                    <p class="location-description">{{ item?.locationDescription }}</p>
+                    <p class="location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
             </article>
@@ -135,16 +143,28 @@
 </template>
 
 <script setup lang="ts">
-import { LostItem } from '@/interfaces/items';
-import { Ref, ref } from 'vue';
+import { MixedItem } from '@/interfaces/items';
+import { UserDetails } from '@/interfaces/user';
+import { Ref, ref, watch } from 'vue';
     
-    defineProps<{
-        item: LostItem | undefined
+    const props = defineProps<{
+        singleItem: MixedItem | undefined
+        foreignUserProfile: UserDetails | null
+        fetchedUserID: string
     }>()
 
-    const selectedIndex: Ref<number> = ref(0)
+    const formattedDateTime : Ref<string| undefined> = ref(props.singleItem?.dateTime)
+    watch(
+        () => props.singleItem?.dateTime,
+        (newDateTime) => {
+            if (newDateTime) {
+            formattedDateTime.value = newDateTime.replace('T', ' ');
+            }
+        },
+        { immediate: true }
+    );
 
-    var rating: Ref<number> = ref(0)
+    const selectedIndex: Ref<number> = ref(0)
     var rated: Ref<boolean> = ref(false)
 
     function toggleRated() : void {
@@ -254,6 +274,14 @@ import { Ref, ref } from 'vue';
         height: 100%;
         object-fit:cover;
 
+        cursor: pointer;
+
+    }
+
+    .full-file-image {
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
     }
 
     .no-image-container {

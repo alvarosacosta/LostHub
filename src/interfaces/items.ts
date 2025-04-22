@@ -1,30 +1,35 @@
+import { ItemType, Category, Gender, Subcategory, Color } from "@/enums/item_enums";
 export type MixedItem = FoundItem | LostItem;
 
 export interface Item {
-    type: 'Encontrado' | 'Perdido';
-    id: string,
-    name: string,
-    category: string,
-    gender: 'Macho' | 'Hembra' | undefined,
-    dateTime: string,
-    location: string,
-    files: string[] | undefined,
-    isPublic: boolean,
-    color: string,
-    subcategory: string | undefined,
-    detailedDescription: string,
-    locationDescription: string | undefined,
-    isLostInPublicTransport: boolean,
+    id: string;
+    type: ItemType;
+    name: string;
+    category: Category;
+    gender?: Gender;
+    dateTime: string;
+    location: string;
+    color: Color;
+    subcategory?: Subcategory;
+    detailedDescription: string;
+    locationDescription?: string;
+    isPublic: boolean;
+    isLostInPublicTransport?: string;
+    url_images?: string[];
 }
 
 export interface LostItem extends Item {
-    type: 'Perdido',
+    type: ItemType.Perdido,
     reward: number
     
 }
 
 export interface FoundItem extends Item {
-    type: 'Encontrado',
+    type: ItemType.Encontrado,
     deliveryLocation: string
     
+}
+
+export interface ItemImages {
+    itemImages: File[] | undefined;
 }

@@ -74,7 +74,9 @@ import { useAuthStore } from '@/stores/auth';
     isClosed.value = false;
 
     const isAValidRoute = loaderRoutes.includes(to.path);
-    if (isAValidRoute) {
+    const isItemRoute = to.path.startsWith('/item/') || to.path.startsWith('/profile/');
+
+    if (isAValidRoute || isItemRoute) {
       showLoader()
     }
 

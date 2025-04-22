@@ -1,35 +1,35 @@
 <template>
     <main class="ItemDetailsContainer">
         <ItemDetailsComponent 
-            :item
+            :singleItem
+            :foreignUserProfile
+            :fetchedUserID
         />
     </main>
 </template>
   
 <script setup lang="ts">
 import ItemDetailsComponent from '@/components/ItemDetailsComponent.vue';
-import LostItems from '@/json/LostItems.json';
-import { LostItem } from '@/interfaces/items';
-import { onBeforeMount, ref, Ref } from 'vue';
+import { useItemsStore } from '@/stores/database';
+import { useAuthStore } from '@/stores/auth';
+import { onMounted} from 'vue';
+import { storeToRefs } from 'pinia';
 
     const props = defineProps<{
         id: string
     }>()
 
-    var item : Ref<LostItem | undefined> = ref(undefined)
+    const ItemsStore = useItemsStore()
+    const AuthStore = useAuthStore()
 
-    onBeforeMount(() => {
-        const rawData = LostItems;
-        const items: Ref<LostItem[]> = ref(
-            rawData.map(item => ({
-                ...item,
-                type: item.type = 'Perdido',
-                gender: item.gender === 'Macho' ? item.gender = 'Macho' : item.gender === 'Hembra' ? item.gender = 'Hembra' : undefined,
-                files: item.files ? item.files = item.files : undefined
-            }))
-        );
+    const { foreignUserProfile } = storeToRefs(AuthStore);  
+    const { fetchedUserID, singleItem } = storeToRefs(ItemsStore);
 
-        item = ref(items.value.find(item => item.id === props.id))
-    })
+    onMounted(async () => {
+        await ItemsStore.fetchItemById(props.id);
+        await ItemsStore.fetchUserIdByItemId(props.id);
+        await AuthStore.fetchUserById(fetchedUserID.value);
+
+    });
     
 </script>
