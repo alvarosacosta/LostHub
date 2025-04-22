@@ -11,7 +11,7 @@
                 </template>
 
                 <v-window-item eager class="files" v-for="(file, index) in item?.url_images" :key="index">
-                    <v-dialog max-width="450" max-height="600" scroll-strategy="close">
+                    <v-dialog max-width="800" max-height="800" scroll-strategy="close" transition="fade-transition">
                         <template v-slot:activator="{ props: activatorProps }">
                             <img v-bind=activatorProps :src="file" alt="file-image" class="file-image" />
                         </template>
@@ -141,6 +141,11 @@ import { ref, Ref, watch } from 'vue';
         border-radius: 1em;
         border: 3px solid var(--first-color);
         box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
+
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
     }
 
     .no-image {

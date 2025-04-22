@@ -283,8 +283,7 @@ import isEqual from 'lodash/isEqual';
         align-items: center;
         justify-content: center;
         width: 100%;
-
-        padding-top: 8em;
+        height: 100vh;
 
         opacity: 0;
         animation: aparecer 1s forwards;
@@ -396,6 +395,8 @@ import isEqual from 'lodash/isEqual';
     @media (max-width: 1220px){
         .ProfileComponent {
             padding: 5em 0 5em 0;
+
+            height: auto;
         }
 
         .profile-card {
