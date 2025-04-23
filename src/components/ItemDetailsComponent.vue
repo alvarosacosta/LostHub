@@ -1,13 +1,13 @@
 <template>
-    <main class="LostItemDetailsComponent">
-        <span class="type">{{"OBJETO " + item?.type }}</span>
+    <main class="ItemDetailsComponent">
+        <span class="type">{{"OBJETO " + singleItem?.type }}</span>
         <button class='back-button' @click="$router.back()"> Volver </button>
         <article class="item">
-            <article v-if="item?.files !== undefined" class="carousel-container">
+            <article v-if="singleItem?.url_images && singleItem?.url_images.length > 0" class="carousel-container">
                 <section class="list">
-                    <ul v-if="item?.files.length > 1" class="list-preview-image">
+                    <ul v-if="singleItem?.url_images.length > 1" class="list-preview-image">
                         <li 
-                            v-for="(file, index) in item?.files" 
+                            v-for="(file, index) in singleItem?.url_images" 
                             :key="index" 
                             @click="selectedIndex = index"
                         >
@@ -30,8 +30,16 @@
                         <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                     </template>
     
-                    <v-window-item class="files" v-for="(file, index) in item?.files" :key="index">
-                        <img :src="file" alt="file-image" class="file-image" />
+                    <v-window-item eager class="files" v-for="(file, index) in singleItem?.url_images" :key="index">
+                        <v-dialog max-width="800" max-height="800" scroll-strategy="close" transition="fade-transition">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <img v-bind=activatorProps :src="file" alt="file-image" class="file-image" />
+                            </template>
+
+                            <template v-slot>
+                                <img :src="file" alt="file-image" class="full-file-image" />
+                            </template>
+                        </v-dialog>
                     </v-window-item>
                 </v-window>
             </article>
@@ -46,87 +54,89 @@
             </article>
 
             <article class="profile-article">
-                <section class="profile">
+                <section v-if="foreignUserProfile && fetchedUserID" class="profile">
                     <figure class="profile-image-container">
-                        <img class="profile-image" src="@\assets\mock-profile.png" alt="profile-image">
+                        <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
-                    <button class="profile-button">Perfil de usuario</button>
+                    <router-link class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
                 </section>
                 
-                <section class="secondary-info">
-                    <label class="rating-label" for="rating-container">GUARDAR PETICIÓN</label>
-                    <section class="rating-container">
-                        <v-icon class="rating-icon" @click="toggleRated()" :class="{'rated': rated}" size="80">mdi-content-save</v-icon>
-                        <span class="rating">0</span>
+                <section class="interaction-buttons">
+                    <section class="save-container">
+                        <v-icon class="save-icon" size="80">mdi-content-save</v-icon>
+                        <span class="tooltip">Guardar petición</span>
                     </section>
-                    <button class="notification-button">Notificar coincidencia</button>
+                    <section class="notify-container">
+                        <v-icon class="notify-icon" size="80">mdi-bell</v-icon>
+                        <span class="tooltip">Notificar hallazgo</span>
+                    </section>
                 </section>
             </article>
 
             <article class="resume-article">
                 <section class="name-section">
                     <label for="name">NOMBRE DEL OBJETO</label>
-                    <span class="name">{{ item?.name }}</span>
+                    <span class="name">{{ singleItem?.name }}</span>
                 </section>
 
                 <section class="down-section">
-                    <section class="reward-section">
+                    <section v-if="singleItem?.type === 'Perdido'" class="reward-section">
                         <label for="reward">RECOMPENSA</label>
-                        <span class="reward">{{ item?.reward + " €" }}</span>
+                        <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
     
                     <section class="categories-section">
                         <section class="category-section">
                             <label for="category">CATEGORÍA</label>
-                            <span class="category">{{ item?.category }}</span>
+                            <span class="category">{{ singleItem?.category }}</span>
                         </section>
         
-                        <section v-if="item?.subcategory !== undefined" class="subcategory-section">
+                        <section v-if="singleItem?.subcategory" class="subcategory-section">
                             <label for="subcategory">SUBCATEGORÍA</label>
-                            <span class="subcategory">{{ item?.subcategory }}</span>
+                            <span class="subcategory">{{ singleItem?.subcategory }}</span>
                         </section>
                     </section>
                 </section>
             </article>
 
             <article class="main-text">
-                <section v-if="item?.isLostInPublicTransport" class="public-transport-section">
-                    <label for="found-public-transport">ENCONTRADO EN</label>
-                    <span class="found-public-transport">Taxi</span>
+                <section v-if="singleItem?.isLostInPublicTransport && singleItem?.type === 'Perdido'" class="public-transport-section">
+                    <label for="found-public-transport">PERDIDO EN</label>
+                    <span class="found-public-transport">{{ singleItem?.isLostInPublicTransport }}</span>
                 </section>
 
                 <section class="color-gender">
                     <section class="color-section">
                         <label for="color">COLOR</label>
-                        <span class="color">{{ item?.color }}</span>
+                        <span class="color">{{ singleItem?.color }}</span>
                     </section>
 
-                    <section v-if="item?.gender !== undefined" class="gender-section">
+                    <section v-if="singleItem?.gender" class="gender-section">
                         <label for="gender">SEXO</label>
-                        <span class="gender">{{ item?.gender }}</span>
+                        <span class="gender">{{ singleItem?.gender }}</span>
                     </section>
                 </section>
 
                 <section class="date-time-location">
                     <section class="date-time-section">
                         <label for="date-time">FECHA Y HORA</label>
-                        <span class="date-time">{{ item?.dateTime }}</span>
+                        <span class="date-time">{{ formattedDateTime }}</span>
                     </section>
 
                     <section class="location-section">
                         <label for="location">LOCALIZACIÓN</label>
-                        <span class="location">{{ item?.location }}</span>
+                        <span class="location">{{ singleItem?.location }}</span>
                     </section>
                 </section>
 
                 <section class="description-section">
                     <label for="description">DESCRIPCIÓN DEL OBJETO</label>
-                    <p class="description">{{ item?.detailedDescription }}</p>
+                    <p class="description">{{ singleItem?.detailedDescription }}</p>
                 </section>
 
-                <section v-if="item?.locationDescription !== undefined" class="location-description-section">
+                <section v-if="singleItem?.locationDescription" class="location-description-section">
                     <label for="location-description">DESCRIPCIÓN DE LUGAR DE PÉRDIDA</label>
-                    <p class="location-description">{{ item?.locationDescription }}</p>
+                    <p class="location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
             </article>
@@ -135,16 +145,28 @@
 </template>
 
 <script setup lang="ts">
-import { LostItem } from '@/interfaces/items';
-import { Ref, ref } from 'vue';
+import { MixedItem } from '@/interfaces/items';
+import { UserDetails } from '@/interfaces/user';
+import { Ref, ref, watch } from 'vue';
     
-    defineProps<{
-        item: LostItem | undefined
+    const props = defineProps<{
+        singleItem: MixedItem | undefined
+        foreignUserProfile: UserDetails | null
+        fetchedUserID: string
     }>()
 
-    const selectedIndex: Ref<number> = ref(0)
+    const formattedDateTime : Ref<string| undefined> = ref(props.singleItem?.dateTime)
+    watch(
+        () => props.singleItem?.dateTime,
+        (newDateTime) => {
+            if (newDateTime) {
+            formattedDateTime.value = newDateTime.replace('T', ' ');
+            }
+        },
+        { immediate: true }
+    );
 
-    var rating: Ref<number> = ref(0)
+    const selectedIndex: Ref<number> = ref(0)
     var rated: Ref<boolean> = ref(false)
 
     function toggleRated() : void {
@@ -154,7 +176,7 @@ import { Ref, ref } from 'vue';
 </script>
 
 <style scoped lang="css">
-    .LostItemDetailsComponent {
+    .ItemDetailsComponent {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -254,6 +276,14 @@ import { Ref, ref } from 'vue';
         height: 100%;
         object-fit:cover;
 
+        cursor: pointer;
+
+    }
+
+    .full-file-image {
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
     }
 
     .no-image-container {
@@ -298,24 +328,25 @@ import { Ref, ref } from 'vue';
 
         display: flex;
         align-items: center;
+        justify-content: space-evenly;
 
-        gap: 2.5em;
     }
 
     .profile {
         display: flex;
         flex-direction: column;
-        padding-left: 1em;
 
         gap: 1em;
     }
     
     .profile-image-container {
-        width: 12em;
-        height: 12em;
+        width: 10em;
+        height: 10em;
         
         overflow: visible;
         position: relative;
+
+        align-self: center;
 
     }
 
@@ -325,15 +356,8 @@ import { Ref, ref } from 'vue';
         object-fit:cover;
 
         border-radius: 15px;
-        border: 3px solid var(--first-color);
+        border: 3px solid var(--fourth-color);
         box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
-    }
-
-    .secondary-info {
-        display: flex;
-        flex-direction: column;
-
-        gap: 2em;
     }
 
     .type {
@@ -363,55 +387,43 @@ import { Ref, ref } from 'vue';
 
     }
 
-    .rating-label {
-        font-size: large;
+    .interaction-buttons{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
 
-        position: relative;
-        top: .8em;
-
-        z-index: 1;
+        gap: 1em;
     }
 
-    .rating-container {
+    .save-container, .notify-container {
         display: flex;
         align-items: center;
         justify-content: center;
 
         gap: 2em;
 
-        position: relative;
-        bottom: 1em;
-
         background-color: var(--second-color);
-        border: 3px solid var(--first-color);
+        border: 3px solid var(--fourth-color);
 
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
-        padding: 1em;
+        box-shadow: 4px 4px 5px rgba(0, 0, 0, 1);
+        padding: .5em 1em 1em 1em;
         border-radius: 1.5em;
 
-        width: 14em;
 
     }
 
-    .rating-icon {
+    .save-icon, .notify-icon {
         cursor: pointer;
         color: var(--first-accent-color);
         filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
     }
 
-    .rating {
-        font-weight: bold;
-        font-size: larger;
-
-        position: relative;
-        top: 4px;
-    }
-
-    .rating-icon:hover, .rated {
+    .save-icon:hover, .notify-icon:hover {
         color: var(--second-accent-color);
     }
 
-    .notification-button, .profile-button {
+    .profile-button {
         text-decoration: none;
         background-color: var(--first-accent-color);
         color: inherit;
@@ -426,16 +438,7 @@ import { Ref, ref } from 'vue';
         width: 12em;
     }
 
-    .notification-button {
-        font-weight: bold;
-        font-size: large;
-        height: 4em;
-
-        position: relative;
-        bottom: .7em;
-    }
-
-    .notification-button:hover, .profile-button:hover {
+    .profile-button:hover {
         background-color: var(--second-accent-color);
     }
 
@@ -513,7 +516,7 @@ import { Ref, ref } from 'vue';
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
-        padding: .6em .5em .5em .8em;
+        padding: .6em .8em .5em .8em;
 
         min-height: 2.6em;
         height: auto;
@@ -536,6 +539,7 @@ import { Ref, ref } from 'vue';
     
     .description, .location-description {
         min-height: 10em;
+        text-align: justify; 
     }
 
     .color-gender, .date-time-location {
@@ -586,6 +590,37 @@ import { Ref, ref } from 'vue';
 
     }
 
+    .save-container, .notify-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip {
+        position: absolute;
+        bottom: 75%;
+        left: 95%;
+        transform: translateX(-50%);
+        background-color: var(--first-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .7em;
+        border-radius: .5em;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 10;
+
+        transition-delay: 0s;
+        transition: opacity 0.3s ease;
+
+    }
+
+    .save-container:hover .tooltip, .notify-container:hover .tooltip {
+        opacity: 1;
+        transition-delay: 0.4s;
+    }
+
     @media (max-width: 1090px) {
         .item {
             width: 650px;
@@ -603,14 +638,6 @@ import { Ref, ref } from 'vue';
             grid-row: 4;
 
             align-items: center;
-            justify-content: center;
-            gap: 7em;
-        }
-
-        .rating-container {
-            position: relative;
-            right: .3em;
-
         }
 
         .carousel-container {
@@ -687,6 +714,12 @@ import { Ref, ref } from 'vue';
             padding: 0 1em 0 1em;
         }
 
+        .interaction-buttons{
+            flex-direction: row;
+
+            gap: 1em;
+        }
+
         .main-text {
             padding: 0 1em 0 1em;
             width: 344px;
@@ -698,62 +731,21 @@ import { Ref, ref } from 'vue';
 
             height: auto;
             width: 344px;
-            gap: 1.5em;
+            gap: 2em;
+
+            flex-direction: column;
 
             padding: 2em 0 2em 0;
         }
 
-        .profile {
-            padding-left: 0;
+        .profile-image-container{
+            display: none;
         }
 
-        .secondary-info {
-            gap: 0em;
+        .profile-button {
+            width: 15em;
 
-            display: flex;
-            align-items: center;
-
-            position: relative;
-            top: 3em;
-        }
-
-        .rating-label {
             font-size: medium;
-            position: relative;
-            top: -3.5em;
-            right: .4em;
-
-        }
-
-        .rating-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            gap: .8em;
-
-            position: relative;
-            bottom: 4em;
-
-            width: 10em;
-
-        }
-
-        .rating {
-            font-weight: bold;
-            font-size: small;
-
-            right: .5em;
-        }
-
-        .notification-button {
-            font-weight: normal;
-            font-size: medium;
-
-            height: auto;
-            width: 8em;
-
-            bottom: 2em;
         }
 
     }

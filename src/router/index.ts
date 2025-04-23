@@ -1,12 +1,16 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import LostItemsView from '@/views/LostItemsView.vue'
-import LostItemDetailsContainer from '@/containers/LostItemDetailsContainer.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
+    name: 'lading-page',
+    component: () => import('@/views/LandingPageView.vue'),
+    meta: { hasSidebar: false }
+  },
+  {
+    path: '/hub',
     name: 'lost-objects',
-    component: LostItemsView,
+    component: () => import('@/views/ItemsView.vue'),
     meta: { hasSidebar: true }
   },
   {
@@ -16,12 +20,32 @@ const routes: Array<RouteRecordRaw> = [
     meta: { hasSidebar: false }
   },
   {
-    path: '/item/:id',
-    name: 'item-details',
-    component: LostItemDetailsContainer,
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/SignUpView.vue'),
+    meta: { hasSidebar: false }
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/ProfileView.vue'),
+    meta: { hasSidebar: true }
+  },
+  {
+    path: '/profile/:userID',
+    name: 'foreign-profile',
+    component: () => import('@/views/ProfileView.vue'),
     meta: { hasSidebar: false },
     props: true
-  }
+  },
+  {
+    path: '/item/:id',
+    name: 'item-details',
+    component: () => import('@/views/ItemDetailsView.vue'),
+    meta: { hasSidebar: false },
+    props: true
+  },
+  
 ]
 
 const router = createRouter({

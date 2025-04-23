@@ -1,7 +1,7 @@
 <template>
-    <main class="LostItemCardComponent">
+    <main class="ItemCardComponent">
         <article class="item-card">
-            <v-window v-if="item.files !== undefined" class="carousel" show-arrows>
+            <v-window v-if="item?.url_images && item?.url_images.length > 0" class="carousel" show-arrows>
                 <template v-slot:prev="{ props }">
                     <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
                 </template>
@@ -10,8 +10,16 @@
                     <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                 </template>
 
-                <v-window-item class="files" v-for="(file, index) in item.files" :key="index">
-                    <img :src="file" alt="file-image" class="file-image" />
+                <v-window-item eager class="files" v-for="(file, index) in item?.url_images" :key="index">
+                    <v-dialog max-width="800" max-height="800" scroll-strategy="close" transition="fade-transition">
+                        <template v-slot:activator="{ props: activatorProps }">
+                            <img v-bind=activatorProps :src="file" alt="file-image" class="file-image" />
+                        </template>
+
+                        <template v-slot>
+                            <img :src="file" alt="file-image" class="full-file-image" />
+                        </template>
+                    </v-dialog>
                 </v-window-item>
             </v-window>
 
@@ -27,28 +35,28 @@
 
             <section class="main-text">
                 <section class="head-text">
-                    <span class="type">{{ item.type }}</span>
-                    <span class="name">{{ item.name }}</span>
+                    <span class="type">{{ item?.type }}</span>
+                    <span class="name">{{ item?.name }}</span>
 
                 </section>
 
-                <span class="category">{{ item.category }}</span>
+                <span class="category">{{ item?.category }}</span>
 
                 <section class="color-gender">
-                    <span class="color">{{ item.color }}</span>
-                    <span v-if="item.gender !== undefined" class="gender">{{ item.gender }}</span>
+                    <span class="color">{{ item?.color }}</span>
+                    <span v-if="item?.gender" class="gender">{{ item?.gender }}</span>
                 </section>
 
-                <p class="small-description">{{ item.detailedDescription }}</p>
+                <p class="small-description">{{ item?.detailedDescription }}</p>
 
                 <section class="date-time-location">
-                    <span class="date-time">{{ item.dateTime }}</span>
-                    <span class="location">{{ item.location }}</span>
+                    <span class="date-time">{{ formattedDateTime }}</span>
+                    <span class="location">{{ item?.location }}</span>
                 </section>
 
                 <section class="reward-arrow">
-                    <span class="reward">{{ item.reward + " €" }}</span>
-                    <router-link :to="{ name: 'item-details', params: { id: item.id },  }">
+                    <span v-if="item?.type === 'Perdido'" class="reward">{{ item?.reward + " €" }}</span>
+                    <router-link :to="{ name: 'item-details', params: { id: item?.id },  }">
                         <v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon>
                     </router-link>
                 </section>
@@ -58,28 +66,38 @@
 </template>
 
 <script setup lang="ts">
-import { LostItem } from '@/interfaces/items';
+import { MixedItem } from '@/interfaces/items';
+import { ref, Ref, watch } from 'vue';
     
-    defineProps<{
-        item: LostItem
+    const props = defineProps<{
+        item: MixedItem | undefined
     }>()
+
+    const formattedDateTime : Ref<string| undefined> = ref(props.item?.dateTime)
+    watch(
+        () => props.item?.dateTime,
+        (newDateTime) => {
+            if (newDateTime) {
+            formattedDateTime.value = newDateTime.replace('T', ' ');
+            }
+        },
+        { immediate: true }
+    );
 
 </script>
 
 <style scoped lang="css">
 
-    .LostItemCardComponent {
-        border: 3px solid var(--first-color);
-        border-radius: .7em;
-
+    .ItemCardComponent {
         opacity: 0;
         animation: aparecer 1s forwards;
 
+        border: 3px solid var(--first-color);
+        border-radius: .8em;
     }
 
     .item-card {
         color: var(--text-color);
-        border-radius: .7em;
 
         width: 900px;
         height: 500px;
@@ -90,7 +108,9 @@ import { LostItem } from '@/interfaces/items';
         opacity: 0;
         animation: aparecer 1s forwards;
 
+        border-radius: 1em;
         box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
+
 
     }
 
@@ -112,18 +132,32 @@ import { LostItem } from '@/interfaces/items';
         height: 100%;
         object-fit:cover;
 
+        cursor: pointer;
+
         border-radius: .5em 0em 0em .5em;
     }
 
-    .no-image {
-        background-color: var(--second-color);
-        border-radius: .5em 0em 0em .5em;
+    .full-file-image{
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
 
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .no-image {
+        background-color: var(--third-color);
+        
         display: flex;
         align-items: center;
         justify-content: center;
-
+    
         font-size: larger;
+        
+        border-radius: .5em 0em 0em .5em;
     }
 
     .no-image-content {
@@ -149,6 +183,7 @@ import { LostItem } from '@/interfaces/items';
     .main-text {
         background-color: var(--second-color);
         border-radius: 0em .5em .5em 0em;
+        
         grid-column: 3;
 
         display: flex;
@@ -165,7 +200,7 @@ import { LostItem } from '@/interfaces/items';
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
-        padding: .6em .5em .5em .8em;
+        padding: .6em .8em .5em .8em;
         width: 100%;
         height: 2.6em;
 
@@ -203,13 +238,20 @@ import { LostItem } from '@/interfaces/items';
     }
     
     .small-description {
-        height: 9.7em;   
-        padding-top: .4em;
 
         white-space: normal; 
         display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 6;
+        -webkit-line-clamp: 5;
+
+        overflow: hidden;
+        text-align: justify; 
+
+        line-height: 1.7em;
+        height: 9.25em;
+
+        padding-top: 6px;
+
     }
 
     .color-gender, .date-time-location {
@@ -270,18 +312,10 @@ import { LostItem } from '@/interfaces/items';
     }
 
     @media (max-width: 950px) {
-        .LostItemCardComponent {
-            border: 3px solid var(--first-color);
-            border-radius: .7em;
-
-            opacity: 0;
-            animation: aparecer 1s forwards;
-
-        }
 
         .item-card {
             width: 320px;
-            height: 600px;
+            height: 613.5px;
 
             grid-template-columns: auto;
             grid-template-rows: 250px 3px auto;
@@ -306,7 +340,6 @@ import { LostItem } from '@/interfaces/items';
 
         }
 
-
         .file-image {
             width: 100%;
             height: 100%;
@@ -320,8 +353,6 @@ import { LostItem } from '@/interfaces/items';
             grid-row: 1;
             grid-column: 1;
 
-            background-color: var(--second-color);
-
             display: flex;
             align-items: center;
             justify-content: center;
@@ -329,6 +360,7 @@ import { LostItem } from '@/interfaces/items';
             font-size: larger;
 
             border-radius: .3em .3em 0 0;
+
         }
 
         .line {
@@ -348,7 +380,7 @@ import { LostItem } from '@/interfaces/items';
             
             border-radius: 0 0 .5em .5em;
 
-            height: 347px;
+            height: 361px;
             width: 320px;
             font-size: small;
 
@@ -358,21 +390,16 @@ import { LostItem } from '@/interfaces/items';
             font-size: small;
         }
 
-        .category {
-            display: flex;
-            text-align: center;
-            align-items: center;
-            height: 4.5em;   
-            
-        }
-
         .date-time-location, .reward {
             width: 65%;
         }
 
         .small-description {
-            padding-top: .2em;
+            padding-top: .3em;
+            padding-left: .7em;
             -webkit-line-clamp: 3;
+
+            height: 5.5em;
         }
     }
     

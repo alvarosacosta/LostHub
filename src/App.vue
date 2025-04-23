@@ -1,44 +1,54 @@
 <template>
   <main class='main'>
-    <SidebarContainer @toggle-sidebar="toggleSidebar" v-if="showSidebar" msg="Mi nombre"></SidebarContainer>
-    <router-view class="main-content" :class="sidebarOptions()"/>
+    <LoadingOverlay v-if="loading" v-model:loading="loading" ></LoadingOverlay>
+    <StatusBar v-if="statusBarError || statusBarMessage" v-model:msg="statusBarMessage" v-model:error="statusBarError"></StatusBar>
+
+    <SidebarContainer @show-success="useStatusBarMessage" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar"></SidebarContainer>
+    <router-view @show-success="useStatusBarMessage"  @show-error="useStatusBarError" class="main-content" :class="sidebarOptions()"/>
 
   </main>
 </template>
 
 <script setup lang="ts">
 import SidebarContainer from '@/containers/SidebarContainer.vue';
-import { useRoute } from 'vue-router';
-import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
+import LoadingOverlay from './components/LoadingOverlay.vue';
+import StatusBar from './components/StatusBar.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { computed, onMounted, ref, Ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+
+  const loading : Ref<boolean> = ref(false)
 
   const route = useRoute();
+  const router = useRouter();
+
+  const statusBarError : Ref<string> = ref('');
+  const statusBarMessage : Ref<string> = ref('');
+
   const showSidebar = computed(() => route.meta.hasSidebar !== false);
-  const windowWidth = ref(window.innerWidth);
   var isClosed : Ref<boolean> = ref(false);
 
+  const windowWidth = ref(window.innerWidth);
   const isTablet = computed(() => windowWidth.value < 1220);
 
   const updateWindowWidth = () => {
       windowWidth.value = window.innerWidth;
   };
 
+  const authStore = useAuthStore();
+
+  async function restartUser() : Promise<void> {
+    await authStore.init();
+  }
+  
   onMounted(() => {
-      window.addEventListener('resize', updateWindowWidth);
+    restartUser();
+    window.addEventListener('resize', updateWindowWidth);
+
   });
 
-  onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateWindowWidth);
-  });
-
-  watch(
-    () => route.fullPath,
-    () => {
-      isClosed.value = false;
-    }
-  )
-
-  function toggleSidebar(closed: boolean): void {
-    isClosed.value = closed;
+  function toggleSidebar(sidebarStatus: boolean): void {
+    isClosed.value = sidebarStatus;
   }
 
   function sidebarOptions(): string {
@@ -47,23 +57,53 @@ import { computed, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
     : 'main-content'
   }
 
+  function useStatusBarMessage(message: string) : void {
+    showLoader()
+
+    setTimeout(() => {
+        statusBarMessage.value = message;
+    }, 620) 
+  }
+
+  function useStatusBarError(error: string) : void {
+    statusBarError.value = error;
+  }
+  
+  const loaderRoutes = ['/', '/hub', '/profile', '/register'];
+  router.beforeEach((to, from, next) => {
+    isClosed.value = false;
+
+    const isAValidRoute = loaderRoutes.includes(to.path);
+    const isItemRoute = to.path.startsWith('/item/') || to.path.startsWith('/profile/');
+
+    if (isAValidRoute || isItemRoute) {
+      showLoader()
+    }
+
+    next()
+  })
+
+  function showLoader() : void {
+    loading.value = true
+  }
+
 </script>
 
 <style>
 
-.main {
-  display: grid;
-  grid-template-columns: 17.05em 1fr;
-  
-}
+  .main {
+    display: grid;
+    grid-template-columns: 17.05em 1fr;
+    
+  }
 
-.main-content {
-  grid-column: 2;
-}
+  .main-content {
+    grid-column: 2;
+  }
 
-.main-content-without-sidebar {
-  grid-column-start: 1;
-  grid-column-end: 3;
-}
+  .main-content-without-sidebar {
+    grid-column-start: 1;
+    grid-column-end: 3;
+  }
 
 </style>
