@@ -61,13 +61,15 @@
                     <router-link class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
                 </section>
                 
-                <section class="secondary-info">
-                    <label class="rating-label" for="rating-container">GUARDAR PETICIÓN</label>
-                    <section class="rating-container">
-                        <v-icon class="rating-icon" @click="toggleRated()" :class="{'rated': rated}" size="80">mdi-content-save</v-icon>
-                        <span class="rating">0</span>
+                <section class="interaction-buttons">
+                    <section class="save-container">
+                        <v-icon class="save-icon" size="80">mdi-content-save</v-icon>
+                        <span class="tooltip">Guardar petición</span>
                     </section>
-                    <button class="notification-button">Notificar coincidencia</button>
+                    <section class="notify-container">
+                        <v-icon class="notify-icon" size="80">mdi-bell</v-icon>
+                        <span class="tooltip">Notificar hallazgo</span>
+                    </section>
                 </section>
             </article>
 
@@ -326,24 +328,25 @@ import { Ref, ref, watch } from 'vue';
 
         display: flex;
         align-items: center;
+        justify-content: space-evenly;
 
-        gap: 2.5em;
     }
 
     .profile {
         display: flex;
         flex-direction: column;
-        padding-left: 1em;
 
         gap: 1em;
     }
     
     .profile-image-container {
-        width: 12em;
-        height: 12em;
+        width: 10em;
+        height: 10em;
         
         overflow: visible;
         position: relative;
+
+        align-self: center;
 
     }
 
@@ -353,15 +356,8 @@ import { Ref, ref, watch } from 'vue';
         object-fit:cover;
 
         border-radius: 15px;
-        border: 3px solid var(--first-color);
+        border: 3px solid var(--fourth-color);
         box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
-    }
-
-    .secondary-info {
-        display: flex;
-        flex-direction: column;
-
-        gap: 2em;
     }
 
     .type {
@@ -391,55 +387,43 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .rating-label {
-        font-size: large;
+    .interaction-buttons{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
 
-        position: relative;
-        top: .8em;
-
-        z-index: 1;
+        gap: 1em;
     }
 
-    .rating-container {
+    .save-container, .notify-container {
         display: flex;
         align-items: center;
         justify-content: center;
 
         gap: 2em;
 
-        position: relative;
-        bottom: 1em;
-
         background-color: var(--second-color);
-        border: 3px solid var(--first-color);
+        border: 3px solid var(--fourth-color);
 
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
-        padding: 1em;
+        box-shadow: 4px 4px 5px rgba(0, 0, 0, 1);
+        padding: .5em 1em 1em 1em;
         border-radius: 1.5em;
 
-        width: 14em;
 
     }
 
-    .rating-icon {
+    .save-icon, .notify-icon {
         cursor: pointer;
         color: var(--first-accent-color);
         filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
     }
 
-    .rating {
-        font-weight: bold;
-        font-size: larger;
-
-        position: relative;
-        top: 4px;
-    }
-
-    .rating-icon:hover, .rated {
+    .save-icon:hover, .notify-icon:hover {
         color: var(--second-accent-color);
     }
 
-    .notification-button, .profile-button {
+    .profile-button {
         text-decoration: none;
         background-color: var(--first-accent-color);
         color: inherit;
@@ -454,16 +438,7 @@ import { Ref, ref, watch } from 'vue';
         width: 12em;
     }
 
-    .notification-button {
-        font-weight: bold;
-        font-size: large;
-        height: 4em;
-
-        position: relative;
-        bottom: .7em;
-    }
-
-    .notification-button:hover, .profile-button:hover {
+    .profile-button:hover {
         background-color: var(--second-accent-color);
     }
 
@@ -541,7 +516,7 @@ import { Ref, ref, watch } from 'vue';
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
-        padding: .6em .5em .5em .8em;
+        padding: .6em .8em .5em .8em;
 
         min-height: 2.6em;
         height: auto;
@@ -564,6 +539,7 @@ import { Ref, ref, watch } from 'vue';
     
     .description, .location-description {
         min-height: 10em;
+        text-align: justify; 
     }
 
     .color-gender, .date-time-location {
@@ -614,6 +590,37 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
+    .save-container, .notify-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip {
+        position: absolute;
+        bottom: 75%;
+        left: 95%;
+        transform: translateX(-50%);
+        background-color: var(--first-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .7em;
+        border-radius: .5em;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 10;
+
+        transition-delay: 0s;
+        transition: opacity 0.3s ease;
+
+    }
+
+    .save-container:hover .tooltip, .notify-container:hover .tooltip {
+        opacity: 1;
+        transition-delay: 0.4s;
+    }
+
     @media (max-width: 1090px) {
         .item {
             width: 650px;
@@ -631,14 +638,6 @@ import { Ref, ref, watch } from 'vue';
             grid-row: 4;
 
             align-items: center;
-            justify-content: center;
-            gap: 7em;
-        }
-
-        .rating-container {
-            position: relative;
-            right: .3em;
-
         }
 
         .carousel-container {
@@ -715,6 +714,12 @@ import { Ref, ref, watch } from 'vue';
             padding: 0 1em 0 1em;
         }
 
+        .interaction-buttons{
+            flex-direction: row;
+
+            gap: 1em;
+        }
+
         .main-text {
             padding: 0 1em 0 1em;
             width: 344px;
@@ -726,7 +731,7 @@ import { Ref, ref, watch } from 'vue';
 
             height: auto;
             width: 344px;
-            gap: 3.2em;
+            gap: 2em;
 
             flex-direction: column;
 
@@ -737,46 +742,8 @@ import { Ref, ref, watch } from 'vue';
             display: none;
         }
 
-        .secondary-info {
-            height: 100%;
-
-        }
-
-        .rating-label {
-            display: none;
-
-        }
-
-        .rating-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            gap: 2em;
-
-            width: 18.5em;
-
-        }
-
-        .rating {
-            font-weight: bold;
-            font-size: small;
-
-        }
-
-        .notification-button {
-            font-size: medium;
-
-            height: 5em;
-
-            width: 15em;
-        }
-
         .profile-button {
             width: 15em;
-
-            position: relative;
-            right: .7em;
 
             font-size: medium;
         }

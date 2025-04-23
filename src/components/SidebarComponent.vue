@@ -96,8 +96,6 @@ import { useRoute } from 'vue-router';
         window.removeEventListener('resize', updateWindowWidth);
     });
 
-    console.log(props.userProfile)
-
     watch(isTablet, (val) => {
         if (val) {
             isClosed.value = true;

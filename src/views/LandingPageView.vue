@@ -1,10 +1,10 @@
 <template>
     <main class="LandingPageView">
-        <LandingPageComponent></LandingPageComponent>
+        <LandingPageContainer></LandingPageContainer>
     </main>
 </template>
 
 <script setup lang="ts">
-import LandingPageComponent from '@/components/LandingPageComponent.vue';
+import LandingPageContainer from '@/containers/LandingPageContainer.vue';
 
 </script>

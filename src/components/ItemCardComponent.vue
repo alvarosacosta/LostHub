@@ -92,6 +92,8 @@ import { ref, Ref, watch } from 'vue';
         opacity: 0;
         animation: aparecer 1s forwards;
 
+        border: 3px solid var(--first-color);
+        border-radius: .8em;
     }
 
     .item-card {
@@ -108,6 +110,7 @@ import { ref, Ref, watch } from 'vue';
 
         border-radius: 1em;
         box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
+
 
     }
 
@@ -132,10 +135,6 @@ import { ref, Ref, watch } from 'vue';
         cursor: pointer;
 
         border-radius: .5em 0em 0em .5em;
-
-        border-top: 3px solid var(--first-color);
-        border-left: 3px solid var(--first-color);
-        border-bottom: 3px solid var(--first-color);
     }
 
     .full-file-image{
@@ -150,7 +149,7 @@ import { ref, Ref, watch } from 'vue';
     }
 
     .no-image {
-        background-color: var(--second-color);
+        background-color: var(--third-color);
         
         display: flex;
         align-items: center;
@@ -159,10 +158,6 @@ import { ref, Ref, watch } from 'vue';
         font-size: larger;
         
         border-radius: .5em 0em 0em .5em;
-
-        border-top: 3px solid var(--first-color);
-        border-left: 3px solid var(--first-color);
-        border-bottom: 3px solid var(--first-color);
     }
 
     .no-image-content {
@@ -188,10 +183,6 @@ import { ref, Ref, watch } from 'vue';
     .main-text {
         background-color: var(--second-color);
         border-radius: 0em .5em .5em 0em;
-
-        border-right: 3px solid var(--first-color);
-        border-top: 3px solid var(--first-color);
-        border-bottom: 3px solid var(--first-color);
         
         grid-column: 3;
 
@@ -209,7 +200,7 @@ import { ref, Ref, watch } from 'vue';
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
-        padding: .6em .5em .5em .8em;
+        padding: .6em .8em .5em .8em;
         width: 100%;
         height: 2.6em;
 
@@ -247,13 +238,20 @@ import { ref, Ref, watch } from 'vue';
     }
     
     .small-description {
-        height: 9.7em;   
-        padding-top: .3em;
 
         white-space: normal; 
         display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 6;
+        -webkit-line-clamp: 5;
+
+        overflow: hidden;
+        text-align: justify; 
+
+        line-height: 1.7em;
+        height: 9.25em;
+
+        padding-top: 6px;
+
     }
 
     .color-gender, .date-time-location {
@@ -314,18 +312,10 @@ import { ref, Ref, watch } from 'vue';
     }
 
     @media (max-width: 950px) {
-        .LostItemCardComponent {
-            border: 3px solid var(--first-color);
-            border-radius: .7em;
-
-            opacity: 0;
-            animation: aparecer 1s forwards;
-
-        }
 
         .item-card {
             width: 320px;
-            height: 600px;
+            height: 613.5px;
 
             grid-template-columns: auto;
             grid-template-rows: 250px 3px auto;
@@ -350,7 +340,6 @@ import { ref, Ref, watch } from 'vue';
 
         }
 
-
         .file-image {
             width: 100%;
             height: 100%;
@@ -364,8 +353,6 @@ import { ref, Ref, watch } from 'vue';
             grid-row: 1;
             grid-column: 1;
 
-            background-color: var(--second-color);
-
             display: flex;
             align-items: center;
             justify-content: center;
@@ -373,6 +360,7 @@ import { ref, Ref, watch } from 'vue';
             font-size: larger;
 
             border-radius: .3em .3em 0 0;
+
         }
 
         .line {
@@ -392,7 +380,7 @@ import { ref, Ref, watch } from 'vue';
             
             border-radius: 0 0 .5em .5em;
 
-            height: 347px;
+            height: 361px;
             width: 320px;
             font-size: small;
 
@@ -402,21 +390,16 @@ import { ref, Ref, watch } from 'vue';
             font-size: small;
         }
 
-        .category {
-            display: flex;
-            text-align: center;
-            align-items: center;
-            height: 4.5em;   
-            
-        }
-
         .date-time-location, .reward {
             width: 65%;
         }
 
         .small-description {
-            padding-top: .2em;
+            padding-top: .3em;
+            padding-left: .7em;
             -webkit-line-clamp: 3;
+
+            height: 5.5em;
         }
     }
     

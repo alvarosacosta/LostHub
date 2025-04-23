@@ -56,8 +56,8 @@ import { onMounted, Ref, ref } from 'vue';
         try {
             await AuthStore.logOut();
 
-            emit("showSuccess", "Se ha cerrado sesión de forma satisfactoria.")
-            router.push('/hub')
+            emit("showSuccess", "Se ha cerrado sesión de forma satisfactoria. ¡Adiós!")
+            router.push('/')
 
         } catch (error : any) {
             showError(error)

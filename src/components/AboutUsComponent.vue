@@ -10,11 +10,9 @@
                     <p class='info-text'>Nuestro objetivo es aportar una solución tecnológica simple que ayude a devolver los objetos perdidos de tu zona a su propietario. 
                         Conectar y crear una comunidad de usuarios dispuesta a ayudarse entre ellos.</p>
                 </section>
-                <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 1">
             </section>
 
             <section class="about-us-item">
-                <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 2">
                 <section class="about-us-text">
                     <h3 class='info-title'>Razón de ser</h3>
                     <p class='info-text'>A día de hoy hay una gran cantidad de objetos extraviados en todo el mundo, muchos acaban abarrotando 
@@ -28,7 +26,6 @@
                     <p class='info-text'>La propuesta fue desarrollada a principios de 2025 por solo un desarrollador. Su visión culmina en el portal web Lost Hub. Un lugar cuya comunidad 
                         no conoce límites a la hora de ayudar a encontrar todos esos objetos que una vez fueron perdidos.</p>
                 </section>
-                <img class="about-us-img" src="https://placehold.co/500x300" alt="Imagen 3">
             </section>
 
             <section class="footer">
@@ -50,17 +47,21 @@
 
         background-color: var(--first-color);
         padding: 10px;
-        border-radius: 20px;
+        border-radius: .5em;
 
         box-shadow: 2px 2px 3px rgba(0, 0, 0, 1);
     }
     
     .about-us-content {
         display: flex;
-        flex-direction: column;
-        gap: 10em;
+        align-items: center;
+        justify-content: center;
+        gap: 5em;
 
         margin-top: 5em;
+
+        min-height: 30em;
+        margin-bottom: 5em;
     }
 
     .about-us-item {
@@ -75,10 +76,26 @@
         animation: aparecer 1s forwards;
 
         box-shadow: 0px 4px 5px rgba(0, 0, 0, 1);
+        border-radius: 1em;
     }
     
     .about-us-text {
         padding: 2em;
+
+        width: 20em;
+        height: 20em;
+
+        text-align: justify;
+
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+
+        gap: .5em;
+    }
+
+    .info-title{
+        justify-self: center;
     }
 
     .footer {
@@ -88,41 +105,41 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        position: fixed;
+        bottom: 0;
+
+        width: 100%;
     }
 
     .penguin {
         color: var(--text-color);
     }
 
-    @media (max-width: 850px) {
+    @media (max-width: 1140px) {
         .about-us-content {
-            gap: 3em;
             margin-top: 1em;
+
+            flex-direction: column;
+            gap: 0;
+
         }
 
         .about-us-item {
             flex-direction: column;
-            padding: 2em;
+            padding: 1.5em;
             margin: 2em;
             gap: 1em;
 
-            border-radius: 1em;
+            border-radius: .5em;
         }
 
         .about-us-text {
             padding: .5em;
-            text-align: justify;
-        }
 
-        .about-us-img {
-            width: 100%;
-
-            border-radius: 1em;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
-        }
-
-        .about-us-item:nth-child(even) {
-            justify-content: flex-start;
+            width: auto;
+            max-width: 20em;
+            height: 20em;
         }
 
     }
