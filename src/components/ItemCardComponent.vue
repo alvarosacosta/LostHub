@@ -295,6 +295,11 @@ import { ref, Ref, watch } from 'vue';
         color: var(--second-accent-color);
 
     }
+    
+    .view-details-arrow:hover{
+        transform: scale(1.2);
+
+    }
 
     .carousel {
         position: relative;

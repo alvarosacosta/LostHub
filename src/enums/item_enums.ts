@@ -106,7 +106,12 @@ export enum Color {
     Rosa = 'Rosa',
     Beige = 'Beige',
     Plata = 'Plata',
-  }
+}
+
+export const itemTypeOptions = [
+    { label: 'Encontrado', value: ItemType.Encontrado },
+    { label: 'Perdido', value: ItemType.Perdido }
+]
 
 export const categoryToSubcategories: Record<Category, Subcategory[]> = {
     [Category.Animal]: [

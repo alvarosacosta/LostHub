@@ -621,19 +621,19 @@ import { Ref, ref, watch } from 'vue';
         border-radius: .5em;
         font-size: 12px;
         white-space: nowrap;
-        opacity: 0;
         pointer-events: none;
         z-index: 10;
-
+        
         transition-delay: 0s;
         transition: opacity 0.3s ease;
-
+        
+        opacity: 1;
     }
 
-    .save-container:hover .tooltip, .notify-container:hover .tooltip {
+    /* .save-container:hover .tooltip, .notify-container:hover .tooltip {
         opacity: 1;
         transition-delay: 0.4s;
-    }
+    } */
 
     @media (max-width: 1090px) {
         .item {

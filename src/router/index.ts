@@ -32,6 +32,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { hasSidebar: true }
   },
   {
+    path: '/postItem',
+    name: 'postItem',
+    component: () => import('@/views/CreateItemView.vue'),
+    meta: { hasSidebar: false }
+  },
+  {
     path: '/profile/:userID',
     name: 'foreign-profile',
     component: () => import('@/views/ProfileView.vue'),

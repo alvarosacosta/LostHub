@@ -41,8 +41,8 @@
             <a class='github-ref' href="https://github.com/alvarosacosta">
                 <v-icon class="github-icon" size="50" color="var(--first-accent-color)">mdi-github</v-icon>
             </a>
-
-            <router-link v-if="userProfile" class="publish-button" to="/">
+            
+            <router-link v-if="userProfile" class="publish-button" to="/postItem">
                 <v-icon class="new-post-icon" size="40" color="var(--fourth-color)">mdi-feather</v-icon>
             </router-link>
         </section>
