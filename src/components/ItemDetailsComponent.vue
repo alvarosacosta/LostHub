@@ -21,13 +21,19 @@
                     </ul>
                 </section>
 
-                <v-window class="carousel" show-arrows v-model="selectedIndex">
+                <v-window 
+                    class="carousel" 
+                    show-arrows 
+                    v-model="selectedIndex"
+                    @mouseenter="isHovered = true"
+                    @mouseleave="isHovered = false"
+                >
                     <template v-slot:prev="{ props }">
-                        <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
+                        <v-icon class="carousel-arrow-prev" :class="{ 'arrow-visible': isHovered }" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
                     </template>
     
                     <template v-slot:next="{ props }">
-                        <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
+                        <v-icon class="carousel-arrow-next" :class="{ 'arrow-visible': isHovered }" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                     </template>
     
                     <v-window-item eager class="files" v-for="(file, index) in singleItem?.url_images" :key="index">
@@ -167,11 +173,7 @@ import { Ref, ref, watch } from 'vue';
     );
 
     const selectedIndex: Ref<number> = ref(0)
-    var rated: Ref<boolean> = ref(false)
-
-    function toggleRated() : void {
-        rated.value = !rated.value;
-    }
+    const isHovered: Ref<boolean> = ref(false)
 
 </script>
 
@@ -219,6 +221,8 @@ import { Ref, ref, watch } from 'vue';
         grid-column: 1;
         grid-row-start: 1;
         grid-row-end: 3;
+
+        position: relative;
     }
 
     .carousel {
@@ -280,10 +284,15 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .full-file-image {
+    .full-file-image{
         border-radius: 1em;
         border: 3px solid var(--first-color);
         box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
+
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
     }
 
     .no-image-container {
@@ -561,33 +570,38 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .carousel-arrow-prev, .carousel-arrow-next {
-        transition: transform 0.5s ease;
-        
+    .carousel {
+        position: relative;
     }
 
-    .carousel:hover .carousel-arrow-next{
-        transform: translateX(20px);
-        animation: aparecer 0.5s;
+    .carousel-arrow-next {
+        position: absolute;
+        top: 50%;
+        opacity: 1;
+        z-index: 10;
+        transition: transform 0.3s ease;
 
+        transform: translateY(-50%) translateX(500px); 
     }
 
-    .carousel:not(:hover) .carousel-arrow-next{
-        transform: translateX(100px);
-        animation: desaparecer 0.5s;
-    
+    .carousel-arrow-prev {
+        position: absolute;
+        top: 50%;
+        opacity: 1;
+        z-index: 10;
+        transition: transform 0.3s ease;
+
+        transform: translateY(-50%) translateX(-200px);
     }
 
-    .carousel:hover .carousel-arrow-prev{
-        transform: translateX(-20px);
-        animation: aparecer 0.5s;
-
+    .arrow-visible.carousel-arrow-prev {
+        transform: translateY(-50%) translateX(-15px);
+        opacity: 1;
     }
 
-    .carousel:not(:hover) .carousel-arrow-prev{
-        transform: translateX(-100px);
-        animation: desaparecer 0.5s;
-
+    .arrow-visible.carousel-arrow-next {
+        transform: translateY(-50%) translateX(215px);
+        opacity: 1;
     }
 
     .save-container, .notify-container {

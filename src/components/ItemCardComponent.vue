@@ -1,13 +1,19 @@
 <template>
     <main class="ItemCardComponent">
         <article class="item-card">
-            <v-window v-if="item?.url_images && item?.url_images.length > 0" class="carousel" show-arrows>
+            <v-window 
+                v-if="item?.url_images && item?.url_images.length > 0" 
+                class="carousel" 
+                show-arrows
+                @mouseenter="isHovered = true"
+                @mouseleave="isHovered = false"
+            >
                 <template v-slot:prev="{ props }">
-                    <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
+                    <v-icon class="carousel-arrow-prev" :class="{ 'arrow-visible': isHovered }" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
                 </template>
 
                 <template v-slot:next="{ props }">
-                    <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
+                    <v-icon class="carousel-arrow-next" :class="{ 'arrow-visible': isHovered }" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                 </template>
 
                 <v-window-item eager class="files" v-for="(file, index) in item?.url_images" :key="index">
@@ -84,6 +90,8 @@ import { ref, Ref, watch } from 'vue';
         { immediate: true }
     );
 
+    const isHovered = ref(false)
+
 </script>
 
 <style scoped lang="css">
@@ -116,6 +124,8 @@ import { ref, Ref, watch } from 'vue';
 
     .carousel {
         border-radius: .5em 0em 0em .5em;
+
+        position: relative;
     }
 
     .files {
@@ -286,31 +296,41 @@ import { ref, Ref, watch } from 'vue';
 
     }
 
-    .carousel-arrow-prev, .carousel-arrow-next {
-        transition: transform 0.5s ease; 
-        
+    .carousel {
+        position: relative;
     }
 
-    .carousel:hover .carousel-arrow-next{
-        transform: translateX(20px);
-        animation: aparecer 0.5s
+    .carousel-arrow-next {
+        position: absolute;
+        top: 50%;
+        opacity: 1;
+        transition: transform 0.3s ease;
+        z-index: 10;
+
+        transform: translateY(-50%) translateX(500px); 
     }
 
-    .carousel:not(:hover) .carousel-arrow-next{
-        transform: translateX(100px);
-        animation: desaparecer 0.5s
+    .carousel-arrow-prev {
+        position: absolute;
+        top: 50%;
+        opacity: 1;
+        z-index: 10;
+        transition: transform 0.3s ease;
+
+        transform: translateY(-50%) translateX(-200px);
     }
 
-    .carousel:hover .carousel-arrow-prev{
-        transform: translateX(-20px);
-        animation: aparecer 0.5s
+    .arrow-visible.carousel-arrow-prev {
+        transform: translateY(-50%) translateX(-15px);
+        opacity: 1;
     }
 
-    .carousel:not(:hover) .carousel-arrow-prev{
-        transform: translateX(-100px);
-        animation: desaparecer 0.5s
+    .arrow-visible.carousel-arrow-next {
+        transform: translateY(-50%) translateX(215px);
+        opacity: 1;
     }
 
+    
     @media (max-width: 950px) {
 
         .item-card {
