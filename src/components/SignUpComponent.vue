@@ -67,8 +67,6 @@
                                 variant="solo-filled"
                             ></v-text-field>
 
-                            <p class="sign-in-label" >¿Ya tienes una cuenta? <router-link class="sign-in-button" to="/">Inicia sesión</router-link> </p>
-
                         </article>
                     </section>
                     
@@ -77,6 +75,7 @@
                             class="password field"
                             color="var(--first-color)"
                             bg-color="var(--fourth-color)"
+                            density="comfortable"
                             v-model="password"
                             :type="showPassword ? 'text' : 'password'"
                             :prepend-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
@@ -91,6 +90,7 @@
                             class="confirm-password field"
                             color="var(--first-color)"
                             bg-color="var(--fourth-color)"
+                            density="comfortable"
                             v-model="confirmPassword"
                             :type="showPassword ? 'text' : 'password'"
                             :rules="confirmPasswordRules"
@@ -105,6 +105,7 @@
                             class="region field "
                             color="var(--first-color)"
                             bg-color="var(--fourth-color)"
+                            density="comfortable"
                             v-model="selectedRegion"
                             :items="regions"
                             item-title="label"
@@ -119,6 +120,7 @@
                             class="province field "
                             color="var(--first-color)"
                             bg-color="var(--fourth-color)"
+                            density="comfortable"
                             v-model="selectedProvince"
                             :items="filteredProvinces"
                             item-title="label"
@@ -136,6 +138,7 @@
                             class="municipality field"
                             color="var(--first-color)"
                             bg-color="var(--fourth-color)"
+                            density="comfortable"
                             v-model="selectedMunicipality"
                             :items="filteredMunicipalities"
                             :disabled="!selectedProvince"
@@ -418,7 +421,7 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         flex-direction: column;
         width: 100%;
         height: 1em;
-        gap: 1em;
+        gap: 1.5em;
     }
 
     .password-section{
@@ -439,14 +442,6 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         cursor: pointer;
 
         width: 95%;
-    }
-
-    .sign-in-label{
-        color: var(--text-color);
-        font-size: smaller;
-
-        position: relative;
-        bottom: 1.5em;
     }
 
     .sign-in-button{
@@ -481,7 +476,7 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
 
     .view-details-arrow:hover {
         color: var(--second-accent-color);
-
+        transform: scale(1.2);
     }
 
     @media (max-width: 885px) {

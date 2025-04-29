@@ -4,7 +4,6 @@ export enum ItemType {
 }
 
 export enum PublicTransports {
-    NoTransporte = 'No fue en transporte público',
     Autobús = 'Autobús',
     Metro = 'Metro',
     Tranvía = 'Tranvía',
