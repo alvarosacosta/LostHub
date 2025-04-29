@@ -3,7 +3,8 @@ export enum ItemType {
     Perdido = 'Perdido'
 }
 
-export enum TransportesPublicos {
+export enum PublicTransports {
+    NoTransporte = 'No fue en transporte público',
     Autobús = 'Autobús',
     Metro = 'Metro',
     Tranvía = 'Tranvía',
@@ -11,9 +12,6 @@ export enum TransportesPublicos {
     Ferry = 'Ferry',
     Taxi = 'Taxi',
     Teleférico = 'Teleférico',
-    Funicular = 'Funicular',
-    BicicletasCompartidas = 'Bicicletas Compartidas',
-    PatinetesCompartidos = 'Patinetes Compartidos'
 }
 
 export enum Gender {
@@ -107,11 +105,6 @@ export enum Color {
     Beige = 'Beige',
     Plata = 'Plata',
 }
-
-export const itemTypeOptions = [
-    { label: 'Encontrado', value: ItemType.Encontrado },
-    { label: 'Perdido', value: ItemType.Perdido }
-]
 
 export const categoryToSubcategories: Record<Category, Subcategory[]> = {
     [Category.Animal]: [

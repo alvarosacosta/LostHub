@@ -627,13 +627,13 @@ import { Ref, ref, watch } from 'vue';
         transition-delay: 0s;
         transition: opacity 0.3s ease;
         
-        opacity: 1;
+        opacity: 0;
     }
 
-    /* .save-container:hover .tooltip, .notify-container:hover .tooltip {
+    .save-container:hover .tooltip, .notify-container:hover .tooltip {
         opacity: 1;
         transition-delay: 0.4s;
-    } */
+    }
 
     @media (max-width: 1090px) {
         .item {

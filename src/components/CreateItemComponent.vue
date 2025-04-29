@@ -12,7 +12,7 @@
                 <div class="progress-bar" :style="{ width: progressWidth + '%' }"></div>
             </section>
 
-            <v-window class="window" v-model="step">
+            <v-window class="window" v-model="step" :touch="false" >
                 <v-window-item :value="1">
                     <article class="window-step">
                         <v-btn-toggle
@@ -43,13 +43,144 @@
 
                 <v-window-item :value="2">
                     <article class="window-step">
+                        <v-text-field
+                            class="field top-field"
+                            v-model=name
+                            placeholder="Descripción corta / Nombre *"
+                            label="Descripción corta / Nombre *"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                            required
+                        ></v-text-field>
+
+                        <section class="category-subcategory">
+                            <v-select 
+                                class="field"
+                                v-model=category
+                                :items="categoryOptions"
+                                placeholder="Categoría *"
+                                label="Categoría *"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                                required
+                            ></v-select>
+    
+                            <v-select
+                                class="field"
+                                v-model=subcategory
+                                :items="filteredSubcategories"
+                                placeholder="Subcategoría"
+                                label="Subcategoría"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                :disabled="!category"
+                                clearable
+                            ></v-select>
+                        </section>
+
+                        <v-textarea
+                            class="field"
+                            v-model=description
+                            placeholder="Descripción detallada *"
+                            label="Descripción detallada *"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                            required
+                        ></v-textarea>
+
+                        <section class="color-gender">
+                            <v-select 
+                                class="field"
+                                v-model=color
+                                :items="colorOptions"
+                                placeholder="Color *"
+                                label="Color *"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                                required
+                            ></v-select>
+    
+                            <v-select 
+                                v-if="category == 'Animal'"
+                                class="field"
+                                v-model=gender
+                                :items="genderOptions"
+                                placeholder="Sexo"
+                                label="Sexo"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                            ></v-select>
+                        </section>
+
+                        <v-file-input 
+                            class="field"
+                            v-model=files
+                            label="Imágenes"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                            multiple
+                        ></v-file-input>
                         
                     </article>
                 </v-window-item>
 
                 <v-window-item :value="3">
                     <article class="window-step">
-                        
+                        <v-text-field
+                            class="field top-field"
+                            v-model=location
+                            placeholder="Ubicación *"
+                            label="Ubicación *"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                            required
+                        ></v-text-field>
+
+                        <div id="map"></div>
+
+                        <v-textarea
+                            class="field under-map"
+                            v-model=locationDescription
+                            placeholder="Descripción de la ubicación"
+                            label="Descripción de la ubicación"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                        ></v-textarea>
+
+                        <v-select 
+                            class="field"
+                            v-model=publicTransport
+                            :items="publicTransportOptions"
+                            placeholder="Transporte público"
+                            label="¿Perdido en trasnporte público?"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                            clearable
+                            required
+                        ></v-select>
                     </article>
                 </v-window-item>
 
@@ -78,21 +209,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, ref } from 'vue'
+import { computed, Ref, ref, watch, nextTick } from 'vue'
+import L from 'leaflet';
+import { Category, categoryToSubcategories, Color, Gender, PublicTransports, Subcategory } from '@/enums/item_enums';
+import { getCurrentLocation } from '@/utils/geolocation';
 
     const type : Ref<string> = ref('');
 
     const name : Ref<string> = ref('');
-    const category : Ref<string> = ref('');
-    const subcategory : Ref<string> = ref('');
+    const category : Ref<Category | undefined> = ref();
+    const subcategory : Ref<Subcategory | undefined> = ref();
     const description : Ref<string> = ref('');
-    const color : Ref<string> = ref('');
-    const gender : Ref<string> = ref('');
-    const files : Ref<File[] | undefined> = ref(undefined);
+    const color : Ref<Color | undefined> = ref();
+    const gender : Ref<Gender | undefined> = ref();
+    const files : Ref<File[] | undefined> = ref();
         
     const location : Ref<string> = ref('');
     const locationDescription : Ref<string> = ref('');
-    const publicTransport : Ref<string> = ref('');
+    const publicTransport : Ref<PublicTransports | undefined> = ref();
         
     const dateTime : Ref<Date> = ref(new Date());
             
@@ -116,9 +250,70 @@ import { computed, Ref, ref } from 'vue'
         return (step.value / totalSteps) * 100
     })
 
+    const map = ref<L.Map | null>(null);
+    const markerIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+
+    watch(step, async (newStep) => {
+        if (newStep === 3) {
+            await nextTick();
+            const mapContainer = document.getElementById('map');
+
+            if (mapContainer && !map.value) {
+                map.value = L.map(mapContainer).setView([40.4168, -3.7038], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+                }).addTo(map.value);
+
+                map.value.locate({ 
+                    setView: true, 
+                    maxZoom: 16, 
+                    timeout: 10000 
+                });
+
+                map.value.on('locationfound', function(e) {
+                    L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon }).addTo(map.value)
+                        .bindPopup('¡Tu ubicación!')
+                        .openPopup();
+                });
+
+                map.value.on('locationerror', function(e) {
+                    console.log('Error al obtener la ubicación:', e.message);
+                });
+                
+            }
+        }
+    });
+
+    const colorOptions = Object.values(Color)
+    const genderOptions = Object.values(Gender)
+    const categoryOptions = Object.values(Category);
+    const publicTransportOptions = Object.values(PublicTransports); 
+
+    const filteredSubcategories = computed(() => {
+        return categoryToSubcategories[category.value as Category] || [];
+    });
+
+
 </script>
 
 <style scoped lang="css">
+
+    #map {
+        min-height: 300px;
+        width: 95%;
+
+        border-radius: .8em;
+        box-shadow: 0px 0px 9px rgba(0, 0, 0, .9);
+    }
+
     .CreateItemComponent {
         display: flex;
         justify-content: center;
@@ -179,17 +374,47 @@ import { computed, Ref, ref } from 'vue'
         padding: 24px;
         min-height: 350px;
 
+        width: 100%;
+
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
     }
 
     .type-buttons{
+        height: 10em;
+        width: 80%;
         box-shadow: 1px 2px 2px rgba(0, 0, 0, 1);
     }
 
     .type-button {
-        width: 15em;
+        width: 50%;
+        font-size: larger;
+        font-weight: bold;
+
+        color: var(--first-color);
+    }
+
+    .category-subcategory, .color-gender {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 95%;
+        gap: 1em;
+    }
+
+    .field {
+        width: 95%;
+    }
+
+    .top-field {
+        padding-top: 1em;
+    }
+
+    .under-map {
+        padding-top: 1.5em
     }
 
     .v-card-actions {
