@@ -51,7 +51,7 @@ export const useItemsStore = defineStore('items', () => {
         }
     
     } catch(err: any) {
-        console.log("Error fetching all items: " + err.message)
+        console.error("Error fetching all items: " + err.message)
 
     }
   }
@@ -114,7 +114,7 @@ export const useItemsStore = defineStore('items', () => {
         if (data) fetchedUserID.value = data.user_id
 
     } catch(err : any) {
-        console.log("Error fecthing user ID using Item ID: " + err.message)
+        console.error("Error fecthing user ID using Item ID: " + err.message)
     }
   }
 

@@ -39,6 +39,7 @@ import { onMounted, Ref, ref } from 'vue';
     async function updateUserInfo(userUpdatedInfo : UserDetails) : Promise<void>{
         try {
             await AuthStore.updateUserInfo(userUpdatedInfo);
+            await AuthStore.fetchCurrentUserProfile();
 
             success.value = true
             emit("showSuccess", "¡Éxito al actualizar tus datos!")

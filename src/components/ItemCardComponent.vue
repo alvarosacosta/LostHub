@@ -43,29 +43,20 @@
                 <section class="head-text">
                     <span class="type">{{ item?.type }}</span>
                     <span class="name">{{ item?.name }}</span>
-
                 </section>
 
-                <span class="category">{{ item?.category }}</span>
-
-                <section class="color-gender">
-                    <span class="color">{{ item?.color }}</span>
-                    <span v-if="item?.gender" class="gender">{{ item?.gender }}</span>
-                </section>
-
+                <label class="description-label">Descripción</label>
                 <p class="small-description">{{ item?.detailedDescription }}</p>
+                
+                <label class="location-label">Ubicación de pérdida</label>
+                <p class="location">{{ item?.location }}</p>
+                
+                <label v-if="item?.type === 'Perdido'" class="reward-label">Recompensa de búsqueda</label>
+                <p v-if="item?.type === 'Perdido'" class="reward">{{ item?.reward + " €" }}</p>
 
-                <section class="date-time-location">
-                    <span class="date-time">{{ formattedDateTime }}</span>
-                    <span class="location">{{ item?.location }}</span>
-                </section>
-
-                <section class="reward-arrow">
-                    <span v-if="item?.type === 'Perdido'" class="reward">{{ item?.reward + " €" }}</span>
-                    <router-link :to="{ name: 'item-details', params: { id: item?.id },  }">
-                        <v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon>
-                    </router-link>
-                </section>
+                <router-link class="view-details-arrow-container" :to="{ name: 'item-details', params: { id: item?.id },  }">
+                    <v-icon class="view-details-arrow" size="90">mdi-arrow-right-thick</v-icon>
+                </router-link>
             </section>
         </article>
     </main>
@@ -107,8 +98,8 @@ import { ref, Ref, watch } from 'vue';
     .item-card {
         color: var(--text-color);
 
-        width: 900px;
-        height: 500px;
+        width: 750px;
+        height: 350px;
 
         display: grid;
         grid-template-columns: 320px 3px auto;
@@ -130,7 +121,7 @@ import { ref, Ref, watch } from 'vue';
 
     .files {
         width: 320px;
-        height: 500px;
+        height: 350px;
         
         overflow: visible;
         position: relative;
@@ -181,7 +172,7 @@ import { ref, Ref, watch } from 'vue';
 
     .line {
         width: 3px;
-        height: 500px;
+        height: 350px;
         background-color: var(--first-color);
 
         grid-column: 2;
@@ -202,10 +193,12 @@ import { ref, Ref, watch } from 'vue';
         padding: 18px;
         gap: 1em;
 
-        height: 500px;
+        height: 350px;
+
+        position: relative
     }
 
-    .name, .category, .color, .gender, .date-time, .location, .reward, .small-description {
+    .name, .location, .reward, .small-description {
         background-color: var(--first-color);
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -252,35 +245,64 @@ import { ref, Ref, watch } from 'vue';
         white-space: normal; 
         display: -webkit-box;
         -webkit-box-orient: vertical;
-        -webkit-line-clamp: 5;
+        -webkit-line-clamp: 2;
 
         overflow: hidden;
         text-align: justify; 
 
         line-height: 1.7em;
-        height: 9.25em;
+        height: 4em;
 
         padding-top: 6px;
 
     }
 
-    .color-gender, .date-time-location {
+    .reward {
+        width: 70%;
+        height: 3.2em;
+        font-size: xx-large;
+        font-weight: bold;
+        border: 2px solid var(--fourth-color);
         display: flex;
-        gap: 15px;
+        justify-content: center; 
+        align-items: center;    
+        text-align: center;
+        
     }
 
-    .date-time-location, .reward {
-        width: 80%;
+    .description-label, .location-label, .reward-label {
+        position: absolute;
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .2em .4em .2em .4em;
+        border-radius: .5em;
+        font-size: 10px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        opacity: .7;
+
     }
 
-    .reward-arrow {
-        display: flex;
-        height: 3em;
+    .description-label {
+        top: 24%;
     }
 
-    .view-details-arrow {
-        bottom: 56px;
-        left: 15px;
+    .location-label{
+        top: 47%;
+    }
+
+    .reward-label {
+        top: 63%;
+        opacity: 1;
+        font-size: 13px;
+    }
+
+    .view-details-arrow-container{
+        position: absolute;
+        bottom: 6%;
+        left: 74%;
     }
 
     /* Carousel arrows */
@@ -297,7 +319,7 @@ import { ref, Ref, watch } from 'vue';
     }
     
     .view-details-arrow:hover{
-        transform: scale(1.2);
+        transform: scale(1.1);
 
     }
 
@@ -336,11 +358,11 @@ import { ref, Ref, watch } from 'vue';
     }
 
     
-    @media (max-width: 950px) {
+    @media (max-width: 1300px) {
 
         .item-card {
             width: 320px;
-            height: 613.5px;
+            height: 585px;
 
             grid-template-columns: auto;
             grid-template-rows: 250px 3px auto;
@@ -405,27 +427,40 @@ import { ref, Ref, watch } from 'vue';
             
             border-radius: 0 0 .5em .5em;
 
-            height: 361px;
+            height: 331.5px;
             width: 320px;
             font-size: small;
 
+            gap: 1.5em;
+
+        }
+
+        .view-details-arrow-container{
+            bottom: 10%;
+            left: 70%;
+        }
+
+        .description-label {
+            top: 21%;
+        }
+
+        .location-label{
+            top: 43%;
+        }
+
+        .reward-label {
+            top: 60%;
+            font-size: 12px;
         }
 
         .type {
             font-size: small;
         }
 
-        .date-time-location, .reward {
-            width: 65%;
+        .reward {
+            width: 70%;
         }
 
-        .small-description {
-            padding-top: .3em;
-            padding-left: .7em;
-            -webkit-line-clamp: 3;
-
-            height: 5.5em;
-        }
     }
     
 </style>

@@ -24,10 +24,16 @@ import { MixedItem } from '@/interfaces/items';
 </script>
 
 <style scoped lang="css">
-    .items {
+    .ItemsComponent{
         display: flex;
-        flex-direction: column;
-        gap: 5em;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .items {
+        display: grid;
+        grid-template-columns: 750px 750px;
+        gap: 2em;
 
         margin: 5em 0em 5em 0em;
     }
@@ -38,6 +44,9 @@ import { MixedItem } from '@/interfaces/items';
 
         display: flex;
         justify-content: center;
+        align-self: center;
+        height: fit-content;
+        width: fit-content;
     }
 
     .no-items{
@@ -57,6 +66,27 @@ import { MixedItem } from '@/interfaces/items';
         border-radius: .4em;
 
         box-shadow: 0px 4px 5px rgba(0, 0, 0, 1);
+    }
+
+    @media (max-width: 1835px) {
+        .items {
+            grid-template-columns: auto;
+        }
+
+    }
+
+    @media (max-width: 1300px) {
+        .items {
+            grid-template-columns: 320px 320px;
+        }
+
+    }
+
+    @media (max-width: 730px) {
+        .items {
+            grid-template-columns: auto;
+        }
+
     }
 
     @media (max-width: 429px) {

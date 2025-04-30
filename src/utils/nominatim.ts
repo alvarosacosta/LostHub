@@ -13,7 +13,7 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string> 
         return data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
         
     } catch (error) {
-        console.error('Error en la geocodificación inversa:', error);
+        console.error('Error with inverse geocodification:', error);
         return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     }
 }

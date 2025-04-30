@@ -1,5 +1,5 @@
 <template>
-    <main class="StatusBar">
+    <main class="StatusBar" :class="{'slide-fast': forcingClose}">
         <article class="success" v-if="msg">
             <p>{{ msg }}</p>
         </article>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onBeforeUnmount, onMounted, Ref, ref } from 'vue';
     const emit = defineEmits<{
         (e: 'update:msg', msg: string): void
         (e: 'update:error', msg: string): void
@@ -21,17 +21,36 @@ import { onMounted } from 'vue';
         error: string
     }>()
 
+    const forcingClose : Ref<boolean> = ref(false);
+
     onMounted(() => {
         setTimeout(() => {
             closeStatusBar()
         }, 5500); 
+        
+        setTimeout(() => {
+            document.addEventListener('click', forceCloseStatusBar);
+        }, 500)
     });
 
-    function closeStatusBar() : void {
-        emit('update:msg', '')
-        emit('update:error', '')
+    onBeforeUnmount(() => {
+        document.removeEventListener('click', forceCloseStatusBar);
+    });
+
+    function forceCloseStatusBar() : void {
+        forcingClose.value = true; 
+
+        setTimeout(() => {
+            emit('update:msg', '');
+            emit('update:error', '');
+        }, 500); 
     }
-  
+
+    function closeStatusBar() : void {
+        emit('update:msg', '');
+        emit('update:error', '');
+}
+
 </script>
 
 <style lang="css" scoped>
@@ -93,6 +112,19 @@ import { onMounted } from 'vue';
         }
         100% {
             transform: translateY(-100px); 
+        }
+    }
+
+    .slide-fast {
+        animation: slideUp 0.5s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-200px);
         }
     }
 

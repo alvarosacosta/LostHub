@@ -27,10 +27,6 @@
                         no conoce límites a la hora de ayudar a encontrar todos esos objetos que una vez fueron perdidos.</p>
                 </section>
             </section>
-
-            <section class="footer">
-                <v-icon class="penguin">mdi-penguin</v-icon>
-            </section>
         </article>
     </main>
 </template>
@@ -40,6 +36,15 @@
 </script>
 
 <style scoped lang="css">
+    .AboutUsComponent{
+        min-height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
     .about-us-title {
         justify-self: center;
         margin-top: 1em;
@@ -59,8 +64,6 @@
         gap: 5em;
 
         margin-top: 5em;
-
-        min-height: 30em;
         margin-bottom: 5em;
     }
 
@@ -98,23 +101,7 @@
         justify-self: center;
     }
 
-    .footer {
-        height: 5em;
-        background-color: var(--first-color);
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        position: fixed;
-        bottom: 0;
-
-        width: 100%;
-    }
-
-    .penguin {
-        color: var(--text-color);
-    }
+    
 
     @media (max-width: 1140px) {
         .about-us-content {

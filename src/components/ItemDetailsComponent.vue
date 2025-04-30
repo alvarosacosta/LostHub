@@ -60,11 +60,13 @@
             </article>
 
             <article class="profile-article">
+                <label class="label profile-label" for="profile">Usuario asociado</label>
                 <section v-if="foreignUserProfile && fetchedUserID" class="profile">
                     <figure class="profile-image-container">
                         <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
-                    <router-link class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
+                    <router-link v-if="foreignUserProfile.isPublic" class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
+                    <p v-else class="profile-name">{{ foreignUserProfile.username }}</p>
                 </section>
                 
                 <section class="interaction-buttons">
@@ -72,33 +74,50 @@
                         <v-icon class="save-icon" size="80">mdi-content-save</v-icon>
                         <span class="tooltip">Guardar petición</span>
                     </section>
+                    <v-icon class="info-icon" @click="showInfoDialog = true" size="35">mdi-information-outline</v-icon>
                     <section class="notify-container">
                         <v-icon class="notify-icon" size="80">mdi-bell</v-icon>
                         <span class="tooltip">Notificar hallazgo</span>
                     </section>
                 </section>
+
+                <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
+                    <template v-slot>
+                        <section class="info-dialog">
+                            <p class="info">
+                                Puedes guardar una petición para poder acceder a ella fácilmente en el futuro,
+                                para hacerlo simplemente dale click a 'Guardar petición'.
+
+                            </p>
+                            <p class="info">
+                                También puedes notificar a un usuario de que has encontrado su objeto,
+                                para hacerlo simplemente dale click a 'Notificar hallazgo'.
+                            </p>
+                        </section>
+                    </template>
+                </v-dialog>
             </article>
 
             <article class="resume-article">
                 <section class="name-section">
-                    <label for="name">NOMBRE DEL OBJETO</label>
+                    <label class="label" for="name">Descripción corta / Nombre</label>
                     <span class="name">{{ singleItem?.name }}</span>
                 </section>
 
                 <section class="down-section">
                     <section v-if="singleItem?.type === 'Perdido'" class="reward-section">
-                        <label for="reward">RECOMPENSA</label>
+                        <label class="label reward-label" for="reward">Recompensa</label>
                         <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
     
                     <section class="categories-section">
                         <section class="category-section">
-                            <label for="category">CATEGORÍA</label>
+                            <label class="label" for="category">Categoría</label>
                             <span class="category">{{ singleItem?.category }}</span>
                         </section>
         
                         <section v-if="singleItem?.subcategory" class="subcategory-section">
-                            <label for="subcategory">SUBCATEGORÍA</label>
+                            <label class="label" for="subcategory">Subcategoría</label>
                             <span class="subcategory">{{ singleItem?.subcategory }}</span>
                         </section>
                     </section>
@@ -107,41 +126,41 @@
 
             <article class="main-text">
                 <section v-if="singleItem?.isLostInPublicTransport && singleItem?.type === 'Perdido'" class="public-transport-section">
-                    <label for="found-public-transport">PERDIDO EN</label>
+                    <label class="label odd-label" for="found-public-transport">Perdido en</label>
                     <span class="found-public-transport">{{ singleItem?.isLostInPublicTransport }}</span>
                 </section>
 
                 <section class="color-gender">
                     <section class="color-section">
-                        <label for="color">COLOR</label>
+                        <label class="label" for="color">Color</label>
                         <span class="color">{{ singleItem?.color }}</span>
                     </section>
 
                     <section v-if="singleItem?.gender" class="gender-section">
-                        <label for="gender">SEXO</label>
+                        <label class="label" for="gender">Sexo</label>
                         <span class="gender">{{ singleItem?.gender }}</span>
                     </section>
                 </section>
 
                 <section class="date-time-location">
                     <section class="date-time-section">
-                        <label for="date-time">FECHA Y HORA</label>
+                        <label class="label" for="date-time">Fecha y hora</label>
                         <span class="date-time">{{ formattedDateTime }}</span>
                     </section>
 
                     <section class="location-section">
-                        <label for="location">LOCALIZACIÓN</label>
+                        <label class="label" for="location">Localización</label>
                         <span class="location">{{ singleItem?.location }}</span>
                     </section>
                 </section>
 
                 <section class="description-section">
-                    <label for="description">DESCRIPCIÓN DEL OBJETO</label>
+                    <label class="label odd-label" for="description">Descripción del objeto</label>
                     <p class="description">{{ singleItem?.detailedDescription }}</p>
                 </section>
 
                 <section v-if="singleItem?.locationDescription" class="location-description-section">
-                    <label for="location-description">DESCRIPCIÓN DE LUGAR DE PÉRDIDA</label>
+                    <label class="label odd-label" for="location-description">Descripción de lugar de pérdida</label>
                     <p class="location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
@@ -166,7 +185,7 @@ import { Ref, ref, watch } from 'vue';
         () => props.singleItem?.dateTime,
         (newDateTime) => {
             if (newDateTime) {
-            formattedDateTime.value = newDateTime.replace('T', ' ');
+                formattedDateTime.value = newDateTime.replace('T', ' ');
             }
         },
         { immediate: true }
@@ -174,6 +193,7 @@ import { Ref, ref, watch } from 'vue';
 
     const selectedIndex: Ref<number> = ref(0)
     const isHovered: Ref<boolean> = ref(false)
+    const showInfoDialog : Ref<boolean> = ref(false)
 
 </script>
 
@@ -339,13 +359,15 @@ import { Ref, ref, watch } from 'vue';
         align-items: center;
         justify-content: space-evenly;
 
+        position: relative;
+
     }
 
     .profile {
         display: flex;
         flex-direction: column;
 
-        gap: 1em;
+        gap: 2em;
     }
     
     .profile-image-container {
@@ -402,7 +424,31 @@ import { Ref, ref, watch } from 'vue';
         justify-content: center;
         flex-direction: column;
 
+        gap: 3em;
+
+        position: relative;
+
+        top: 1em;
+    }
+
+    .info-dialog{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        font-family: var(--font-poppins);
+        padding: 24px;
         gap: 1em;
+    }
+
+    .info{
+        text-align: justify;
     }
 
     .save-container, .notify-container {
@@ -422,13 +468,23 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .save-icon, .notify-icon {
+    .save-icon, .notify-icon{
         cursor: pointer;
         color: var(--first-accent-color);
         filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
     }
 
-    .save-icon:hover, .notify-icon:hover {
+    .info-icon {
+        position: absolute;
+        left: 120%;
+        bottom: 98%;
+
+        cursor: pointer;
+        color: var(--first-accent-color);
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, .9));
+    }
+
+    .save-icon:hover, .notify-icon:hover, .info-icon:hover{
         color: var(--second-accent-color);
     }
 
@@ -475,6 +531,7 @@ import { Ref, ref, watch } from 'vue';
     .reward {
         background-color: var(--first-color);
         border-radius: 10px;
+        border: 3px solid var(--fourth-color);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
         padding: .6em .5em .5em .8em;
@@ -495,6 +552,7 @@ import { Ref, ref, watch } from 'vue';
     .categories-section {
         display: flex;
         flex-direction: column;
+        justify-content: center;
 
         width: 100%;
         gap: 2em;
@@ -520,7 +578,42 @@ import { Ref, ref, watch } from 'vue';
         grid-column-end: 3;
     }
 
-    .profile-name, .name, .found-public-transport, .no-location, .category, .subcategory, .color, .gender, .date-time, .location, .description, .location-description {
+    .label {
+        position: relative;
+
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .2em .4em .2em .4em;
+        border-radius: .5em;
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        opacity: .8;
+
+        width: fit-content;
+        top: 10%;
+    }
+
+    .reward-label{
+        opacity: .95;
+        border: 2px solid var(--fourth-color);
+        font-size: 15px;
+    }
+
+    .odd-label{
+        position: relative;
+        top: .5em;
+    }
+
+    .profile-label{
+        position: absolute;
+        top: 69%;
+        left: 15%;
+    }
+
+    .name, .found-public-transport, .no-location, .category, .subcategory, .color, .gender, .date-time, .location, .description, .location-description {
         background-color: var(--first-color);
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -534,6 +627,23 @@ import { Ref, ref, watch } from 'vue';
         white-space: normal;
         overflow-wrap: break-word;
         word-break: break-word;        
+    }
+
+    .profile-name{
+        background-color: var(--first-color);
+        border-radius: 10px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+        padding: .6em .8em .5em .8em;
+
+        min-height: 2.6em;
+        height: auto;
+        width: 100%;
+
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;  
+        text-align: center;
     }
 
     .name-section, .category-section, .public-transport-section, .color-section, .gender-section, .date-time-section, .location-section {
@@ -611,28 +721,22 @@ import { Ref, ref, watch } from 'vue';
 
     .tooltip {
         position: absolute;
-        bottom: 75%;
-        left: 95%;
+        bottom: 92%;
+        left: 50%;
         transform: translateX(-50%);
         background-color: var(--first-color);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
         color: var(--text-color);
         padding: .7em;
-        border-radius: .5em;
+        border-radius: .8em;
         font-size: 12px;
         white-space: nowrap;
         pointer-events: none;
         z-index: 10;
-        
-        transition-delay: 0s;
-        transition: opacity 0.3s ease;
-        
-        opacity: 0;
-    }
 
-    .save-container:hover .tooltip, .notify-container:hover .tooltip {
+        border: 2px solid var(--fourth-color);
+        
         opacity: 1;
-        transition-delay: 0.4s;
     }
 
     @media (max-width: 1090px) {
@@ -679,6 +783,21 @@ import { Ref, ref, watch } from 'vue';
         .main-text {
             grid-column: 1;
             grid-row: 3;
+        }
+
+        .interaction-buttons{
+            flex-direction: row;
+
+            padding-bottom: 1em;
+            gap: 1em;
+        }
+
+        .info-icon {
+            left: 109%;
+        }
+
+        .profile-label{
+            left: 12%;
         }
 
     }
@@ -735,7 +854,7 @@ import { Ref, ref, watch } from 'vue';
         }
 
         .main-text {
-            padding: 0 1em 0 1em;
+            padding: 1em 1em 0 1em;
             width: 344px;
         }
 
@@ -760,6 +879,16 @@ import { Ref, ref, watch } from 'vue';
             width: 15em;
 
             font-size: medium;
+        }
+
+        .info-icon {
+            left: 103%;
+            bottom: 0%;
+        }
+
+        .profile-label{
+            left: 33.5%;
+            top: 4.2%;
         }
 
     }

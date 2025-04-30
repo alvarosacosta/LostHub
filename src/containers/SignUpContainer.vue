@@ -8,6 +8,8 @@
 import SignUpComponent from '@/components/SignUpComponent.vue';
 import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
 import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
     const emit = defineEmits<{
@@ -15,8 +17,16 @@ import { useRouter } from 'vue-router';
         (e: 'showError', error: string): void
     }>()
 
+    
     const authStore = useAuthStore();
     const router = useRouter();
+
+    onMounted(() => {
+        const { user } = storeToRefs(authStore)
+        if (user.value){
+            router.push('/hub')
+        }
+    })
 
     async function signUp(user: User, userDetails: UserDetails, userProfileImage: UserProfileImage): Promise<void> {
         try {

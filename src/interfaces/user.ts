@@ -9,6 +9,7 @@ export interface UserProfileImage {
 
 export interface UserDetails {
     username: string;
+    isPublic: boolean;
     email: string;
     phone?: string;
     region?: string;

@@ -1,7 +1,7 @@
 <template>
     <main class="CreateItemComponent">
         <button class='back-button' @click="$router.back()"> Volver </button>
-        <v-form class="form" ref="formRef" @submit.prevent="onSubmit" v-slot="{ isValid }">
+        <article class="form">
             <section class="title-container">
                 <h1 class="title">{{ currentTitle }}</h1>
                 <span class="step-number">{{ step }}</span>
@@ -14,7 +14,7 @@
 
             <v-window class="window" v-model="step" :touch="false" >
                 <v-window-item :value="1">
-                    <article class="window-step">
+                    <v-form class="window-step" ref="firstForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
                         <v-btn-toggle
                             class="type-buttons"
                             v-model=type
@@ -38,11 +38,11 @@
                                 value="Encontrado"
                             >He encontrado algo</v-btn>
                         </v-btn-toggle>
-                    </article>
+                    </v-form>
                 </v-window-item>
 
                 <v-window-item :value="2">
-                    <article class="window-step">
+                    <v-form class="window-step" ref="secondForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
                         <v-text-field
                             class="field"
                             v-model=name
@@ -64,6 +64,7 @@
                                 :rules="requiredField"
                                 placeholder="Categoría *"
                                 label="Categoría *"
+                                @update:model-value="onCategoryChange()"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
@@ -76,7 +77,6 @@
                                 class="field"
                                 v-model=subcategory
                                 :items="filteredSubcategories"
-                                :rules="requiredField"
                                 placeholder="Subcategoría"
                                 label="Subcategoría"
                                 color="var(--first-color)"
@@ -116,6 +116,34 @@
                                 clearable
                                 required
                             ></v-select>
+
+                            <v-text-field 
+                                v-if="category == 'Animal' && subcategory"
+                                class="field"
+                                v-model=race
+                                :rules="raceRules"
+                                placeholder="Raza"
+                                label="Raza"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                            ></v-text-field>
+
+                            <v-select 
+                                v-if="category !== 'Animal'"
+                                class="field"
+                                v-model=brand
+                                :items="brandOptions"
+                                placeholder="Marca"
+                                label="Marca"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                            ></v-select>
     
                             <v-select 
                                 v-if="category == 'Animal'"
@@ -135,7 +163,7 @@
                         <section class="file-uploader">
                             <v-file-upload 
                                 class="field"
-                                :model-value=files
+                                v-model=files
                                 color="var(--fourth-color)"
                                 density="compact"
                                 variant="compact"
@@ -149,13 +177,18 @@
 
                         </section>
                         
-                    </article>
+                    </v-form>
                 </v-window-item>
 
                 <v-window-item :value="3">
-                    <article class="window-step">
+                    <v-form class="window-step" ref="thirdForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
+
+                        <span class="map-tooltip">Haz click para marcar una ubicación</span>
+                        <div id="map"></div>
+
                         <v-text-field
-                            class="field"
+                            class="field under-map"
+                            style="pointer-events: none;"
                             v-model=location
                             :rules="requiredField"
                             placeholder="Ubicación *"
@@ -164,13 +197,12 @@
                             bg-color="var(--fourth-color)"
                             variant="solo-filled"
                             density="comfortable"
+                            readonly
                             required
                         ></v-text-field>
 
-                        <div id="map"></div>
-
                         <v-textarea
-                            class="field under-map"
+                            class="field"
                             v-model=locationDescription
                             placeholder="Descripción de la ubicación"
                             label="Descripción de la ubicación"
@@ -181,6 +213,21 @@
                         ></v-textarea>
 
                         <v-select 
+                            v-if="type === 'Encontrado'"
+                            class="field"
+                            v-model=publicTransport
+                            :items="publicTransportOptions"
+                            placeholder="Transporte público"
+                            label="¿Encontrado en transporte público?"
+                            color="var(--first-color)"
+                            bg-color="var(--fourth-color)"
+                            variant="solo-filled"
+                            density="comfortable"
+                            clearable
+                        ></v-select>
+
+                        <v-select 
+                            v-if="type === 'Perdido'"
                             class="field"
                             v-model=publicTransport
                             :items="publicTransportOptions"
@@ -192,11 +239,11 @@
                             density="comfortable"
                             clearable
                         ></v-select>
-                    </article>
+                    </v-form>
                 </v-window-item>
 
                 <v-window-item :value="4">
-                    <article class="window-step">
+                    <v-form class="window-step" ref="fourthForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
                         <section class="datetime">
                             <v-date-input 
                                 class="date"
@@ -207,44 +254,30 @@
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
+                                :max="maxDate"
                                 required
+
                             ></v-date-input>
 
-                            <v-text-field
+                            <v-text-field 
                                 class="time"    
                                 v-model="time"
-                                :active="timeMenu"
                                 :rules="requiredField"
                                 label="Hora *" 
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
-                                prepend-icon="mdi-clock-time-four-outline"
-                                readonly
                                 required
-                            >
-                                <v-menu
-                                    v-model="timeMenu"
-                                    :close-on-content-click="false"
-                                    activator="parent"
-                                    transition="scale-transition"
-                                >
-                                    <v-time-picker
-                                        v-model="time"
-                                        format='24hr'
-                                        hide-header
-                                        scrollable
-                                        color="var(--first-color)"
-                                        bg-color="var(--fourth-color)"
-                                    ></v-time-picker>
-                                </v-menu>
-                            </v-text-field>
+                                type="time"
+                                prepend-icon="mdi-clock-time-four-outline"
+
+                            ></v-text-field>
                         </section>
-                    </article>
+                    </v-form>
                 </v-window-item>
 
                 <v-window-item :value="5">
-                    <article class="window-step">
+                    <v-form class="window-step" ref="fifthForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
                         <section class="reward-delivery-location">
                             <v-text-field
                                 v-if="type === 'Perdido'"
@@ -259,22 +292,33 @@
                                 density="comfortable"
                                 required
                             ></v-text-field>
-    
-                            <v-text-field
-                                v-if="type === 'Encontrado'"
-                                class="field deliveryLocation"
-                                v-model=deliveryLocation
-                                :rules="requiredField"
-                                placeholder="Ubicación de entrega *"
-                                label="Ubicación donde se ha entregado el objeto *"
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                variant="solo-filled"
-                                density="comfortable"
-                                required
-                            ></v-text-field>
+
+                            <section class="delivery-options">
+                                <v-switch
+                                    v-if="type === 'Encontrado'"
+                                    class="field deliverySwitch"
+                                    v-model=itemDelivered
+                                    label="Objeto ha sido entregado en alguna oficina/depencias"
+                                    color="var(--first-accent-color)"
+                                    required
+                                ></v-switch>
+        
+                                <v-text-field
+                                    v-if="type === 'Encontrado' && itemDelivered"
+                                    class="field deliveryLocation"
+                                    v-model=deliveryLocation
+                                    :rules="requiredField"
+                                    placeholder="Ubicación de entrega *"
+                                    label="Ubicación donde se ha entregado el objeto *"
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    variant="solo-filled"
+                                    density="comfortable"
+                                    required
+                                ></v-text-field>
+                            </section>
                         </section>
-                    </article>
+                    </v-form>
                 </v-window-item>
             </v-window>
 
@@ -283,20 +327,19 @@
 
                 <v-spacer></v-spacer>
 
-                <v-icon v-if="step < 5" class="arrow" @click="step++" size="90">mdi-arrow-right-thick</v-icon>
-                <v-icon v-if="step === 5" class="arrow" @click="onSubmit" size="90">mdi-arrow-right-thick</v-icon>
+                <v-icon class="arrow" @click="onSubmit" size="90">mdi-arrow-right-thick</v-icon>
             </v-card-actions>
-        </v-form>
+        </article>
     </main>
 </template>
 
 <script setup lang="ts">
-import { Category, categoryToSubcategories, Color, Gender, PublicTransports, Subcategory } from '@/enums/item_enums';
+import { Category, categoryToSubcategories, Color, Gender, PublicTransports, Subcategory, Brand } from '@/enums/item_enums';
 import { computed, Ref, ref, watch, nextTick } from 'vue'
 import L from 'leaflet';
 import { reverseGeocode } from '@/utils/nominatim';
 
-    const type : Ref<string> = ref('Perdido');
+    const type : Ref<string> = ref('Encontrado');
 
     const name : Ref<string> = ref('');
     const category : Ref<Category | undefined> = ref();
@@ -304,6 +347,8 @@ import { reverseGeocode } from '@/utils/nominatim';
     const description : Ref<string> = ref('');
     const color : Ref<Color | undefined> = ref();
     const gender : Ref<Gender | undefined> = ref();
+    const race : Ref<string | undefined> = ref();
+    const brand : Ref<Brand | undefined> = ref();
     const files: Ref<File | File[] | undefined> = ref(undefined);
         
     const location : Ref<string> = ref('');
@@ -313,13 +358,20 @@ import { reverseGeocode } from '@/utils/nominatim';
     
     const time = ref()
     const date = ref()
-    const timeMenu : Ref<boolean> = ref(false)
+    const maxDate = new Date();
+    const itemDelivered : Ref<boolean> = ref(false)
+
     const dateTime : Ref<Date> = ref(new Date());
             
     const reward : Ref<string> = ref('');
     const deliveryLocation : Ref<string> = ref('');
+    
+    const emit = defineEmits<{
+        (e: 'success'): void
+        (e: 'failure', error: string): void
+    }>()
         
-    const step : Ref<number> = ref(1)
+    var step : Ref<number> = ref(5)
     const currentTitle = computed(() => {
         switch (step.value) {
             case 1: return '¿Perdiste o encontraste algo?'
@@ -340,10 +392,15 @@ import { reverseGeocode } from '@/utils/nominatim';
     const genderOptions = Object.values(Gender)
     const categoryOptions = Object.values(Category);
     const publicTransportOptions = Object.values(PublicTransports); 
+    const brandOptions = Object.values(Brand);
 
     const filteredSubcategories = computed(() => {
         return categoryToSubcategories[category.value as Category] || [];
     });
+
+    function onCategoryChange() : void {
+        subcategory.value = undefined
+    }
 
     const map = ref<L.Map | null>(null);
     let userMarker: L.Marker | null = null;
@@ -357,12 +414,12 @@ import { reverseGeocode } from '@/utils/nominatim';
     });
 
     async function onMapClick(e: L.LeafletMouseEvent) {
-            const { lat, lng } = e.latlng;
+        const { lat, lng } = e.latlng;
 
         if (userMarker) {
             userMarker.setLatLng([lat, lng]);
         } else {
-            userMarker = L.marker([lat, lng], { icon: markerIcon }).addTo(map.value);
+            userMarker = L.marker([lat, lng], { icon: markerIcon }).addTo(map.value as L.Map);
         }
         latLong.value = [lat, lng]
         location.value = await reverseGeocode(lat, lng);
@@ -373,29 +430,31 @@ import { reverseGeocode } from '@/utils/nominatim';
         if (mapContainer && !map.value) {
             map.value = L.map(mapContainer, {
                 doubleClickZoom: false,
-            }).setView([40.4168, -3.7038], 13);
+            }).setView([40.4168, -3.7038], 10);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            }).addTo(map.value);
+            }).addTo(map.value as L.Map);
             
             map.value.locate({
                 setView: true,
-                maxZoom: 16,
+                maxZoom: 18,
                 timeout: 10000,
             });
             
             map.value.on('locationfound', async function (e) {
                 if (!userMarker) {
-                    userMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon }).addTo(map.value);
+                    userMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon }).addTo(map.value as L.Map);
                 }
+
+                (map.value as L.Map).setView([e.latlng.lat, e.latlng.lng], 18);
 
                 latLong.value = [e.latlng.lat, e.latlng.lng]
                 location.value = await reverseGeocode(e.latlng.lat, e.latlng.lng);
             });
 
             map.value.on('locationerror', function (e) {
-                console.error('Error al obtener la ubicación:', e.message);
+                console.error('Error obtaining  ubication:', e.message);
             });
 
             map.value.on('click', onMapClick);
@@ -428,6 +487,12 @@ import { reverseGeocode } from '@/utils/nominatim';
         },
     ]
 
+    const raceRules = [
+        (value: string) => {
+            return !value || value.length <= 20 || 'La raza debe de tener menos de 20 carácteres.';
+        }
+    ]
+
     const descriptionRules = [
         (value: string) => {
             if (value) return true
@@ -439,16 +504,82 @@ import { reverseGeocode } from '@/utils/nominatim';
             return 'La descripción debe tener al menos 50 caractéres.'
         },
     ]
+    
+    const firstForm = ref()
+    const secondForm = ref()
+    const thirdForm = ref()
+    const fourthForm = ref()
+    const fifthForm = ref()
 
-    function onSubmit() {
-        console.log('Form submitted');
+    async function onSubmit() {
+
+        switch (step.value) {
+            case 1:
+                var { valid } = await firstForm.value.validate()
+
+                if (!type.value) {
+                    emit('failure', 'Asegúrate de elegir una opción antes de continuar.');
+                    return;
+                }
+
+                break;
+            case 2:
+                var { valid } = await secondForm.value.validate()
+
+                if (files.value) {
+                    const fileList = Array.isArray(files.value) ? files.value : [files.value];
+
+                    if (fileList.length > 5) {
+                        emit('failure', `Solo se pueden introducir como máximo 5 imágenes.`);
+                        return;
+                    }
+
+                    for (const file of fileList) {
+                        if (file.size > 5 * 1024 * 1024) {
+                            emit('failure', 'Al menos una de las imágenes pesa más de 5MB.');
+                            return;
+                        }
+
+                        if (!file.type.startsWith('image/')) {
+                            emit('failure', `Al menos uno de los archivos no es una imagen.`);
+                            return;
+                        }
+                    }
+                }
+
+                break;
+            case 3:
+                var { valid } = await thirdForm.value.validate()
+
+                break;
+            case 4:
+                var { valid } = await fourthForm.value.validate()
+
+                break;
+            case 5:
+                var { valid } = await fifthForm.value.validate()
+
+                break;
+            default:
+
+                break;
+        }
+
+        if (!valid) {
+            emit('failure', 'Hay campos incompletos o mal rellenados.');
+            return;
+
+        } else {
+            step.value++;
+        }
+
     }
 </script>
 
 <style scoped lang="css">
 
     #map {
-        min-height: 300px;
+        min-height: 250px;
         width: 95%;
 
         border-radius: .8em;
@@ -539,7 +670,7 @@ import { reverseGeocode } from '@/utils/nominatim';
         color: var(--first-color);
     }
 
-    .category-subcategory, .color-gender {
+    .category-subcategory, .color-gender, .delivery-options {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -548,16 +679,46 @@ import { reverseGeocode } from '@/utils/nominatim';
         gap: 1em;
     }
 
+    .delivery-options {
+        flex-direction: column;
+    }
+
     .file-uploader{
         width: 95%;
+    }
+
+    ::v-deep(.v-file-upload, .v-file-upload-icon) {
+        color: var(--first-color) !important;
     }
 
     .field {
         width: 95%;
     }
 
+    .deliverySwitch{
+        width: 60%;
+
+    }
+
+    .map-tooltip {
+        position: absolute;
+        top: 15px;
+        left: 68%;
+        width: 28.5%;
+        background-color: var(--first-color);
+        color: var(--text-color);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        z-index: 999;
+
+        opacity: .8;
+
+        text-align: center;
+    }
+
     .under-map {
-        padding-top: 1.5em
+        padding-top: .5em
     }
 
     .datetime, .reward-delivery-location{
@@ -578,14 +739,6 @@ import { reverseGeocode } from '@/utils/nominatim';
 
     .reward, .deliveryLocation {
         width: 60%;
-    }
-
-    ::v-deep(.v-time-picker-clock__item) {
-        color: var(--fourth-color) !important;
-    }
-
-    ::v-deep(.v-time-picker-clock) {
-        background-color: var(--second-color) !important; 
     }
 
     .v-card-actions {
@@ -624,10 +777,11 @@ import { reverseGeocode } from '@/utils/nominatim';
 
         .type-button {
             width: 100%;
+            min-height: 5em;
             font-size: large;
             font-weight: bold;
 
-            border-radius: 1em;
+            border-radius: .1em;
         }
     }
 

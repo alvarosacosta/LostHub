@@ -30,17 +30,24 @@
             </section>
 
             <section class="navigation">
-                <router-link v-if="userProfile" class="navigation-button" to="/profile">Perfil de usuario</router-link>
-                <router-link class="navigation-button" to="/hub">Objetos perdidos</router-link>
-                <router-link v-if="userProfile" class="navigation-button" to="/">Notificaciones</router-link>
+                <router-link v-if="userProfile" :class="{ 'selected-button': route.path.endsWith('/hub')}" class="navigation-button" to="/hub">Objetos perdidos</router-link>
+                <router-link v-if="userProfile" :class="{ 'selected-button': route.path.endsWith('/profile')}" class="navigation-button" to="/profile">Perfil de usuario</router-link>
+                <router-link v-if="userProfile" class="navigation-button" to="/hub">Mis objetos</router-link>
+                <router-link v-if="userProfile" class="navigation-button" to="/hub">Mis notificaciones</router-link>
+                <router-link v-if="userProfile" class="navigation-button" to="/hub">Objetos guardados</router-link>
                 <router-link class="navigation-button" to="/about-us">Quiénes somos</router-link>
             </section>
         </article>
 
         <section class="secondary-content">
             <a class='github-ref' href="https://github.com/alvarosacosta">
-                <v-icon class="github-icon" size="50" color="var(--first-accent-color)">mdi-github</v-icon>
+                <v-icon class="github-icon" size="50">mdi-github</v-icon>
             </a>
+
+            <section class="log-out-icon">
+                <label class="tooltip" for="log-out-icon">Cerrar sesión</label>
+                <v-icon v-if="userProfile" type="button" size="50" @click="logOut()">mdi-logout</v-icon>
+            </section>
             
             <router-link v-if="userProfile" class="publish-button" to="/postItem">
                 <v-icon class="new-post-icon" size="40" color="var(--fourth-color)">mdi-feather</v-icon>
@@ -62,13 +69,14 @@ import { useRoute } from 'vue-router';
 
     const route = useRoute()
 
-    const props = defineProps<{
+    defineProps<{
         userProfile : UserDetails | null
     }>()
 
     const emit = defineEmits<{
         (e: 'toggle-sidebar', closed: boolean): void
         (e: 'loggedIn', error?: string): void
+        (e: 'logOut'): void;
     }>()
 
     const isTablet = computed(() => windowWidth.value < 1220);
@@ -106,6 +114,10 @@ import { useRoute } from 'vue-router';
     function toggleSidebar() : void {
         isClosed.value = !isClosed.value;
         emit('toggle-sidebar', isClosed.value)
+    }
+
+    function logOut() : void {
+        emit("logOut")
     }
 
     function loggedIn(error: string | undefined) : void {
@@ -228,6 +240,7 @@ import { useRoute } from 'vue-router';
         display: flex;
         flex-direction: column;
         margin-top: .8em;
+
     }
 
     .navigation-button {
@@ -242,11 +255,11 @@ import { useRoute } from 'vue-router';
         border-radius: 5px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
-        margin: 1em;
+        margin: .8em;
         margin-right: 1.2em;
     }
 
-    .navigation-button:hover {
+    .navigation-button:hover, .selected-button {
         background-color: var(--second-accent-color);
     }
 
@@ -259,9 +272,55 @@ import { useRoute } from 'vue-router';
 
     .github-icon {
         filter: drop-shadow(1px 1px 2.5px rgba(0, 0, 0, .7));
+        color: var(--first-accent-color);
 
         position: relative;
         bottom: 7px;
+    }
+
+    .log-out-icon {
+        text-decoration: none;
+
+        padding: 5px;
+        cursor: pointer;
+
+        filter: drop-shadow(1px 1px 2.5px rgba(0, 0, 0, .7));
+        color: var(--first-accent-color);
+
+        position: relative;
+        bottom: 2px;
+        right: 20px;
+
+    }
+
+    .log-out-icon:hover, .github-icon:hover{
+        color: var(--second-accent-color);
+    }
+
+    .tooltip {
+        position: absolute;
+        bottom: 80%;
+        left: 90%;
+        transform: translateX(-50%);
+        background-color: var(--first-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .7em;
+        border-radius: .5em;
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        
+        transition-delay: 0s;
+        transition: opacity 0.3s ease;
+        
+        opacity: 0;
+    }
+
+    .log-out-icon:hover .tooltip {
+        opacity: .8;
+        transition-delay: 0.4s;
     }
 
     .new-post-icon {

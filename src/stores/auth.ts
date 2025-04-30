@@ -60,6 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (data){
         userProfile.value = {
           username: data.Username,
+          isPublic: data.isPublic,
           email: data.Email,
           phone: data.Phone,
           region: data.Region,
@@ -143,6 +144,7 @@ export const useAuthStore = defineStore('auth', () => {
           {
             id: userID,
             Email: user.email,
+            isPublic: userDetails.isPublic,
             Username: userDetails.username,
             ProfileImageURL: imageUrl,
             Phone: userDetails.phone,
@@ -178,6 +180,7 @@ export const useAuthStore = defineStore('auth', () => {
         .update({
           id: userID,
           Email: userUpdatedInfo.email,
+          isPublic: userUpdatedInfo.isPublic,
           Phone: userUpdatedInfo.phone,
           Region: userUpdatedInfo.region,
           Province: userUpdatedInfo.province,
@@ -206,6 +209,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (data){
         foreignUserProfile.value = {
           username: data.Username,
+          isPublic: data.isPublic,
           email: data.Email,
           phone: data.Phone,
           region: data.Region,
@@ -235,6 +239,7 @@ export const useAuthStore = defineStore('auth', () => {
     logOut,
     updateUserInfo,
     fetchUserById,
+    fetchCurrentUserProfile,
     cleanForeignUser,
   };
 });

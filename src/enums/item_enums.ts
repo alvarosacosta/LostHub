@@ -90,6 +90,42 @@ export enum Subcategory {
     Otro = 'Otro',
 }
 
+export enum Brand {
+    // Ropa
+    Nike = "Nike",
+    Adidas = "Adidas",
+    Zara = "Zara",
+    HM = "H&M",
+
+    // Tecnología
+    Apple = "Apple",
+    Samsung = "Samsung",
+    Sony = "Sony",
+    Xiaomi = "Xiaomi",
+
+    // Automóviles
+    Toyota = "Toyota",
+    BMW = "BMW",
+    Tesla = "Tesla",
+    Mercedes = "Mercedes",
+
+    // Cosmética
+    Loreal = "L'Oréal",
+    Nivea = "Nivea",
+    Sephora = "Sephora",
+    Maybelline = "Maybelline",
+
+    // Alimentación
+    CocaCola = "Coca-Cola",
+    Pepsi = "Pepsi",
+    Nestle = "Nestlé",
+    Danone = "Danone",
+
+    // Otro
+    Otra = "Otra"
+}
+
+
 export enum Color {
     Rojo = 'Rojo',
     Azul = 'Azul',
