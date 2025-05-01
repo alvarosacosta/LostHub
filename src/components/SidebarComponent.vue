@@ -45,11 +45,12 @@
             </a>
 
             <section class="log-out-icon">
-                <label class="tooltip" for="log-out-icon">Cerrar sesión</label>
+                <label class="tooltip-logout" for="log-out-icon">Cerrar sesión</label>
                 <v-icon v-if="userProfile" type="button" size="50" @click="logOut()">mdi-logout</v-icon>
             </section>
             
             <router-link v-if="userProfile" class="publish-button" to="/postItem">
+                <label class="tooltip-post" for="new-post-icon">Publicar un objeto</label>
                 <v-icon class="new-post-icon" size="40" color="var(--fourth-color)">mdi-feather</v-icon>
             </router-link>
         </section>
@@ -259,8 +260,13 @@ import { useRoute } from 'vue-router';
         margin-right: 1.2em;
     }
 
-    .navigation-button:hover, .selected-button {
+    .navigation-button:hover {
         background-color: var(--second-accent-color);
+    }
+
+    .selected-button {
+        background-color: var(--second-accent-color);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, 1);
     }
 
     .secondary-content {
@@ -297,7 +303,7 @@ import { useRoute } from 'vue-router';
         color: var(--second-accent-color);
     }
 
-    .tooltip {
+    .tooltip-logout, .tooltip-post {
         position: absolute;
         bottom: 80%;
         left: 90%;
@@ -318,9 +324,14 @@ import { useRoute } from 'vue-router';
         opacity: 0;
     }
 
-    .log-out-icon:hover .tooltip {
-        opacity: .8;
-        transition-delay: 0.4s;
+    .log-out-icon:hover .tooltip-logout {
+        opacity: .7;
+        transition-delay: 0.7s;
+    }
+
+    .publish-button:hover .tooltip-post {
+        opacity: .9;
+        transition-delay: 0.7s;
     }
 
     .new-post-icon {

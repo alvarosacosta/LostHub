@@ -123,7 +123,7 @@ export const useAuthStore = defineStore('auth', () => {
       await logIn(user.email, user.password); 
 
       if (userProfileImage.profilePicture){
-        filePath = `user-profiles-images/${userID}_${Date.now()}.jpg`;
+        filePath = `user-profiles-images/${userID}_${Date.now()}`;
 
         const { error: uploadError } = await supabase.storage
           .from('user-profiles-images') 

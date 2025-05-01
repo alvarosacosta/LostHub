@@ -125,15 +125,18 @@
                     <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
                         <template v-slot>
                             <section class="info-dialog">
+                                <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
                                 <p class="info">
                                     Si no accedes a compartir tus datos
                                     no se mostrará a otros usuarios tu correo, teléfono y ubicación. 
                                     Pero si podrán ver tu foto de perfil y tu nombre de usuario.
                                 </p>
+                                <br>
                                 <p class="info">
                                     Tus datos podrán ser consultados por administradores de igual manera 
                                     si fuera necesario, pero no serán públicos.
                                 </p>
+                                <br>
                             </section>
                         </template>
                     </v-dialog>
@@ -377,6 +380,11 @@ import isEqual from 'lodash/isEqual';
     .email, .phone, .region, .province, .municipality, .privacy-options {
         width: 100%;
 
+    }
+
+    .privacy-options{
+        position: relative;
+        top: .6em;
     }
 
     .username{

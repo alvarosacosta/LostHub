@@ -1,7 +1,7 @@
 <template>
     <main class="ItemDetailsComponent">
         <span class="type">{{"OBJETO " + singleItem?.type }}</span>
-        <button class='back-button' @click="$router.back()"> Volver </button>
+        <router-link class='back-button' to="/hub"> Volver </router-link>
         <article class="item">
             <article v-if="singleItem?.url_images && singleItem?.url_images.length > 0" class="carousel-container">
                 <section class="list">
@@ -60,7 +60,7 @@
             </article>
 
             <article class="profile-article">
-                <label class="label profile-label" for="profile">Usuario asociado</label>
+                <label class="label profile-label" for="profile-article">Usuario asociado</label>
                 <section v-if="foreignUserProfile && fetchedUserID" class="profile">
                     <figure class="profile-image-container">
                         <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
@@ -84,24 +84,27 @@
                 <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
                     <template v-slot>
                         <section class="info-dialog">
+                            <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
                             <p class="info">
                                 Puedes guardar una petición para poder acceder a ella fácilmente en el futuro,
                                 para hacerlo simplemente dale click a 'Guardar petición'.
 
                             </p>
+                            <br>
                             <p class="info">
                                 También puedes notificar a un usuario de que has encontrado su objeto,
                                 para hacerlo simplemente dale click a 'Notificar hallazgo'.
                             </p>
+                            <br>
                         </section>
                     </template>
                 </v-dialog>
             </article>
 
             <article class="resume-article">
-                <section class="name-section">
+                <section class="normal-section name-section">
                     <label class="label" for="name">Descripción corta / Nombre</label>
-                    <span class="name">{{ singleItem?.name }}</span>
+                    <span class="field name">{{ singleItem?.name }}</span>
                 </section>
 
                 <section class="down-section">
@@ -109,59 +112,91 @@
                         <label class="label reward-label" for="reward">Recompensa</label>
                         <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
-    
                     <section class="categories-section">
                         <section class="category-section">
                             <label class="label" for="category">Categoría</label>
-                            <span class="category">{{ singleItem?.category }}</span>
+                            <span class="field category">{{ singleItem?.category }}</span>
                         </section>
         
-                        <section v-if="singleItem?.subcategory" class="subcategory-section">
+                        <section v-if="singleItem?.subcategory" class="normal-section subcategory-section">
                             <label class="label" for="subcategory">Subcategoría</label>
-                            <span class="subcategory">{{ singleItem?.subcategory }}</span>
+                            <span class="field subcategory">{{ singleItem?.subcategory }}</span>
                         </section>
                     </section>
                 </section>
             </article>
 
             <article class="main-text">
-                <section v-if="singleItem?.isLostInPublicTransport && singleItem?.type === 'Perdido'" class="public-transport-section">
-                    <label class="label odd-label" for="found-public-transport">Perdido en</label>
-                    <span class="found-public-transport">{{ singleItem?.isLostInPublicTransport }}</span>
-                </section>
 
-                <section class="color-gender">
-                    <section class="color-section">
+                <section class="color-gender-race-brand">
+                    <section class="normal-section color-section">
                         <label class="label" for="color">Color</label>
-                        <span class="color">{{ singleItem?.color }}</span>
+                        <span class="field color">{{ singleItem?.color }}</span>
                     </section>
 
-                    <section v-if="singleItem?.gender" class="gender-section">
+                    <section v-if="singleItem?.gender" class="normal-section gender-section">
                         <label class="label" for="gender">Sexo</label>
-                        <span class="gender">{{ singleItem?.gender }}</span>
+                        <span class="field gender">{{ singleItem?.gender }}</span>
+                    </section>
+
+                    <section v-if="singleItem?.race" class="normal-section race-section">
+                        <label class="label" for="race">Raza</label>
+                        <p class="field race">{{ singleItem?.race }}</p>
+                    </section>
+
+                    <section v-if="singleItem?.brand" class="normal-section brand-section">
+                        <label class="label" for="brand">Marca</label>
+                        <p class="field brand">{{ singleItem.brand }}</p>
                     </section>
                 </section>
 
-                <section class="date-time-location">
-                    <section class="date-time-section">
-                        <label class="label" for="date-time">Fecha y hora</label>
-                        <span class="date-time">{{ formattedDateTime }}</span>
+                <section class="date-time">
+                    <section class="normal-section date-section">
+                        <label v-if="singleItem?.type === 'Perdido'" class="label" for="date">Fecha(s) de pérdida</label>
+                        <label v-else class="label" for="date-time">Fecha(s) de encuentro</label>
+                        <span class="field date">{{ singleItem?.date }}</span>
                     </section>
 
-                    <section class="location-section">
-                        <label class="label" for="location">Localización</label>
-                        <span class="location">{{ singleItem?.location }}</span>
+                    <section v-if="singleItem?.time" class="normal-section time-section">
+                        <label v-if="singleItem?.type === 'Perdido'" class="label" for="time">Hora de pérdida</label>
+                        <label v-else class="label" for="time">Hora de encuentro</label>
+                        <p class="field time">{{ singleItem.time }}</p>
                     </section>
+
+                </section>
+
+                <section class="normal-section location-section">
+                    <label class="label odd-label" for="location">Última ubicación conocida</label>
+                    <span class="field location">{{ singleItem?.location }} <v-icon class="map-icon" @click="showMap = true" >mdi-map-search-outline</v-icon></span>
+                    <v-dialog v-model="showMap" scroll-strategy="close">
+                        <template v-slot>
+                            <div id="map"></div>
+                        </template>
+                    </v-dialog>
+                </section>
+
+                <section class="transport-container">
+                    <section v-if="singleItem?.publicTransport && singleItem?.type === 'Perdido'" class="normal-section public-transport-section">
+                        <label v-if="singleItem?.type === 'Perdido'" class="label odd-label" for="public-transport">Perdido en</label>
+                        <label v-else class="label odd-label" for="public-transport">Encontrado en</label>
+                        <span class="field public-transport">{{ singleItem?.publicTransport }}</span>
+                    </section>
+
+                    <section v-if="singleItem?.transportInfo" class="normal-section transportInfo-section">
+                        <label class="label" for="transportInfo">Información sobre el transporte</label>
+                        <p class="field transportInfo">{{ singleItem.transportInfo }}</p>
+                    </section>
+
                 </section>
 
                 <section class="description-section">
                     <label class="label odd-label" for="description">Descripción del objeto</label>
-                    <p class="description">{{ singleItem?.detailedDescription }}</p>
+                    <p class="field description">{{ singleItem?.detailedDescription }}</p>
                 </section>
-
+                
                 <section v-if="singleItem?.locationDescription" class="location-description-section">
                     <label class="label odd-label" for="location-description">Descripción de lugar de pérdida</label>
-                    <p class="location-description">{{ singleItem?.locationDescription }}</p>
+                    <p class="field location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
             </article>
@@ -172,7 +207,8 @@
 <script setup lang="ts">
 import { MixedItem } from '@/interfaces/items';
 import { UserDetails } from '@/interfaces/user';
-import { Ref, ref, watch } from 'vue';
+import L from 'leaflet';
+import { nextTick, Ref, ref, watch } from 'vue';
     
     const props = defineProps<{
         singleItem: MixedItem | undefined
@@ -180,24 +216,57 @@ import { Ref, ref, watch } from 'vue';
         fetchedUserID: string
     }>()
 
-    const formattedDateTime : Ref<string| undefined> = ref(props.singleItem?.dateTime)
-    watch(
-        () => props.singleItem?.dateTime,
-        (newDateTime) => {
-            if (newDateTime) {
-                formattedDateTime.value = newDateTime.replace('T', ' ');
-            }
-        },
-        { immediate: true }
-    );
+    const map = ref<L.Map | null>(null);
+    const markerIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    async function initMap() {
+        const mapContainer = document.getElementById('map');
+        if (mapContainer && props.singleItem) {
+            map.value = L.map(mapContainer, {
+                doubleClickZoom: false,
+            }).setView([props.singleItem?.latLong[0], props.singleItem?.latLong[1]], 18);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            }).addTo(map.value as L.Map);
+
+            L.marker([props.singleItem?.latLong[0], props.singleItem?.latLong[1]], { icon: markerIcon }).addTo(map.value as L.Map);
+        }
+    }
 
     const selectedIndex: Ref<number> = ref(0)
     const isHovered: Ref<boolean> = ref(false)
     const showInfoDialog : Ref<boolean> = ref(false)
+    const showMap : Ref<boolean> = ref(false)
+
+    watch(showMap, async (newStep) => {
+        if (newStep) {
+            await nextTick();
+            initMap();
+        }
+    });
 
 </script>
 
 <style scoped lang="css">
+    #map {
+        min-height: 300px;
+        width: 50%;
+
+        align-self: center;
+
+        border-radius: .8em;
+        box-shadow: 0px 0px 9px rgba(0, 0, 0, .9);
+    }
+
+
     .ItemDetailsComponent {
         display: flex;
         flex-direction: column;
@@ -613,7 +682,7 @@ import { Ref, ref, watch } from 'vue';
         left: 15%;
     }
 
-    .name, .found-public-transport, .no-location, .category, .subcategory, .color, .gender, .date-time, .location, .description, .location-description {
+    .field {
         background-color: var(--first-color);
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -629,6 +698,19 @@ import { Ref, ref, watch } from 'vue';
         word-break: break-word;        
     }
 
+    .date, .location, .time{
+        text-align: center;
+    }
+
+    .map-icon{
+        background-color: var(--second-color);
+        padding: 20px;
+        border-radius: 1em;
+        margin-left: .4em;
+
+        cursor: pointer;
+    }
+
     .profile-name{
         background-color: var(--first-color);
         border-radius: 10px;
@@ -637,6 +719,7 @@ import { Ref, ref, watch } from 'vue';
         padding: .6em .8em .5em .8em;
 
         min-height: 2.6em;
+        min-width: 10em;
         height: auto;
         width: 100%;
 
@@ -646,10 +729,14 @@ import { Ref, ref, watch } from 'vue';
         text-align: center;
     }
 
-    .name-section, .category-section, .public-transport-section, .color-section, .gender-section, .date-time-section, .location-section {
+    .normal-section {
         display: flex;
         flex-direction: column;
         width: 100%;
+    }
+
+    .time-section{
+        align-self: center;
     }
 
     .name {
@@ -661,7 +748,7 @@ import { Ref, ref, watch } from 'vue';
         text-align: justify; 
     }
 
-    .color-gender, .date-time-location {
+    .color-gender-race-brand, .date-time, .transport-container {
         display: flex;
         width: 100%;
         gap: 15px;
@@ -710,7 +797,7 @@ import { Ref, ref, watch } from 'vue';
     }
 
     .arrow-visible.carousel-arrow-next {
-        transform: translateY(-50%) translateX(215px);
+        transform: translateY(-50%) translateX(210px);
         opacity: 1;
     }
 
@@ -803,6 +890,10 @@ import { Ref, ref, watch } from 'vue';
     }
 
     @media (max-width: 700px) { 
+        #map {
+            width: 70%;
+        }
+
         .item {
             width: 350px;
             font-size: smaller;
@@ -889,6 +980,17 @@ import { Ref, ref, watch } from 'vue';
         .profile-label{
             left: 33.5%;
             top: 4.2%;
+        }
+
+        .location-section{
+            position: relative;
+        }
+
+        .map-icon{
+            position: absolute;
+            left: 85%;
+
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
         }
 
     }

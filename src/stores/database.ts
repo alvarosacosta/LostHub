@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import supabase from '@/supabase';
-import type { MixedItem } from '@/interfaces/items'
+import type { ItemImages, MixedItem } from '@/interfaces/items'
+import { generateUniqueFilePath } from '@/utils/fileUtils';
 
 export const useItemsStore = defineStore('items', () => {
 
   const allItems = ref<MixedItem[]>([])
   const singleItem = ref<MixedItem>()
   const fetchedUserID = ref<string>('')
+  const lastItemPostID = ref<string>('')
 
   async function fetchAllItems() : Promise<void>{
     try {
@@ -20,20 +22,29 @@ export const useItemsStore = defineStore('items', () => {
         if (data) {
             allItems.value = data.map((item: any): MixedItem => {
                 const baseItem = {
-                    id: item.id,
-                    name: item.name,
-                    category: item.category,
-                    subcategory: item.subcategory,
-                    gender: item.gender,
-                    color: item.color,
-                    dateTime: item.datetime,
-                    location: item.location,
-                    detailedDescription: item.description,
-                    locationDescription: item.location_description,
-                    isPublic: item.is_public,
-                    isLostInPublicTransport: item.is_lost_in_public_transport,
-                    url_images: item.url_images,
-                    type: item.type,
+                  id: item.id,
+                  type: item.type,
+        
+                  name: item.name,
+                  detailedDescription: item.description,
+                  category: item.category,
+                  subcategory: item.subcategory,
+                  gender: item.gender,
+                  color: item.color,
+                  race: item.race,
+                  brand: item.brand,
+        
+                  location: item.location,
+                  latLong: item.latLong,
+                  locationDescription: item.location_description,
+                  publicTransport: item.publicTransport,
+                  transportInfo: item.transportInfo,
+        
+                  date: item.date,
+                  time: item.time,
+                  confidence: item.confidence,
+        
+                  url_images: item.url_images,
                 };
         
                 if (item.type === 'Perdido') {
@@ -69,19 +80,28 @@ export const useItemsStore = defineStore('items', () => {
       if (data) {
         const baseItem = {
           id: data.id,
+          type: data.type,
+
           name: data.name,
+          detailedDescription: data.description,
           category: data.category,
           subcategory: data.subcategory,
           gender: data.gender,
           color: data.color,
-          dateTime: data.datetime,
+          race: data.race,
+          brand: data.brand,
+
           location: data.location,
-          detailedDescription: data.description,
+          latLong: data.latLong,
           locationDescription: data.location_description,
-          isPublic: data.is_public,
-          isLostInPublicTransport: data.is_lost_in_public_transport,
+          publicTransport: data.publicTransport,
+          transportInfo: data.transportInfo,
+
+          date: data.date,
+          time: data.time,
+          confidence: data.confidence,
+
           url_images: data.url_images,
-          type: data.type,
         }
 
         if (data.type === 'Perdido') {
@@ -118,12 +138,81 @@ export const useItemsStore = defineStore('items', () => {
     }
   }
 
+  async function postItem(item : MixedItem, images : ItemImages, userID : string): Promise<void> {
+    try {
+
+      const imageUrls: string[] = [];
+      if (images.itemImages && images.itemImages.length > 0) {
+        for (const file of images.itemImages) {
+          const filePath = generateUniqueFilePath(userID, item.name, item.type, file.name)
+      
+          const { error: uploadFileError } = await supabase.storage
+            .from('item-images')
+            .upload(filePath, file);
+      
+          if (uploadFileError) throw uploadFileError;
+
+          const { data: itemUrlData } = supabase.storage
+            .from('item-images')
+            .getPublicUrl(filePath);
+
+          imageUrls.push(itemUrlData.publicUrl);
+        }
+      }
+
+      const { data: itemData, error: itemError } = await supabase
+        .from('item_details')
+        .insert([
+          {
+            user_id: userID,
+            type: item.type,
+
+            name: item.name,
+            description: item.detailedDescription,
+            category: item.category,
+            subcategory: item.subcategory,
+            gender: item.gender,
+            color: item.color,
+            race: item.race,
+            brand: item.brand,
+
+            location: item.location,
+            latLong: item.latLong,
+            location_description: item.locationDescription,
+            publicTransport: item.publicTransport,
+            transportInfo: item.transportInfo,
+
+            date: item.date,
+            time: item.time,
+            confidence: item.confidence,
+
+            url_images: imageUrls,
+
+            ...(item.type === 'Perdido'
+              ? { reward: item.reward }
+              : { deliveryLocation: item.deliveryLocation }),
+          },
+        ])
+        .select('id')
+        .single();
+
+      if (itemError) throw itemError;
+
+      if (itemData) lastItemPostID.value = itemData.id
+
+    } catch (err: any) {
+      console.error('Error posting new item:', err.message)
+    }
+  }
+
   return {
     allItems,
     singleItem,
     fetchedUserID,
+    lastItemPostID,
     fetchAllItems,
     fetchItemById,
-    fetchUserIdByItemId
+    fetchUserIdByItemId,
+    postItem
   }
 })

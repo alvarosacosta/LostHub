@@ -55,6 +55,7 @@
                 <p v-if="item?.type === 'Perdido'" class="reward">{{ item?.reward + " €" }}</p>
 
                 <router-link class="view-details-arrow-container" :to="{ name: 'item-details', params: { id: item?.id },  }">
+                    <label class="tooltip-arrow" for="view-details-arrow">Ver detalles</label>
                     <v-icon class="view-details-arrow" size="90">mdi-arrow-right-thick</v-icon>
                 </router-link>
             </section>
@@ -64,22 +65,11 @@
 
 <script setup lang="ts">
 import { MixedItem } from '@/interfaces/items';
-import { ref, Ref, watch } from 'vue';
+import { ref } from 'vue';
     
     const props = defineProps<{
         item: MixedItem | undefined
     }>()
-
-    const formattedDateTime : Ref<string| undefined> = ref(props.item?.dateTime)
-    watch(
-        () => props.item?.dateTime,
-        (newDateTime) => {
-            if (newDateTime) {
-            formattedDateTime.value = newDateTime.replace('T', ' ');
-            }
-        },
-        { immediate: true }
-    );
 
     const isHovered = ref(false)
 
@@ -209,8 +199,14 @@ import { ref, Ref, watch } from 'vue';
 
         white-space: nowrap;         
         overflow: hidden;            
-        text-overflow: ellipsis;        
+        text-overflow: ellipsis; 
+        word-break: break-word;
+        overflow-wrap: break-word;    
         
+    }
+
+    .location, .small-description{
+        max-width: 390px; 
     }
 
     .head-text {
@@ -305,6 +301,32 @@ import { ref, Ref, watch } from 'vue';
         left: 74%;
     }
 
+    .tooltip-arrow {
+        position: absolute;
+        bottom: 70%;
+        left: 80%;
+        transform: translateX(-50%);
+        background-color: var(--first-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .7em;
+        border-radius: .5em;
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        
+        transition-delay: 0s;
+        transition: opacity 0.3s ease;
+        
+        opacity: 0;
+    }
+
+    .view-details-arrow-container:hover .tooltip-arrow {
+        opacity: .9;
+        transition-delay: 0.7s;
+    }
+
     /* Carousel arrows */
     .view-details-arrow, .carousel-arrow-prev, .carousel-arrow-next {
         filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
@@ -353,10 +375,9 @@ import { ref, Ref, watch } from 'vue';
     }
 
     .arrow-visible.carousel-arrow-next {
-        transform: translateY(-50%) translateX(215px);
+        transform: translateY(-50%) translateX(210px);
         opacity: 1;
     }
-
     
     @media (max-width: 1300px) {
 

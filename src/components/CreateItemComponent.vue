@@ -212,66 +212,122 @@
                             density="comfortable"
                         ></v-textarea>
 
-                        <v-select 
-                            v-if="type === 'Encontrado'"
-                            class="field"
-                            v-model=publicTransport
-                            :items="publicTransportOptions"
-                            placeholder="Transporte público"
-                            label="¿Encontrado en transporte público?"
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            variant="solo-filled"
-                            density="comfortable"
-                            clearable
-                        ></v-select>
-
-                        <v-select 
-                            v-if="type === 'Perdido'"
-                            class="field"
-                            v-model=publicTransport
-                            :items="publicTransportOptions"
-                            placeholder="Transporte público"
-                            label="¿Perdido en transporte público?"
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            variant="solo-filled"
-                            density="comfortable"
-                            clearable
-                        ></v-select>
+                        <section class="public-transport">
+                            <v-select 
+                                v-if="type === 'Encontrado'"
+                                class="field"
+                                v-model=publicTransport
+                                :items="publicTransportOptions"
+                                placeholder="Transporte público"
+                                label="¿Encontrado en transporte público?"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                            ></v-select>
+    
+                            <v-select 
+                                v-if="type === 'Perdido'"
+                                class="field"
+                                v-model=publicTransport
+                                :items="publicTransportOptions"
+                                placeholder="Transporte público"
+                                label="¿Perdido en transporte público?"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                            ></v-select>
+    
+                            <v-text-field
+                                v-if="publicTransport"
+                                class="field"
+                                v-model=transportInfo
+                                :rules="infoTransportRules"
+                                placeholder="Información sobre el transporte"
+                                label="Información sobre el transporte"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                variant="solo-filled"
+                                density="comfortable"
+                                clearable
+                            >
+                            </v-text-field>
+                        </section>
                     </v-form>
                 </v-window-item>
 
                 <v-window-item :value="4">
                     <v-form class="window-step" ref="fourthForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
                         <section class="datetime">
-                            <v-date-input 
-                                class="date"
-                                v-model="date" 
+                            <v-text-field
+                                v-model="displayDate"
+                                label="Fecha(s) *"
+                                required
                                 :rules="requiredField"
-                                hide-actions
-                                label="Fecha *" 
+                                readonly
+                                @click="menu = true"
+                                variant="solo-filled"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
-                                variant="solo-filled"
-                                :max="maxDate"
-                                required
+                                prepend-icon="mdi-calendar"
+                            >
+                                <v-menu
+                                    v-model="menu"
+                                    activator="parent"
+                                    transition="scale-transition"
+                                    :close-on-content-click="false"
+                                >
+                                    <v-date-picker
+                                        v-model="date"
+                                        multiple
+                                        :max="maxDate"
+                                        @update:model-value="updateDisplay"
+                                        hide-header
+                                        hide-actions
+                                        show-adjacent-months
+                                        variant="solo-filled"
+                                        bg-color="var(--fourth-color)"
+                                    />
+                                </v-menu>
+                            </v-text-field>
 
-                            ></v-date-input>
 
-                            <v-text-field 
-                                class="time"    
-                                v-model="time"
-                                :rules="requiredField"
-                                label="Hora *" 
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                variant="solo-filled"
-                                required
-                                type="time"
-                                prepend-icon="mdi-clock-time-four-outline"
+                            <section class="time-container">
+                                <v-text-field 
+                                    class="time"    
+                                    v-model="startTime"
+                                    label="Entre las" 
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    variant="solo-filled"
+                                    type="time"
+                                    prepend-icon="mdi-clock-time-four-outline"
+    
+                                ></v-text-field>
+    
+                                <v-text-field 
+                                    class="time"    
+                                    v-model="endTime"
+                                    :rules="endTimeRules"
+                                    label="y las" 
+                                    type="time"
+                                    variant="solo-filled"
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    :disabled="!startTime"
+                                ></v-text-field>
+                            </section>
 
-                            ></v-text-field>
+                            <v-switch
+                                class="confidence"
+                                v-model="confidence"
+                                label="¿Estás seguro?" 
+                                color="var(--first-accent-color)"
+                            >
+                            </v-switch>
                         </section>
                     </v-form>
                 </v-window-item>
@@ -298,7 +354,7 @@
                                     v-if="type === 'Encontrado'"
                                     class="field deliverySwitch"
                                     v-model=itemDelivered
-                                    label="Objeto ha sido entregado en alguna oficina/depencias"
+                                    label="El objeto ha sido entregado en alguna oficina/lugar"
                                     color="var(--first-accent-color)"
                                     required
                                 ></v-switch>
@@ -334,12 +390,13 @@
 </template>
 
 <script setup lang="ts">
-import { Category, categoryToSubcategories, Color, Gender, PublicTransports, Subcategory, Brand } from '@/enums/item_enums';
+import { Category, categoryToSubcategories, Color, Gender, PublicTransports, Subcategory, Brand, ItemType } from '@/enums/item_enums';
 import { computed, Ref, ref, watch, nextTick } from 'vue'
 import L from 'leaflet';
 import { reverseGeocode } from '@/utils/nominatim';
+import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/items';
 
-    const type : Ref<string> = ref('Encontrado');
+    const type : Ref<string> = ref('Perdido');
 
     const name : Ref<string> = ref('');
     const category : Ref<Category | undefined> = ref();
@@ -349,29 +406,37 @@ import { reverseGeocode } from '@/utils/nominatim';
     const gender : Ref<Gender | undefined> = ref();
     const race : Ref<string | undefined> = ref();
     const brand : Ref<Brand | undefined> = ref();
-    const files: Ref<File | File[] | undefined> = ref(undefined);
+    const files: Ref<File[] | undefined> = ref(undefined);
         
     const location : Ref<string> = ref('');
-    const latLong : Ref<number[] | undefined> = ref();
+    const latLong : Ref<number[]> = ref([40.4168, -3.7038]);
     const locationDescription : Ref<string> = ref('');
     const publicTransport : Ref<PublicTransports | undefined> = ref();
+    const transportInfo : Ref<string> = ref('');
     
-    const time = ref()
-    const date = ref()
+    const date = ref([])
     const maxDate = new Date();
-    const itemDelivered : Ref<boolean> = ref(false)
+    const menu : Ref<boolean> = ref(false)
+    const formatDate = (d: string | number | Date) => new Date(d).toLocaleDateString('es-ES')
+    function updateDisplay(val: (string | number | Date)[]) {
+        displayDate.value = val.map(formatDate).join(' ')
+    }
 
-    const dateTime : Ref<Date> = ref(new Date());
-            
+    const confidence : Ref<boolean> = ref(false)
+    const startTime = ref()
+    const endTime = ref()
+    const displayDate : Ref<string> = ref('')
+
+    const itemDelivered : Ref<boolean> = ref(false)
     const reward : Ref<string> = ref('');
     const deliveryLocation : Ref<string> = ref('');
     
     const emit = defineEmits<{
-        (e: 'success'): void
+        (e: 'success', item : MixedItem, images : ItemImages): void
         (e: 'failure', error: string): void
     }>()
         
-    var step : Ref<number> = ref(5)
+    var step : Ref<number> = ref(1)
     const currentTitle = computed(() => {
         switch (step.value) {
             case 1: return '¿Perdiste o encontraste algo?'
@@ -379,7 +444,7 @@ import { reverseGeocode } from '@/utils/nominatim';
             case 3: return '¿Dónde?'
             case 4: return '¿Cuándo?'
             case 5: return 'Datos finales'
-            default: return 'Account created'
+            default: return ''
         }
     })
 
@@ -482,14 +547,38 @@ import { reverseGeocode } from '@/utils/nominatim';
         },
 
         (value: string) => {
-            if (value?.length <= 10) return true
-            return 'El nombre debe de tener menos de 10 carácteres.'
+            if (value?.length <= 20) return true
+            return 'El nombre debe de tener menos de 20 carácteres.'
         },
     ]
+
+    const endTimeRules = [
+        (value: string) => {
+            if (!value) return true;
+
+            const [startHours, startMinutes] = startTime.value.split(':').map(Number);
+            const [endHours, endMinutes] = value.split(':').map(Number);
+            
+            const startTotalMinutes = startHours * 60 + startMinutes;
+            const endTotalMinutes = endHours * 60 + endMinutes;
+            
+            if (endTotalMinutes < startTotalMinutes) {
+                return 'Hora final inválida';
+            }
+            
+            return true;
+        }
+    ];
 
     const raceRules = [
         (value: string) => {
             return !value || value.length <= 20 || 'La raza debe de tener menos de 20 carácteres.';
+        }
+    ]
+
+    const infoTransportRules = [
+        (value: string) => {
+            return !value || value.length <= 20 || 'La información sobre el transporte debe de tener menos de 15 carácteres.';
         }
     ]
 
@@ -523,6 +612,7 @@ import { reverseGeocode } from '@/utils/nominatim';
                 }
 
                 break;
+
             case 2:
                 var { valid } = await secondForm.value.validate()
 
@@ -548,20 +638,74 @@ import { reverseGeocode } from '@/utils/nominatim';
                 }
 
                 break;
+
             case 3:
                 var { valid } = await thirdForm.value.validate()
-
                 break;
+
             case 4:
                 var { valid } = await fourthForm.value.validate()
-
                 break;
+
             case 5:
                 var { valid } = await fifthForm.value.validate()
+                if (!valid) {
+                    break;
+                }
 
-                break;
+                const item : Item = {
+                    type: type.value as ItemType,
+                    name: name.value,
+                    category: category.value as Category,
+                    subcategory: subcategory.value,
+                    detailedDescription: description.value,
+                    color: color.value as Color,
+                    gender: gender.value as Gender,
+                    race: race.value,
+                    brand: brand.value,
+
+                    location: location.value,
+                    latLong: latLong.value,
+                    locationDescription: locationDescription.value,
+                    publicTransport: publicTransport.value,
+                    transportInfo: transportInfo.value,
+
+                    date: displayDate.value,
+                    time: startTime.value + ' - ' + endTime.value,
+                    confidence: confidence.value
+                }
+
+                const itemFiles : ItemImages = {
+                    itemImages: files.value,
+                }
+
+                if (type.value == 'Perdido'){
+                    const lostItem : LostItem = {
+                        ...item,
+                        type: ItemType.Perdido,
+                        reward: reward.value,
+                    }
+
+                    emit('success', lostItem, itemFiles)
+                    return;
+
+                } else if (type.value == 'Encontrado'){
+                    const foundItem : FoundItem = {
+                        ...item,
+                        type: ItemType.Encontrado,
+                        deliveryLocation: deliveryLocation.value
+
+                    }
+
+                    emit('success', foundItem, itemFiles)
+                    return;
+
+                } else {
+                    emit('failure', 'Ha ocurrido un error inesperado al recoger los datos.');
+                    return;
+                }
+
             default:
-
                 break;
         }
 
@@ -569,7 +713,7 @@ import { reverseGeocode } from '@/utils/nominatim';
             emit('failure', 'Hay campos incompletos o mal rellenados.');
             return;
 
-        } else {
+        } else if (step.value < 5) {
             step.value++;
         }
 
@@ -721,11 +865,29 @@ import { reverseGeocode } from '@/utils/nominatim';
         padding-top: .5em
     }
 
+    .public-transport{
+        display: flex;
+        width: 95%;
+
+        gap: 1em;
+    }
+
     .datetime, .reward-delivery-location{
         display: flex;
         flex-direction: column;
         width: 95%;
         gap: 1em;
+    }
+
+    .time-container {
+        display: flex;
+        gap: 1em;
+    }
+
+    .confidence{
+        display: flex;
+        align-self: center;
+        justify-self: center;
     }
 
     .reward-delivery-location{

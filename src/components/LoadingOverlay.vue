@@ -18,7 +18,7 @@ import { onMounted } from 'vue';
     onMounted(() => {
         setTimeout(() => {
             closeOverlay()
-        }, 620)
+        }, 700)
     })
 
     function closeOverlay() : void {

@@ -1,6 +1,6 @@
 <template>
     <main class="CreateItemView">
-        <CreateItemContainer @show-error="showError"></CreateItemContainer>
+        <CreateItemContainer @show-error="showError" @show-success="showSuccess"></CreateItemContainer>
     </main>
 </template>
 
@@ -14,6 +14,10 @@ import CreateItemContainer from '@/containers/CreateItemContainer.vue';
 
     function showError(error : string) : void {
         emit('showError', error)
+    }
+
+    function showSuccess(message : string) : void {
+        emit('showSuccess', message)
     }
 
 </script>
