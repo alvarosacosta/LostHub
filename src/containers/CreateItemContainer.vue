@@ -8,8 +8,8 @@
 import CreateItemComponent from '@/components/CreateItemComponent.vue';
 import { ItemImages, MixedItem } from '@/interfaces/items';
 import router from '@/router';
-import { useAuthStore } from '@/stores/auth';
-import { useItemsStore } from '@/stores/database';
+import { useAuthStore } from '@/stores/AuthStore';
+import { useItemsStore } from '@/stores/ItemStore';
 import { storeToRefs } from 'pinia';
 
     const emit = defineEmits<{

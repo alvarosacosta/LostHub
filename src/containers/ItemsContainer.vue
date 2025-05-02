@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import ItemsComponent from '@/components/ItemsComponent.vue';
 import { onMounted, Ref, ref } from 'vue';
-import { useItemsStore } from '@/stores/database';
+import { useItemsStore } from '@/stores/ItemStore';
 import { MixedItem } from '@/interfaces/items';
 
     const ItemsStore = useItemsStore()

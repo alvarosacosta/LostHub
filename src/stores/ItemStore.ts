@@ -3,8 +3,11 @@ import { ref } from 'vue'
 import supabase from '@/supabase';
 import type { ItemImages, MixedItem } from '@/interfaces/items'
 import { generateUniqueFilePath } from '@/utils/fileUtils';
+import { useLoadingStore } from './LoadingStore';
 
 export const useItemsStore = defineStore('items', () => {
+
+  const LoadingStore = useLoadingStore()
 
   const allItems = ref<MixedItem[]>([])
   const singleItem = ref<MixedItem>()
@@ -13,6 +16,8 @@ export const useItemsStore = defineStore('items', () => {
 
   async function fetchAllItems() : Promise<void>{
     try {
+        LoadingStore.startLoading()
+
         const { data, error } = await supabase
             .from('item_details')
             .select('*')
@@ -62,13 +67,17 @@ export const useItemsStore = defineStore('items', () => {
         }
     
     } catch(err: any) {
-        console.error("Error fetching all items: " + err.message)
+      console.error("Error fetching all items: " + err.message)
 
+    } finally {
+      LoadingStore.endLoading()
     }
   }
 
   async function fetchItemById(id: string): Promise<void> {
     try {
+      LoadingStore.startLoading()
+
       const { data, error } = await supabase
         .from('item_details')
         .select('*')
@@ -119,28 +128,37 @@ export const useItemsStore = defineStore('items', () => {
 
     } catch (err: any) {
       console.error('Error fetching item by ID:', err.message)
+
+    } finally {
+      LoadingStore.endLoading()
     }
   }
 
   async function fetchUserIdByItemId(itemId : string) {
     try {
-        const { data, error } = await supabase
-        .from('item_details')
-        .select('user_id')
-        .eq('id', itemId)
-        .single()
+      LoadingStore.startLoading()
 
-        if (error) throw error
-        if (data) fetchedUserID.value = data.user_id
+      const { data, error } = await supabase
+      .from('item_details')
+      .select('user_id')
+      .eq('id', itemId)
+      .single()
+
+      if (error) throw error
+      if (data) fetchedUserID.value = data.user_id
 
     } catch(err : any) {
         console.error("Error fecthing user ID using Item ID: " + err.message)
+
+    } finally {
+      LoadingStore.endLoading()
     }
   }
 
   async function postItem(item : MixedItem, images : ItemImages, userID : string): Promise<void> {
     try {
-
+      LoadingStore.startLoading()
+      
       const imageUrls: string[] = [];
       if (images.itemImages && images.itemImages.length > 0) {
         for (const file of images.itemImages) {
@@ -202,6 +220,9 @@ export const useItemsStore = defineStore('items', () => {
 
     } catch (err: any) {
       console.error('Error posting new item:', err.message)
+
+    } finally {
+      LoadingStore.endLoading()
     }
   }
 

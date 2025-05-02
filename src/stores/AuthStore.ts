@@ -2,8 +2,11 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import supabase from '@/supabase';
 import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
+import { useLoadingStore } from './LoadingStore';
 
 export const useAuthStore = defineStore('auth', () => {
+
+  const LoadingStore = useLoadingStore()
 
   const user = ref<any>(null);
   const userProfile = ref<UserDetails | null>(null);
@@ -16,8 +19,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     supabase.auth.onAuthStateChange((event, session) => {
       user.value = session?.user || null;
-      if (user.value) {
-          fetchCurrentUserProfile();
+      if (user.value && !userProfile.value) {
+        fetchCurrentUserProfile();
       }
     });
   }
@@ -27,6 +30,8 @@ export const useAuthStore = defineStore('auth', () => {
     isFetchingOwnProfile.value = true;
 
     try {
+      LoadingStore.startLoading()
+
       const userID = user.value.id;
       if (!userID) throw new Error('Could not get user ID.');
       
@@ -75,11 +80,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     } finally {
       isFetchingOwnProfile.value = false;
+      LoadingStore.endLoading()
     }
   };
 
   async function logIn(email: string, password: string) : Promise<void> {
     try {
+      LoadingStore.startLoading()
+
       const { data: logInData, error: logInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -97,6 +105,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logOut() : Promise<void> {
     try {
+      LoadingStore.startLoading()
+
       await supabase.auth.signOut();
       user.value = null;
       userProfile.value = null;
@@ -104,6 +114,8 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (err: any) {
       throw err;
 
+    } finally {
+      LoadingStore.endLoading()
     }
   };
 
@@ -111,6 +123,8 @@ export const useAuthStore = defineStore('auth', () => {
     var filePath = `user-profiles-images/no-image.png`;
   
     try {
+      LoadingStore.startLoading()
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: user.email,
         password: user.password, 
@@ -159,11 +173,15 @@ export const useAuthStore = defineStore('auth', () => {
       const error = 'Error during sign up: ' + err.message;
       throw error;
   
+    } finally {
+      LoadingStore.endLoading()
     }
   };
 
   async function updateUserInfo(userUpdatedInfo : UserDetails) : Promise<void>{
     try {
+      LoadingStore.startLoading()
+
       const userID = user.value.id;
       if (!userID) throw new Error('Could not get user ID.');
 
@@ -192,12 +210,17 @@ export const useAuthStore = defineStore('auth', () => {
   
     } catch (err: any) {
       console.error('Error updating the user:', err)
+
+    } finally {
+      LoadingStore.endLoading()
     }
   }
 
   async function fetchUserById(id : string) : Promise<void> {
 
     try {
+      LoadingStore.startLoading()
+
       const { data, error } = await supabase
       .from('user_details')
       .select('*')
@@ -221,14 +244,13 @@ export const useAuthStore = defineStore('auth', () => {
       
     } catch(err : any) {
       console.error('Error fetching foreign user profile:' + err.message)
+
+    } finally {
+      LoadingStore.endLoading()
     }
     
   }
-
-  async function cleanForeignUser() : Promise<void> {
-    foreignUserProfile.value = null;
-  }
-
+  
   return {
     user,
     userProfile,
@@ -240,6 +262,5 @@ export const useAuthStore = defineStore('auth', () => {
     updateUserInfo,
     fetchUserById,
     fetchCurrentUserProfile,
-    cleanForeignUser,
   };
 });

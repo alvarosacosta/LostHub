@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import SidebarComponent from '@/components/SidebarComponent.vue';
 import router from '@/router';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 
     const authStore = useAuthStore();

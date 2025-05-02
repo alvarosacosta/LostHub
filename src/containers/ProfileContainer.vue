@@ -8,7 +8,7 @@
 import ProfileComponent from '@/components/ProfileComponent.vue';
 import { UserDetails } from '@/interfaces/user';
 import router from '@/router';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { onMounted, Ref, ref } from 'vue';
 
@@ -31,7 +31,7 @@ import { onMounted, Ref, ref } from 'vue';
             await AuthStore.fetchUserById(props.userID);
 
         } else {
-            AuthStore.cleanForeignUser()
+            foreignUserProfile.value = null;
         }
         
     })

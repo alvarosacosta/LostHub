@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import SignUpComponent from '@/components/SignUpComponent.vue';
 import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';

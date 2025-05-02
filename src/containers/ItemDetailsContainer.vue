@@ -10,8 +10,8 @@
   
 <script setup lang="ts">
 import ItemDetailsComponent from '@/components/ItemDetailsComponent.vue';
-import { useItemsStore } from '@/stores/database';
-import { useAuthStore } from '@/stores/auth';
+import { useItemsStore } from '@/stores/ItemStore';
+import { useAuthStore } from '@/stores/AuthStore';
 import { onMounted} from 'vue';
 import { storeToRefs } from 'pinia';
 

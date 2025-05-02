@@ -404,7 +404,7 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
     const description : Ref<string> = ref('');
     const color : Ref<Color | undefined> = ref();
     const gender : Ref<Gender | undefined> = ref();
-    const race : Ref<string | undefined> = ref();
+    const race : Ref<string> = ref('');
     const brand : Ref<Brand | undefined> = ref();
     const files: Ref<File[] | undefined> = ref(undefined);
         
@@ -465,6 +465,8 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
 
     function onCategoryChange() : void {
         subcategory.value = undefined
+        race.value = ''
+        gender.value = undefined
     }
 
     const map = ref<L.Map | null>(null);

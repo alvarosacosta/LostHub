@@ -143,7 +143,7 @@ import { useRoute } from 'vue-router';
         box-shadow: 2px 2px 2px rgba(0, 0, 0, 1);
         border-radius: 5px;
 
-        z-index: 2;
+        z-index: 20;
     }
 
     .hamburger:hover {
@@ -166,7 +166,7 @@ import { useRoute } from 'vue-router';
 
         border-right: 3.5px solid var(--first-color);
 
-        z-index: 2;
+        z-index: 20;
     }
 
     .closed {
