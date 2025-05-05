@@ -10,5 +10,5 @@ function sanitizeFilename(name: string): string {
 export function generateUniqueFilePath(userId: string, itemName: string, type: string, fileName: string) {
     const cleanItemName = sanitizeFilename(itemName);
     const cleanFileName = sanitizeFilename(fileName);
-    return `${userId}/${cleanItemName}_${type}_${Date.now()}_${cleanFileName}`;
+    return `${userId}/${cleanItemName}_${type}_${Date.now()}/${cleanFileName}`;
 }

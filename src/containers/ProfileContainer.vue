@@ -45,7 +45,8 @@ import { onMounted, Ref, ref } from 'vue';
             emit("showSuccess", "¡Éxito al actualizar tus datos!")
 
         } catch (error : any) {
-            showError(error)
+            console.error(error.message)
+            showError('Ha habido un error al actualizar tus datos.')
         }
     }
 

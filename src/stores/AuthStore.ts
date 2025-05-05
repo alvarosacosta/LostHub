@@ -64,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       if (data){
         userProfile.value = {
+          id: data.id,
           username: data.Username,
           isPublic: data.isPublic,
           email: data.Email,
@@ -209,7 +210,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (updateProfileError) throw updateProfileError;
   
     } catch (err: any) {
-      console.error('Error updating the user:', err)
+      const error = 'Error updating the user:' + err.message;
+      throw error;
 
     } finally {
       LoadingStore.endLoading()
@@ -231,6 +233,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       if (data){
         foreignUserProfile.value = {
+          id: data.id,
           username: data.Username,
           isPublic: data.isPublic,
           email: data.Email,

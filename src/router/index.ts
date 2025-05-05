@@ -3,14 +3,20 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'lading-page',
+    name: 'landing-page',
     component: () => import('@/views/LandingPageView.vue'),
     meta: { hasSidebar: false }
   },
   {
     path: '/hub',
-    name: 'lost-objects',
+    name: 'hub',
     component: () => import('@/views/ItemsView.vue'),
+    meta: { hasSidebar: true }
+  },
+  {
+    path: '/own-items',
+    name: 'own-items',
+    component: () => import('@/views/OwnItemsView.vue'),
     meta: { hasSidebar: true }
   },
   {

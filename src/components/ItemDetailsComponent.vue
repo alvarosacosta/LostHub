@@ -61,11 +61,11 @@
 
             <article class="profile-article">
                 <label class="label profile-label" for="profile-article">Usuario asociado</label>
-                <section v-if="foreignUserProfile && fetchedUserID" class="profile">
+                <section v-if="foreignUserProfile" class="profile">
                     <figure class="profile-image-container">
                         <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
-                    <router-link v-if="foreignUserProfile.isPublic" class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
+                    <router-link v-if="foreignUserProfile.isPublic" class="profile-button" :to="{ name: 'foreign-profile', params: { userID: foreignUserProfile.id},  }">Perfil de usuario</router-link>
                     <p v-else class="profile-name">{{ foreignUserProfile.username }}</p>
                 </section>
                 
@@ -199,6 +199,27 @@
                     <p class="field location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
+                <section v-if="userProfile?.id === foreignUserProfile?.id" class="delete-button-section">
+                    <button class="delete-button" @click="showDeleteDialog = true">BORRAR OBJETO DE NUESTROS SERVICIOS</button>
+                    <v-dialog v-model="showDeleteDialog" max-width="450" max-height="600" scroll-strategy="close">
+                        <template v-slot>
+                            <section class="info-dialog">
+                                <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                <p class="info">
+                                    ¿Estás seguro de que quieres borrar este objeto?
+                                </p>
+                                <p>
+                                    Esta acción no se puede deshacer.
+                                </p>
+                                <div class="buttons-in-dialog">
+                                    <button class="delete-button" @click="deleteItem()">BORRAR OBJETO</button>
+                                    <button class="cancel-button" @click="showDeleteDialog = false">CANCELAR</button>
+                                </div>
+                                <br>
+                            </section>
+                        </template>
+                    </v-dialog>
+                </section>
             </article>
         </article>
     </main>
@@ -213,7 +234,11 @@ import { nextTick, Ref, ref, watch } from 'vue';
     const props = defineProps<{
         singleItem: MixedItem | undefined
         foreignUserProfile: UserDetails | null
-        fetchedUserID: string
+        userProfile?: UserDetails | null
+    }>()
+
+    const emit = defineEmits<{
+        (e: 'deleteItem'): void
     }>()
 
     const map = ref<L.Map | null>(null);
@@ -244,6 +269,7 @@ import { nextTick, Ref, ref, watch } from 'vue';
     const selectedIndex: Ref<number> = ref(0)
     const isHovered: Ref<boolean> = ref(false)
     const showInfoDialog : Ref<boolean> = ref(false)
+    const showDeleteDialog : Ref<boolean> = ref(false)
     const showMap : Ref<boolean> = ref(false)
 
     watch(showMap, async (newStep) => {
@@ -252,6 +278,10 @@ import { nextTick, Ref, ref, watch } from 'vue';
             initMap();
         }
     });
+
+    function deleteItem() : void {
+        emit("deleteItem")
+    }
 
 </script>
 
@@ -293,7 +323,7 @@ import { nextTick, Ref, ref, watch } from 'vue';
         box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
         border: 3px solid var(--first-color);
 
-        padding-bottom: 4em;
+        padding-bottom: 2em;
 
     }
 
@@ -753,6 +783,37 @@ import { nextTick, Ref, ref, watch } from 'vue';
         width: 100%;
         gap: 15px;
     }
+
+    .delete-button-section{
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        padding-top: 1em;
+    }
+
+    .delete-button, .cancel-button{
+        background-color: var(--first-accent-color);
+        color: inherit;
+
+        padding: 10px;
+        cursor: pointer;
+        text-align: center;
+
+        border-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+    }
+
+    .delete-button:hover, .cancel-button:hover{
+        background-color: var(--second-accent-color);
+    }
+
+    .buttons-in-dialog{
+        display: flex;
+        gap: 1em;
+    }
+
 
     /* Carousel arrows */
     .view-details-arrow, .carousel-arrow-prev, .carousel-arrow-next {

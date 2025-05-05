@@ -5,7 +5,7 @@ export const useLoadingStore = defineStore('loading', () => {
     const isLoading : Ref<boolean> = ref(false)
     const startTime : Ref<number> = ref(0)
 
-    const minDuration : Ref<number> = ref(500)
+    const minDuration : Ref<number> = ref(640)
   
     function startLoading() {
         isLoading.value = true

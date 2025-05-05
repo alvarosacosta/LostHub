@@ -32,7 +32,7 @@
             <section class="navigation">
                 <router-link v-if="userProfile" :class="{ 'selected-button': route.path.endsWith('/hub')}" class="navigation-button" to="/hub">Objetos perdidos</router-link>
                 <router-link v-if="userProfile" :class="{ 'selected-button': route.path.endsWith('/profile')}" class="navigation-button" to="/profile">Perfil de usuario</router-link>
-                <router-link v-if="userProfile" class="navigation-button" to="/hub">Mis objetos</router-link>
+                <router-link v-if="userProfile" :class="{ 'selected-button': route.path.endsWith('/own-items')}" class="navigation-button" to="/own-items">Mis objetos</router-link>
                 <router-link v-if="userProfile" class="navigation-button" to="/hub">Mis notificaciones</router-link>
                 <router-link v-if="userProfile" class="navigation-button" to="/hub">Objetos guardados</router-link>
                 <router-link class="navigation-button" to="/about-us">Quiénes somos</router-link>

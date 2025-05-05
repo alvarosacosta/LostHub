@@ -1,6 +1,6 @@
 <template>
     <main class="ItemsComponent">
-        <article class="filter-container" v-if="items && items.length > 0 && showFilters">
+        <article class="filter-container" v-show="showFilters" v-if="items && items.length > 0">
             <section class="line first-line">
                 <v-text-field
                     v-model="name"
@@ -186,6 +186,7 @@
                 </v-text-field>
 
             </section>
+            
             <article class="filter-icon-container icon-container-small" v-if="showFilters" @click="showFilters = !showFilters">
                 <v-icon class="filter-icon" size="20">mdi-magnify</v-icon>
             </article>
@@ -193,6 +194,10 @@
 
         <article class="filter-icon-container" v-if="!showFilters" @click="showFilters = !showFilters">
             <v-icon class="filter-icon" size="30">mdi-magnify</v-icon>
+
+            <section class="filter-label-container" v-if="anyFilterActive">
+                <span class="filter-label">FILTRADO</span>
+            </section>
         </article>
 
         <article class="items" :class="{ 'items-with-filter': showFilters}" v-if="filteredItems && filteredItems.length > 0">
@@ -230,9 +235,9 @@ import { computed, Ref, ref } from 'vue';
     const subcategory: Ref<Subcategory | undefined> = ref(undefined);
     const race: Ref<string> = ref('');
     const time: Ref<string> = ref('');
+    const displayDate : Ref<string> = ref('')
 
     const date = ref([])
-    const displayDate : Ref<string> = ref('')
     const maxDate = new Date();
     const menu : Ref<boolean> = ref(false)
     const formatDate = (d: Date) => new Date(d).toLocaleDateString('es-ES')
@@ -280,6 +285,23 @@ import { computed, Ref, ref } from 'vue';
                 (!reward.value || (item.type === 'Perdido' && parseFloat(item.reward) >= parseFloat(reward.value)))
             );
         }) || [];
+    });
+
+    const anyFilterActive = computed(() => {
+        return (
+            name.value ||
+            location.value ||
+            publicTransport.value ||
+            brand.value ||
+            color.value ||
+            gender.value ||
+            reward.value ||
+            category.value ||
+            subcategory.value ||
+            race.value ||
+            time.value ||
+            displayDate.value
+        );
     });
 
     function isTimeInRange(time: string, timeRange: string): boolean {
@@ -385,7 +407,7 @@ import { computed, Ref, ref } from 'vue';
         border: 2px solid var(--fourth-color);
 
         position: fixed;
-        top: 10px;
+        top: 7px;
         right: 20px;
 
         z-index: 10;
@@ -394,6 +416,8 @@ import { computed, Ref, ref } from 'vue';
         display: flex;
         align-items: center;
         justify-content: center;
+
+        cursor: pointer;
     }
 
     .icon-container-small{
@@ -404,6 +428,8 @@ import { computed, Ref, ref } from 'vue';
         position: absolute;
         top: -10px;
         right: -10px;
+
+        overflow-y:visible;
 
     }
 
@@ -416,12 +442,17 @@ import { computed, Ref, ref } from 'vue';
         filter: drop-shadow(1px 1px 2.5px rgba(0, 0, 0, 1));
     }
 
+    .filter-label{
+        color: var(--text-color);
+        font-weight: bold;
+    }
+
     .items {
         display: grid;
         grid-template-columns: 750px 750px;
         gap: 2em;
 
-        margin: 5em 0 5em 0;
+        margin: 2em 0 5em 0;
     }
 
     .items-with-filter{
@@ -493,6 +524,28 @@ import { computed, Ref, ref } from 'vue';
     @media (max-width: 730px) {
         .items {
             grid-template-columns: auto;
+        }
+
+        .items-with-filter{
+            margin: 2em 0 5em 0;
+        }
+
+        .filter-container{
+            display: block;
+            width: 18em;
+            max-height: 32.5em;
+            right: 13px;
+            overflow-y: auto;
+        }
+
+        .line{
+            flex-direction: column;
+            width: 100%;
+            gap: 0;
+        }
+
+        .field{
+            width: 100%;
         }
 
     }

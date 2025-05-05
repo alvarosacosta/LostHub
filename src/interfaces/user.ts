@@ -8,6 +8,7 @@ export interface UserProfileImage {
 }
 
 export interface UserDetails {
+    id?: string;
     username: string;
     isPublic: boolean;
     email: string;

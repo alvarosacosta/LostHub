@@ -10,6 +10,7 @@ export const useItemsStore = defineStore('items', () => {
   const LoadingStore = useLoadingStore()
 
   const allItems = ref<MixedItem[]>([])
+  const userItems = ref<MixedItem[]>([])
   const singleItem = ref<MixedItem>()
   const fetchedUserID = ref<string>('')
   const lastItemPostID = ref<string>('')
@@ -68,6 +69,67 @@ export const useItemsStore = defineStore('items', () => {
     
     } catch(err: any) {
       console.error("Error fetching all items: " + err.message)
+
+    } finally {
+      LoadingStore.endLoading()
+    }
+  }
+
+  async function fetchUserItems(userID : string) : Promise<void>{
+    try {
+        LoadingStore.startLoading()
+
+        const { data, error } = await supabase
+            .from('item_details')
+            .select('*')
+            .eq('user_id', userID);
+
+        if (error) throw error;
+
+        if (data) {
+          userItems.value = data.map((item: any): MixedItem => {
+                const baseItem = {
+                  id: item.id,
+                  type: item.type,
+        
+                  name: item.name,
+                  detailedDescription: item.description,
+                  category: item.category,
+                  subcategory: item.subcategory,
+                  gender: item.gender,
+                  color: item.color,
+                  race: item.race,
+                  brand: item.brand,
+        
+                  location: item.location,
+                  latLong: item.latLong,
+                  locationDescription: item.location_description,
+                  publicTransport: item.publicTransport,
+                  transportInfo: item.transportInfo,
+        
+                  date: item.date,
+                  time: item.time,
+                  confidence: item.confidence,
+        
+                  url_images: item.url_images,
+                };
+        
+                if (item.type === 'Perdido') {
+                    return {
+                        ...baseItem,
+                        reward: item.reward,
+                    };
+                } else {
+                    return {
+                        ...baseItem,
+                        deliveryLocation: item.deliveryLocation,
+                    };
+                }
+            });
+        }
+    
+    } catch(err: any) {
+      console.error("Error fetching all user items: " + err.message)
 
     } finally {
       LoadingStore.endLoading()
@@ -226,13 +288,36 @@ export const useItemsStore = defineStore('items', () => {
     }
   }
 
+  async function deleteItemById(id: string): Promise<void> {
+    try {
+      LoadingStore.startLoading()
+
+      const { error } = await supabase
+        .from('item_details')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+    } catch (err: any) {
+      const error = 'Error deleting item by ID:' + err.message;
+      throw error;
+
+    } finally {
+      LoadingStore.endLoading()
+    }
+  }
+
   return {
     allItems,
+    userItems,
     singleItem,
     fetchedUserID,
     lastItemPostID,
     fetchAllItems,
+    fetchUserItems,
     fetchItemById,
+    deleteItemById,
     fetchUserIdByItemId,
     postItem
   }

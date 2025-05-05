@@ -6,7 +6,7 @@
         </section>
 
         <section class="landing-buttons">
-            <router-link class="landing-login" :to="{ name: 'lost-objects', query: { login: 'true' } }">Iniciar sesión</router-link>
+            <router-link class="landing-login" :to="{ name: 'hub', query: { login: 'true' } }">Iniciar sesión</router-link>
             <router-link class="landing-register" to="/register">¿No tienes una cuenta? Regístrate</router-link>
         </section>
 
