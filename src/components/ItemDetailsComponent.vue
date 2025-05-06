@@ -75,10 +75,10 @@
                         <span class="tooltip">Guardar petición</span>
                     </section>
                     <v-icon class="info-icon" @click="showInfoDialog = true" size="35">mdi-information-outline</v-icon>
-                    <section class="notify-container">
+                    <router-link v-if="singleItem" :to="{ name: 'notify-finding', params: { itemID: singleItem.id },  }" class="notify-container">
                         <v-icon class="notify-icon" size="80">mdi-bell</v-icon>
                         <span class="tooltip">Notificar hallazgo</span>
-                    </section>
+                    </router-link>
                 </section>
 
                 <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
@@ -108,7 +108,7 @@
                 </section>
 
                 <section class="down-section">
-                    <section v-if="singleItem?.type === 'Perdido'" class="reward-section">
+                    <section v-if="singleItem?.type === 'Perdido' && singleItem?.reward" class="reward-section">
                         <label class="label reward-label" for="reward">Recompensa</label>
                         <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
@@ -551,6 +551,8 @@ import { nextTick, Ref, ref, watch } from 'vue';
     }
 
     .save-container, .notify-container {
+        text-decoration: none;
+
         display: flex;
         align-items: center;
         justify-content: center;

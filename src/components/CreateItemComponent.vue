@@ -305,6 +305,7 @@
                                     variant="solo-filled"
                                     type="time"
                                     prepend-icon="mdi-clock-time-four-outline"
+                                    clearable
     
                                 ></v-text-field>
     
@@ -318,6 +319,7 @@
                                     color="var(--first-color)"
                                     bg-color="var(--fourth-color)"
                                     :disabled="!startTime"
+                                    clearable
                                 ></v-text-field>
                             </section>
 
@@ -346,7 +348,6 @@
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
                                 density="comfortable"
-                                required
                             ></v-text-field>
 
                             <section class="delivery-options">
@@ -556,6 +557,9 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
 
     const endTimeRules = [
         (value: string) => {
+            if (startTime.value && !value) {
+                return 'Hora final es obligatoria.';
+            }
             if (!value) return true;
 
             const [startHours, startMinutes] = startTime.value.split(':').map(Number);
@@ -673,7 +677,7 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
                     transportInfo: transportInfo.value,
 
                     date: displayDate.value,
-                    time: startTime.value + ' - ' + endTime.value,
+                    time: startTime.value && endTime.value ? startTime.value + ' - ' + endTime.value  :  '',
                     confidence: confidence.value
                 }
 

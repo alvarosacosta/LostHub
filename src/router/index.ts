@@ -44,6 +44,13 @@ const routes: Array<RouteRecordRaw> = [
     meta: { hasSidebar: false }
   },
   {
+    path: '/notifyFinding/:itemID',
+    name: 'notify-finding',
+    component: () => import('@/views/NotifyFindingView.vue'),
+    meta: { hasSidebar: false },
+    props: true
+  },
+  {
     path: '/profile/:userID',
     name: 'foreign-profile',
     component: () => import('@/views/ProfileView.vue'),

@@ -51,8 +51,8 @@
                 <label class="location-label">Ubicación de pérdida</label>
                 <p class="location">{{ item?.location }}</p>
                 
-                <label v-if="item?.type === 'Perdido'" class="reward-label">Recompensa de búsqueda</label>
-                <p v-if="item?.type === 'Perdido'" class="reward">{{ item?.reward + " €" }}</p>
+                <label v-if="item?.type === 'Perdido' && item?.reward" class="reward-label">Recompensa de búsqueda</label>
+                <p v-if="item?.type === 'Perdido' && item?.reward" class="reward">{{ item?.reward + " €" }}</p>
 
                 <router-link class="view-details-arrow-container" :to="{ name: 'item-details', params: { id: item?.id },  }">
                     <label class="tooltip-arrow" for="view-details-arrow">Ver detalles</label>
