@@ -355,7 +355,7 @@
                                     v-if="type === 'Encontrado'"
                                     class="field deliverySwitch"
                                     v-model=itemDelivered
-                                    label="El objeto ha sido entregado en alguna oficina/lugar"
+                                    label="El objeto ha sido entregado en alguna oficina/dependencia"
                                     color="var(--first-accent-color)"
                                     required
                                 ></v-switch>
@@ -846,7 +846,8 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
     }
 
     .deliverySwitch{
-        width: 60%;
+        width: fit-content;
+        align-self: center;
 
     }
 
@@ -906,7 +907,7 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
     }
 
     .reward, .deliveryLocation {
-        width: 60%;
+        width: 70%;
     }
 
     .v-card-actions {

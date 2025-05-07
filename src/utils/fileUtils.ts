@@ -7,8 +7,15 @@ function sanitizeFilename(name: string): string {
       .toLowerCase();
   }
 
-export function generateUniqueFilePath(userId: string, itemName: string, type: string, fileName: string) {
-    const cleanItemName = sanitizeFilename(itemName);
-    const cleanFileName = sanitizeFilename(fileName);
-    return `${userId}/${cleanItemName}_${type}_${Date.now()}/${cleanFileName}`;
+export function generateUniqueFilePath(principalFolder: string | undefined, text1: string, text2: string, fileName: string) {
+
+  if(!principalFolder){
+    return 'error'
+  }
+  
+  const cleanText1 = sanitizeFilename(text1);
+  const cleanText2 = sanitizeFilename(text2);
+  const cleanFileName = sanitizeFilename(fileName);
+  
+  return `${principalFolder}/${cleanText1}_${cleanText2}/${cleanFileName}_${Date.now()}`;
 }

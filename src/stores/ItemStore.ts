@@ -210,7 +210,7 @@ export const useItemsStore = defineStore('items', () => {
       if (data) fetchedUserID.value = data.user_id
 
     } catch(err : any) {
-        console.error("Error fecthing user ID using Item ID: " + err.message)
+      console.error("Error fecthing user ID using Item ID: " + err.message)
 
     } finally {
       LoadingStore.endLoading()
@@ -224,7 +224,7 @@ export const useItemsStore = defineStore('items', () => {
       const imageUrls: string[] = [];
       if (images.itemImages && images.itemImages.length > 0) {
         for (const file of images.itemImages) {
-          const filePath = generateUniqueFilePath(userID, item.name, item.type, file.name)
+          const filePath = generateUniqueFilePath(userID, item.type, item.name, file.name)
       
           const { error: uploadFileError } = await supabase.storage
             .from('item-images')

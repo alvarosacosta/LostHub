@@ -3,6 +3,7 @@
         <NotifyFindingContainer 
             :itemID
             @show-error="showError"
+            @show-success="showSuccess"
         ></NotifyFindingContainer>
     </main>
 
@@ -23,5 +24,9 @@ import NotifyFindingContainer from '@/containers/NotifyFindingContainer.vue';
 
     function showError(error : string) : void {
         emit('showError', error)
+    }
+
+    function showSuccess(message : string) : void {
+        emit('showSuccess', message)
     }
 </script>

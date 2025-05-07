@@ -14,9 +14,11 @@
   
 <script setup lang="ts">
 import NotifyFindingComponent from '@/components/NotifyFindingComponent.vue';
-import { ItemFoundNotification } from '@/interfaces/notifications';
+import { ItemFoundNotification, NotificationImages } from '@/interfaces/notifications';
+import router from '@/router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useItemsStore } from '@/stores/ItemStore';
+import { useNotificationStore } from '@/stores/NotificationStore';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 
@@ -31,6 +33,7 @@ import { onMounted } from 'vue';
 
     const ItemsStore = useItemsStore()
     const AuthStore = useAuthStore()
+    const NotificationStore = useNotificationStore()
 
     const { foreignUserProfile, userProfile } = storeToRefs(AuthStore);  
     const { fetchedUserID } = storeToRefs(ItemsStore);
@@ -41,8 +44,16 @@ import { onMounted } from 'vue';
 
     });
 
-    async function uploadNotification(notification : ItemFoundNotification) : Promise<void> {
-        console.log('YEKAAAAAA', notification)
+    async function uploadNotification(notification : ItemFoundNotification, images: NotificationImages) : Promise<void> {
+        try {
+            await NotificationStore.uploadNotification(notification, images)
+
+            router.push('/hub')
+            emit('showSuccess', 'Se ha enviado una notificación al usuario involucrado. ¡Muchas gracias!')
+
+        } catch(err : any){
+            emit('showError', 'No se ha podido enviar la notificación.')
+        }
     }
 
     function showError(error : string) : void {

@@ -113,7 +113,8 @@ export const useAuthStore = defineStore('auth', () => {
       userProfile.value = null;
 
     } catch (err: any) {
-      throw err;
+      const error = 'Error logging out: ' + err.message
+      throw error;
 
     } finally {
       LoadingStore.endLoading()

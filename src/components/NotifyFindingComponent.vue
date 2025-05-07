@@ -39,7 +39,9 @@
                         <section class="datetime">
                             <v-text-field
                                 v-model="displayDate"
-                                label="Fecha(s)"
+                                label="Fecha(s) *"
+                                :rules="requiredField"
+                                required
                                 readonly
                                 @click="menu = true"
                                 variant="solo-filled"
@@ -104,7 +106,7 @@
                             <v-switch
                                 class="field deliverySwitch"
                                 v-model=itemDelivered
-                                label="El objeto ha sido entregado en alguna oficina/lugar"
+                                label="El objeto ha sido entregado en alguna oficina/dependencia"
                                 color="var(--first-accent-color)"
                                 required
                             ></v-switch>
@@ -159,7 +161,7 @@
                 <v-window-item :value="4">
                     <v-form class="window-step" ref="fourthForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
                         <section class="email-phone">
-                            <p class="email-phone-text">Debes especificar al menos un método de contacto.</p>
+                            <p class="email-phone-text">Debes especificar al menos un método de contacto:</p>
                             <v-text-field
                                 class="email field"
                                 color="var(--first-color)"
@@ -201,7 +203,7 @@
 import { computed, Ref, ref, watch, nextTick } from 'vue'
 import L from 'leaflet';
 import { reverseGeocode } from '@/utils/nominatim';
-import { ItemFoundNotification } from '@/interfaces/notifications';
+import { ItemFoundNotification, NotificationImages } from '@/interfaces/notifications';
 import { UserDetails } from '@/interfaces/user';
 
     const props = defineProps<{
@@ -235,7 +237,7 @@ import { UserDetails } from '@/interfaces/user';
     const email : Ref<string> = ref('');
     
     const emit = defineEmits<{
-        (e: 'success', notification: ItemFoundNotification): void
+        (e: 'success', notification: ItemFoundNotification, images: NotificationImages): void
         (e: 'failure', error: string): void
     }>()
         
@@ -494,7 +496,16 @@ import { UserDetails } from '@/interfaces/user';
             }
         }
 
-        emit('success', notification)
+        const images : NotificationImages = {
+            notificationImages: files.value
+        }
+
+        if (notification.senderID === 'not-logged-user') {
+            notification.anonID = 'anon_' + crypto.randomUUID();
+            notification.senderID = null;
+        }
+
+        emit('success', notification, images)
     }
 
 </script>
@@ -652,9 +663,8 @@ import { UserDetails } from '@/interfaces/user';
     }
 
     .email-phone-text{
-        margin: 0 0 1em 1em;
-        align-self: flex-start;
-        width: 100%;
+        align-self: center;
+        width: 95%;
     }
 
     .v-card-actions {
