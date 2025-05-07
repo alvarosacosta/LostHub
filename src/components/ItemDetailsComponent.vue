@@ -1,7 +1,7 @@
 <template>
     <main class="ItemDetailsComponent">
         <span class="type">{{"OBJETO " + singleItem?.type }}</span>
-        <button class='back-button' @click="$router.back()"> Volver </button>
+        <router-link class='back-button' to="/hub"> Volver </router-link>
         <article class="item">
             <article v-if="singleItem?.url_images && singleItem?.url_images.length > 0" class="carousel-container">
                 <section class="list">
@@ -21,13 +21,19 @@
                     </ul>
                 </section>
 
-                <v-window class="carousel" show-arrows v-model="selectedIndex">
+                <v-window 
+                    class="carousel" 
+                    show-arrows 
+                    v-model="selectedIndex"
+                    @mouseenter="isHovered = true"
+                    @mouseleave="isHovered = false"
+                >
                     <template v-slot:prev="{ props }">
-                        <v-icon class="carousel-arrow-prev" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
+                        <v-icon class="carousel-arrow-prev" :class="{ 'arrow-visible': isHovered }" @click="props.onClick" size="90">mdi-arrow-left-thick</v-icon>
                     </template>
     
                     <template v-slot:next="{ props }">
-                        <v-icon class="carousel-arrow-next" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
+                        <v-icon class="carousel-arrow-next" :class="{ 'arrow-visible': isHovered }" @click="props.onClick" size="90">mdi-arrow-right-thick</v-icon>
                     </template>
     
                     <v-window-item eager class="files" v-for="(file, index) in singleItem?.url_images" :key="index">
@@ -54,11 +60,13 @@
             </article>
 
             <article class="profile-article">
-                <section v-if="foreignUserProfile && fetchedUserID" class="profile">
+                <label class="label profile-label" for="profile-article">Usuario asociado</label>
+                <section v-if="foreignUserProfile" class="profile">
                     <figure class="profile-image-container">
                         <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
-                    <router-link class="profile-button" :to="{ name: 'foreign-profile', params: { userID: fetchedUserID},  }">Perfil de usuario</router-link>
+                    <router-link v-if="foreignUserProfile.isPublic" class="profile-button" :to="{ name: 'foreign-profile', params: { userID: foreignUserProfile.id},  }">Perfil de usuario</router-link>
+                    <p v-else class="profile-name">{{ foreignUserProfile.username }}</p>
                 </section>
                 
                 <section class="interaction-buttons">
@@ -66,79 +74,152 @@
                         <v-icon class="save-icon" size="80">mdi-content-save</v-icon>
                         <span class="tooltip">Guardar petición</span>
                     </section>
-                    <section class="notify-container">
+                    <v-icon class="info-icon" @click="showInfoDialog = true" size="35">mdi-information-outline</v-icon>
+                    <router-link v-if="singleItem" :to="{ name: 'notify-finding', params: { itemID: singleItem.id },  }" class="notify-container">
                         <v-icon class="notify-icon" size="80">mdi-bell</v-icon>
                         <span class="tooltip">Notificar hallazgo</span>
-                    </section>
+                    </router-link>
                 </section>
+
+                <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
+                    <template v-slot>
+                        <section class="info-dialog">
+                            <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                            <p class="info">
+                                Puedes guardar una petición para poder acceder a ella fácilmente en el futuro,
+                                para hacerlo simplemente dale click a 'Guardar petición'.
+
+                            </p>
+                            <br>
+                            <p class="info">
+                                También puedes notificar a un usuario de que has encontrado su objeto,
+                                para hacerlo simplemente dale click a 'Notificar hallazgo'.
+                            </p>
+                            <br>
+                        </section>
+                    </template>
+                </v-dialog>
             </article>
 
             <article class="resume-article">
-                <section class="name-section">
-                    <label for="name">NOMBRE DEL OBJETO</label>
-                    <span class="name">{{ singleItem?.name }}</span>
+                <section class="normal-section name-section">
+                    <label class="label" for="name">Descripción corta / Nombre</label>
+                    <span class="field name">{{ singleItem?.name }}</span>
                 </section>
 
                 <section class="down-section">
-                    <section v-if="singleItem?.type === 'Perdido'" class="reward-section">
-                        <label for="reward">RECOMPENSA</label>
+                    <section v-if="singleItem?.type === 'Perdido' && singleItem?.reward" class="reward-section">
+                        <label class="label reward-label" for="reward">Recompensa</label>
                         <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
-    
                     <section class="categories-section">
                         <section class="category-section">
-                            <label for="category">CATEGORÍA</label>
-                            <span class="category">{{ singleItem?.category }}</span>
+                            <label class="label" for="category">Categoría</label>
+                            <span class="field category">{{ singleItem?.category }}</span>
                         </section>
         
-                        <section v-if="singleItem?.subcategory" class="subcategory-section">
-                            <label for="subcategory">SUBCATEGORÍA</label>
-                            <span class="subcategory">{{ singleItem?.subcategory }}</span>
+                        <section v-if="singleItem?.subcategory" class="normal-section subcategory-section">
+                            <label class="label" for="subcategory">Subcategoría</label>
+                            <span class="field subcategory">{{ singleItem?.subcategory }}</span>
                         </section>
                     </section>
                 </section>
             </article>
 
             <article class="main-text">
-                <section v-if="singleItem?.isLostInPublicTransport && singleItem?.type === 'Perdido'" class="public-transport-section">
-                    <label for="found-public-transport">PERDIDO EN</label>
-                    <span class="found-public-transport">{{ singleItem?.isLostInPublicTransport }}</span>
+
+                <section class="color-gender-race-brand">
+                    <section class="normal-section color-section">
+                        <label class="label" for="color">Color</label>
+                        <span class="field color">{{ singleItem?.color }}</span>
+                    </section>
+
+                    <section v-if="singleItem?.gender" class="normal-section gender-section">
+                        <label class="label" for="gender">Sexo</label>
+                        <span class="field gender">{{ singleItem?.gender }}</span>
+                    </section>
+
+                    <section v-if="singleItem?.race" class="normal-section race-section">
+                        <label class="label" for="race">Raza</label>
+                        <p class="field race">{{ singleItem?.race }}</p>
+                    </section>
+
+                    <section v-if="singleItem?.brand" class="normal-section brand-section">
+                        <label class="label" for="brand">Marca</label>
+                        <p class="field brand">{{ singleItem.brand }}</p>
+                    </section>
                 </section>
 
-                <section class="color-gender">
-                    <section class="color-section">
-                        <label for="color">COLOR</label>
-                        <span class="color">{{ singleItem?.color }}</span>
+                <section class="date-time">
+                    <section class="normal-section date-section">
+                        <label v-if="singleItem?.type === 'Perdido'" class="label" for="date">Fecha(s) de pérdida</label>
+                        <label v-else class="label" for="date-time">Fecha(s) de encuentro</label>
+                        <span class="field date">{{ singleItem?.date }}</span>
                     </section>
 
-                    <section v-if="singleItem?.gender" class="gender-section">
-                        <label for="gender">SEXO</label>
-                        <span class="gender">{{ singleItem?.gender }}</span>
+                    <section v-if="singleItem?.time" class="normal-section time-section">
+                        <label v-if="singleItem?.type === 'Perdido'" class="label" for="time">Hora de pérdida</label>
+                        <label v-else class="label" for="time">Hora de encuentro</label>
+                        <p class="field time">{{ singleItem.time }}</p>
                     </section>
+
                 </section>
 
-                <section class="date-time-location">
-                    <section class="date-time-section">
-                        <label for="date-time">FECHA Y HORA</label>
-                        <span class="date-time">{{ formattedDateTime }}</span>
+                <section class="normal-section location-section">
+                    <label class="label odd-label" for="location">Última ubicación conocida</label>
+                    <span class="field location">{{ singleItem?.location }} <v-icon class="map-icon" @click="showMap = true" >mdi-map-search-outline</v-icon></span>
+                    <v-dialog v-model="showMap" scroll-strategy="close">
+                        <template v-slot>
+                            <div id="map"></div>
+                        </template>
+                    </v-dialog>
+                </section>
+
+                <section class="transport-container">
+                    <section v-if="singleItem?.publicTransport && singleItem?.type === 'Perdido'" class="normal-section public-transport-section">
+                        <label v-if="singleItem?.type === 'Perdido'" class="label odd-label" for="public-transport">Perdido en</label>
+                        <label v-else class="label odd-label" for="public-transport">Encontrado en</label>
+                        <span class="field public-transport">{{ singleItem?.publicTransport }}</span>
                     </section>
 
-                    <section class="location-section">
-                        <label for="location">LOCALIZACIÓN</label>
-                        <span class="location">{{ singleItem?.location }}</span>
+                    <section v-if="singleItem?.transportInfo" class="normal-section transportInfo-section">
+                        <label class="label" for="transportInfo">Información sobre el transporte</label>
+                        <p class="field transportInfo">{{ singleItem.transportInfo }}</p>
                     </section>
+
                 </section>
 
                 <section class="description-section">
-                    <label for="description">DESCRIPCIÓN DEL OBJETO</label>
-                    <p class="description">{{ singleItem?.detailedDescription }}</p>
+                    <label class="label odd-label" for="description">Descripción del objeto</label>
+                    <p class="field description">{{ singleItem?.detailedDescription }}</p>
                 </section>
-
+                
                 <section v-if="singleItem?.locationDescription" class="location-description-section">
-                    <label for="location-description">DESCRIPCIÓN DE LUGAR DE PÉRDIDA</label>
-                    <p class="location-description">{{ singleItem?.locationDescription }}</p>
+                    <label class="label odd-label" for="location-description">Descripción de lugar de pérdida</label>
+                    <p class="field location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
+                <section v-if="userProfile?.id === foreignUserProfile?.id" class="delete-button-section">
+                    <button class="delete-button" @click="showDeleteDialog = true">BORRAR OBJETO DE NUESTROS SERVICIOS</button>
+                    <v-dialog v-model="showDeleteDialog" max-width="450" max-height="600" scroll-strategy="close">
+                        <template v-slot>
+                            <section class="info-dialog">
+                                <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                <p class="info">
+                                    ¿Estás seguro de que quieres borrar este objeto?
+                                </p>
+                                <p>
+                                    Esta acción no se puede deshacer.
+                                </p>
+                                <div class="buttons-in-dialog">
+                                    <button class="delete-button" @click="deleteItem()">BORRAR OBJETO</button>
+                                    <button class="cancel-button" @click="showDeleteDialog = false">CANCELAR</button>
+                                </div>
+                                <br>
+                            </section>
+                        </template>
+                    </v-dialog>
+                </section>
             </article>
         </article>
     </main>
@@ -147,35 +228,75 @@
 <script setup lang="ts">
 import { MixedItem } from '@/interfaces/items';
 import { UserDetails } from '@/interfaces/user';
-import { Ref, ref, watch } from 'vue';
+import L from 'leaflet';
+import { nextTick, Ref, ref, watch } from 'vue';
     
     const props = defineProps<{
         singleItem: MixedItem | undefined
         foreignUserProfile: UserDetails | null
-        fetchedUserID: string
+        userProfile?: UserDetails | null
     }>()
 
-    const formattedDateTime : Ref<string| undefined> = ref(props.singleItem?.dateTime)
-    watch(
-        () => props.singleItem?.dateTime,
-        (newDateTime) => {
-            if (newDateTime) {
-            formattedDateTime.value = newDateTime.replace('T', ' ');
-            }
-        },
-        { immediate: true }
-    );
+    const emit = defineEmits<{
+        (e: 'deleteItem'): void
+    }>()
+
+    const map = ref<L.Map | null>(null);
+    const markerIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    async function initMap() {
+        const mapContainer = document.getElementById('map');
+        if (mapContainer && props.singleItem) {
+            map.value = L.map(mapContainer, {
+                doubleClickZoom: false,
+            }).setView([props.singleItem?.latLong[0], props.singleItem?.latLong[1]], 18);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            }).addTo(map.value as L.Map);
+
+            L.marker([props.singleItem?.latLong[0], props.singleItem?.latLong[1]], { icon: markerIcon }).addTo(map.value as L.Map);
+        }
+    }
 
     const selectedIndex: Ref<number> = ref(0)
-    var rated: Ref<boolean> = ref(false)
+    const isHovered: Ref<boolean> = ref(false)
+    const showInfoDialog : Ref<boolean> = ref(false)
+    const showDeleteDialog : Ref<boolean> = ref(false)
+    const showMap : Ref<boolean> = ref(false)
 
-    function toggleRated() : void {
-        rated.value = !rated.value;
+    watch(showMap, async (newStep) => {
+        if (newStep) {
+            await nextTick();
+            initMap();
+        }
+    });
+
+    function deleteItem() : void {
+        emit("deleteItem")
     }
 
 </script>
 
 <style scoped lang="css">
+    #map {
+        min-height: 300px;
+        width: 50%;
+
+        align-self: center;
+
+        border-radius: .8em;
+        box-shadow: 0px 0px 9px rgba(0, 0, 0, .9);
+    }
+
+
     .ItemDetailsComponent {
         display: flex;
         flex-direction: column;
@@ -202,7 +323,7 @@ import { Ref, ref, watch } from 'vue';
         box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
         border: 3px solid var(--first-color);
 
-        padding-bottom: 4em;
+        padding-bottom: 2em;
 
     }
 
@@ -219,6 +340,8 @@ import { Ref, ref, watch } from 'vue';
         grid-column: 1;
         grid-row-start: 1;
         grid-row-end: 3;
+
+        position: relative;
     }
 
     .carousel {
@@ -280,10 +403,15 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .full-file-image {
+    .full-file-image{
         border-radius: 1em;
         border: 3px solid var(--first-color);
         box-shadow: 0px 0px 12px rgba(0, 0, 0, .8);
+
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
     }
 
     .no-image-container {
@@ -330,13 +458,15 @@ import { Ref, ref, watch } from 'vue';
         align-items: center;
         justify-content: space-evenly;
 
+        position: relative;
+
     }
 
     .profile {
         display: flex;
         flex-direction: column;
 
-        gap: 1em;
+        gap: 2em;
     }
     
     .profile-image-container {
@@ -393,10 +523,36 @@ import { Ref, ref, watch } from 'vue';
         justify-content: center;
         flex-direction: column;
 
+        gap: 3em;
+
+        position: relative;
+
+        top: 1em;
+    }
+
+    .info-dialog{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        font-family: var(--font-poppins);
+        padding: 24px;
         gap: 1em;
     }
 
+    .info{
+        text-align: justify;
+    }
+
     .save-container, .notify-container {
+        text-decoration: none;
+
         display: flex;
         align-items: center;
         justify-content: center;
@@ -413,13 +569,23 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .save-icon, .notify-icon {
+    .save-icon, .notify-icon{
         cursor: pointer;
         color: var(--first-accent-color);
         filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
     }
 
-    .save-icon:hover, .notify-icon:hover {
+    .info-icon {
+        position: absolute;
+        left: 120%;
+        bottom: 98%;
+
+        cursor: pointer;
+        color: var(--first-accent-color);
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, .9));
+    }
+
+    .save-icon:hover, .notify-icon:hover, .info-icon:hover{
         color: var(--second-accent-color);
     }
 
@@ -466,6 +632,7 @@ import { Ref, ref, watch } from 'vue';
     .reward {
         background-color: var(--first-color);
         border-radius: 10px;
+        border: 3px solid var(--fourth-color);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
 
         padding: .6em .5em .5em .8em;
@@ -486,6 +653,7 @@ import { Ref, ref, watch } from 'vue';
     .categories-section {
         display: flex;
         flex-direction: column;
+        justify-content: center;
 
         width: 100%;
         gap: 2em;
@@ -511,7 +679,42 @@ import { Ref, ref, watch } from 'vue';
         grid-column-end: 3;
     }
 
-    .profile-name, .name, .found-public-transport, .no-location, .category, .subcategory, .color, .gender, .date-time, .location, .description, .location-description {
+    .label {
+        position: relative;
+
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        padding: .2em .4em .2em .4em;
+        border-radius: .5em;
+        font-size: 12px;
+        white-space: nowrap;
+        pointer-events: none;
+        z-index: 10;
+        opacity: .8;
+
+        width: fit-content;
+        top: 10%;
+    }
+
+    .reward-label{
+        opacity: .95;
+        border: 2px solid var(--fourth-color);
+        font-size: 15px;
+    }
+
+    .odd-label{
+        position: relative;
+        top: .5em;
+    }
+
+    .profile-label{
+        position: absolute;
+        top: 69%;
+        left: 15%;
+    }
+
+    .field {
         background-color: var(--first-color);
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -527,10 +730,45 @@ import { Ref, ref, watch } from 'vue';
         word-break: break-word;        
     }
 
-    .name-section, .category-section, .public-transport-section, .color-section, .gender-section, .date-time-section, .location-section {
+    .date, .location, .time{
+        text-align: center;
+    }
+
+    .map-icon{
+        background-color: var(--second-color);
+        padding: 20px;
+        border-radius: 1em;
+        margin-left: .4em;
+
+        cursor: pointer;
+    }
+
+    .profile-name{
+        background-color: var(--first-color);
+        border-radius: 10px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+        padding: .6em .8em .5em .8em;
+
+        min-height: 2.6em;
+        min-width: 10em;
+        height: auto;
+        width: 100%;
+
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;  
+        text-align: center;
+    }
+
+    .normal-section {
         display: flex;
         flex-direction: column;
         width: 100%;
+    }
+
+    .time-section{
+        align-self: center;
     }
 
     .name {
@@ -542,11 +780,42 @@ import { Ref, ref, watch } from 'vue';
         text-align: justify; 
     }
 
-    .color-gender, .date-time-location {
+    .color-gender-race-brand, .date-time, .transport-container {
         display: flex;
         width: 100%;
         gap: 15px;
     }
+
+    .delete-button-section{
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        padding-top: 1em;
+    }
+
+    .delete-button, .cancel-button{
+        background-color: var(--first-accent-color);
+        color: inherit;
+
+        padding: 10px;
+        cursor: pointer;
+        text-align: center;
+
+        border-radius: 5px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
+
+    }
+
+    .delete-button:hover, .cancel-button:hover{
+        background-color: var(--second-accent-color);
+    }
+
+    .buttons-in-dialog{
+        display: flex;
+        gap: 1em;
+    }
+
 
     /* Carousel arrows */
     .view-details-arrow, .carousel-arrow-prev, .carousel-arrow-next {
@@ -561,33 +830,38 @@ import { Ref, ref, watch } from 'vue';
 
     }
 
-    .carousel-arrow-prev, .carousel-arrow-next {
-        transition: transform 0.5s ease;
-        
+    .carousel {
+        position: relative;
     }
 
-    .carousel:hover .carousel-arrow-next{
-        transform: translateX(20px);
-        animation: aparecer 0.5s;
+    .carousel-arrow-next {
+        position: absolute;
+        top: 50%;
+        opacity: 1;
+        z-index: 10;
+        transition: transform 0.3s ease;
 
+        transform: translateY(-50%) translateX(500px); 
     }
 
-    .carousel:not(:hover) .carousel-arrow-next{
-        transform: translateX(100px);
-        animation: desaparecer 0.5s;
-    
+    .carousel-arrow-prev {
+        position: absolute;
+        top: 50%;
+        opacity: 1;
+        z-index: 10;
+        transition: transform 0.3s ease;
+
+        transform: translateY(-50%) translateX(-200px);
     }
 
-    .carousel:hover .carousel-arrow-prev{
-        transform: translateX(-20px);
-        animation: aparecer 0.5s;
-
+    .arrow-visible.carousel-arrow-prev {
+        transform: translateY(-50%) translateX(-15px);
+        opacity: 1;
     }
 
-    .carousel:not(:hover) .carousel-arrow-prev{
-        transform: translateX(-100px);
-        animation: desaparecer 0.5s;
-
+    .arrow-visible.carousel-arrow-next {
+        transform: translateY(-50%) translateX(210px);
+        opacity: 1;
     }
 
     .save-container, .notify-container {
@@ -597,28 +871,22 @@ import { Ref, ref, watch } from 'vue';
 
     .tooltip {
         position: absolute;
-        bottom: 75%;
-        left: 95%;
+        bottom: 92%;
+        left: 50%;
         transform: translateX(-50%);
         background-color: var(--first-color);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
         color: var(--text-color);
         padding: .7em;
-        border-radius: .5em;
+        border-radius: .8em;
         font-size: 12px;
         white-space: nowrap;
-        opacity: 0;
         pointer-events: none;
         z-index: 10;
 
-        transition-delay: 0s;
-        transition: opacity 0.3s ease;
-
-    }
-
-    .save-container:hover .tooltip, .notify-container:hover .tooltip {
+        border: 2px solid var(--fourth-color);
+        
         opacity: 1;
-        transition-delay: 0.4s;
     }
 
     @media (max-width: 1090px) {
@@ -667,9 +935,28 @@ import { Ref, ref, watch } from 'vue';
             grid-row: 3;
         }
 
+        .interaction-buttons{
+            flex-direction: row;
+
+            padding-bottom: 1em;
+            gap: 1em;
+        }
+
+        .info-icon {
+            left: 109%;
+        }
+
+        .profile-label{
+            left: 12%;
+        }
+
     }
 
     @media (max-width: 700px) { 
+        #map {
+            width: 70%;
+        }
+
         .item {
             width: 350px;
             font-size: smaller;
@@ -721,7 +1008,7 @@ import { Ref, ref, watch } from 'vue';
         }
 
         .main-text {
-            padding: 0 1em 0 1em;
+            padding: 1em 1em 0 1em;
             width: 344px;
         }
 
@@ -746,6 +1033,27 @@ import { Ref, ref, watch } from 'vue';
             width: 15em;
 
             font-size: medium;
+        }
+
+        .info-icon {
+            left: 103%;
+            bottom: 0%;
+        }
+
+        .profile-label{
+            left: 33.5%;
+            top: 4.2%;
+        }
+
+        .location-section{
+            position: relative;
+        }
+
+        .map-icon{
+            position: absolute;
+            left: 85%;
+
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
         }
 
     }

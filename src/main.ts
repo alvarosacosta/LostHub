@@ -7,11 +7,20 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
+import 'leaflet/dist/leaflet.css';
+import { VDateInput } from 'vuetify/labs/VDateInput'
+import { VTimePicker } from 'vuetify/labs/VTimePicker'
+import { VFileUpload } from 'vuetify/labs/VFileUpload'
 import 'vuetify/styles'
 import './main.css';
 
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components,
+    VDateInput,
+    VTimePicker,
+    VFileUpload
+  },
   directives,
   icons: {
       defaultSet: 'mdi',

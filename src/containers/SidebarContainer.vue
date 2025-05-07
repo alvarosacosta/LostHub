@@ -1,12 +1,13 @@
 <template>
     <main class="SidebarContainer">
-        <SidebarComponent :userProfile  @logged-in="loggedIn" @toggle-sidebar="toggleSidebar"></SidebarComponent>
+        <SidebarComponent :userProfile  @log-out="logOut" @logged-in="loggedIn" @toggle-sidebar="toggleSidebar"></SidebarComponent>
     </main>
 </template>
   
 <script setup lang="ts">
 import SidebarComponent from '@/components/SidebarComponent.vue';
-import { useAuthStore } from '@/stores/auth';
+import router from '@/router';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 
     const authStore = useAuthStore();
@@ -27,6 +28,18 @@ import { storeToRefs } from 'pinia';
             emit('showError', error);
         } else {
             emit('showSuccess', '¡Se ha iniciado sesión correctamente!');
+        }
+    }
+
+    async function logOut() : Promise<void> {
+        try {
+            await authStore.logOut();
+
+            emit("showSuccess", "Se ha cerrado sesión de forma satisfactoria. ¡Adiós!")
+            router.push('/')
+
+        } catch (error : any) {
+            emit("showError", error)
         }
     }
     

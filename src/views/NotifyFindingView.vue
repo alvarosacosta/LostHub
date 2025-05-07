@@ -1,23 +1,25 @@
 <template>
-    <main class="ItemDetailsView">
-        <ItemDetailsContainer 
-            :id
+    <main class="NotifyFindingView">
+        <NotifyFindingContainer 
+            :itemID
             @show-error="showError"
             @show-success="showSuccess"
-        />
+        ></NotifyFindingContainer>
     </main>
-</template>
 
+
+</template>
+  
 <script setup lang="ts">
-import ItemDetailsContainer from '@/containers/ItemDetailsContainer.vue';
+import NotifyFindingContainer from '@/containers/NotifyFindingContainer.vue';
+
+    defineProps<{
+        itemID: string
+    }>()
 
     const emit = defineEmits<{
         (e: 'showSuccess', message: string): void
         (e: 'showError', error: string): void
-    }>()
-
-    const props = defineProps<{
-        id: string
     }>()
 
     function showError(error : string) : void {
@@ -27,5 +29,4 @@ import ItemDetailsContainer from '@/containers/ItemDetailsContainer.vue';
     function showSuccess(message : string) : void {
         emit('showSuccess', message)
     }
-
 </script>

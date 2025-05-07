@@ -1,23 +1,15 @@
 <template>
-    <main class="ItemDetailsView">
-        <ItemDetailsContainer 
-            :id
-            @show-error="showError"
-            @show-success="showSuccess"
-        />
+    <main class="CreateItemView">
+        <CreateItemContainer @show-error="showError" @show-success="showSuccess"></CreateItemContainer>
     </main>
 </template>
 
 <script setup lang="ts">
-import ItemDetailsContainer from '@/containers/ItemDetailsContainer.vue';
+import CreateItemContainer from '@/containers/CreateItemContainer.vue';
 
     const emit = defineEmits<{
         (e: 'showSuccess', message: string): void
         (e: 'showError', error: string): void
-    }>()
-
-    const props = defineProps<{
-        id: string
     }>()
 
     function showError(error : string) : void {

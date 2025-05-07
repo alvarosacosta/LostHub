@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import LogInComponent from '@/components/LogInComponent.vue';
 import { User } from '@/interfaces/user';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 
 
     const emit = defineEmits<{

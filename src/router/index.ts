@@ -3,14 +3,20 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'lading-page',
+    name: 'landing-page',
     component: () => import('@/views/LandingPageView.vue'),
     meta: { hasSidebar: false }
   },
   {
     path: '/hub',
-    name: 'lost-objects',
+    name: 'hub',
     component: () => import('@/views/ItemsView.vue'),
+    meta: { hasSidebar: true }
+  },
+  {
+    path: '/own-items',
+    name: 'own-items',
+    component: () => import('@/views/OwnItemsView.vue'),
     meta: { hasSidebar: true }
   },
   {
@@ -30,6 +36,19 @@ const routes: Array<RouteRecordRaw> = [
     name: 'profile',
     component: () => import('@/views/ProfileView.vue'),
     meta: { hasSidebar: true }
+  },
+  {
+    path: '/postItem',
+    name: 'postItem',
+    component: () => import('@/views/CreateItemView.vue'),
+    meta: { hasSidebar: false }
+  },
+  {
+    path: '/notifyFinding/:itemID',
+    name: 'notify-finding',
+    component: () => import('@/views/NotifyFindingView.vue'),
+    meta: { hasSidebar: false },
+    props: true
   },
   {
     path: '/profile/:userID',

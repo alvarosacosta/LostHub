@@ -1,6 +1,6 @@
 <template>
   <main class='main'>
-    <LoadingOverlay v-if="loading" v-model:loading="loading" ></LoadingOverlay>
+    <LoadingOverlay v-if="isLoading"></LoadingOverlay>
     <StatusBar v-if="statusBarError || statusBarMessage" v-model:msg="statusBarMessage" v-model:error="statusBarError"></StatusBar>
 
     <SidebarContainer @show-success="useStatusBarMessage" @show-error="useStatusBarError" @toggle-sidebar="toggleSidebar" v-if="showSidebar"></SidebarContainer>
@@ -14,10 +14,12 @@ import SidebarContainer from '@/containers/SidebarContainer.vue';
 import LoadingOverlay from './components/LoadingOverlay.vue';
 import StatusBar from './components/StatusBar.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted, ref, Ref } from 'vue';
-import { useAuthStore } from '@/stores/auth';
+import { computed, onMounted, ref, Ref, watch } from 'vue';
+import { useAuthStore } from '@/stores/AuthStore';
+import { storeToRefs } from 'pinia';
+import { useLoadingStore } from './stores/LoadingStore';
 
-  const loading : Ref<boolean> = ref(false)
+  const { isLoading } = storeToRefs(useLoadingStore()) 
 
   const route = useRoute();
   const router = useRouter();
@@ -44,7 +46,6 @@ import { useAuthStore } from '@/stores/auth';
   onMounted(() => {
     restartUser();
     window.addEventListener('resize', updateWindowWidth);
-
   });
 
   function toggleSidebar(sidebarStatus: boolean): void {
@@ -58,34 +59,18 @@ import { useAuthStore } from '@/stores/auth';
   }
 
   function useStatusBarMessage(message: string) : void {
-    showLoader()
-
-    setTimeout(() => {
-        statusBarMessage.value = message;
-    }, 620) 
+    statusBarMessage.value = message;
   }
 
   function useStatusBarError(error: string) : void {
     statusBarError.value = error;
   }
   
-  const loaderRoutes = ['/', '/hub', '/profile', '/register'];
   router.beforeEach((to, from, next) => {
     isClosed.value = false;
 
-    const isAValidRoute = loaderRoutes.includes(to.path);
-    const isItemRoute = to.path.startsWith('/item/') || to.path.startsWith('/profile/');
-
-    if (isAValidRoute || isItemRoute) {
-      showLoader()
-    }
-
     next()
   })
-
-  function showLoader() : void {
-    loading.value = true
-  }
 
 </script>
 

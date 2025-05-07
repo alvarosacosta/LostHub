@@ -40,7 +40,7 @@
                     ></v-text-field>
                 </section>
 
-                <section v-if="profileShown.phone" class="phone">
+                <section v-if="isEditable || profileShown.phone" class="phone">
                     <label class="label">Teléfono</label>
                     <v-text-field 
                         class="field"
@@ -68,6 +68,7 @@
                         item-title="label"
                         item-value="code"
                         :items="regions"
+                        clearable
                         @update:modelValue="onRegionChange()"
                         :disabled="!isEditable"
                     ></v-autocomplete>
@@ -84,6 +85,7 @@
                         density="comfortable"
                         item-title="label"
                         item-value="code"
+                        clearable
                         :items="filteredProvinces"
                         @update:modelValue="onProvinceChange()"
                         :disabled="!isEditable || !selectedRegion"
@@ -101,13 +103,47 @@
                         bg-color="var(--fourth-color)"
                         variant="solo-filled"
                         density="comfortable"
+                        clearable
                         item-title="label"
                         :items="filteredMunicipalities"
                         :disabled="!isEditable || !selectedProvince"
                     ></v-autocomplete>
                 </section>
-                <button v-if="!isForeignUser" type="submit" class="update-button">{{ isEditable ? 'Guardar' : 'Actualizar perfil' }}</button>
+                
+                <section class="privacy-options">
+                    <v-switch
+                        v-if="!isForeignUser"
+                        class="field"
+                        v-model=profileShown.isPublic
+                        label='¿Compartir tus datos?'
+                        append-icon="mdi-information-outline"
+                        @click:append="showInfoDialog = true"
+                        color="var(--first-accent-color)"
+                        :disabled="!isEditable"
+                    ></v-switch>
+
+                    <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
+                        <template v-slot>
+                            <section class="info-dialog">
+                                <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                <p class="info">
+                                    Si no accedes a compartir tus datos
+                                    no se mostrará a otros usuarios tu correo, teléfono y ubicación. 
+                                    Pero si podrán ver tu foto de perfil y tu nombre de usuario.
+                                </p>
+                                <br>
+                                <p class="info">
+                                    Tus datos podrán ser consultados por administradores de igual manera 
+                                    si fuera necesario, pero no serán públicos.
+                                </p>
+                                <br>
+                            </section>
+                        </template>
+                    </v-dialog>
+                </section>
+
             </section>
+            <button v-if="!isForeignUser" type="submit" class="update-button">{{ isEditable ? 'Guardar' : 'Actualizar perfil' }}</button>
         </v-form>
     </main>
 </template>
@@ -139,23 +175,23 @@ import isEqual from 'lodash/isEqual';
     const selectedRegion = ref<string | undefined>(undefined)
     const selectedProvince = ref<string | undefined>(undefined)
     const selectedMunicipality = ref<string | undefined>(undefined)
+    const showInfoDialog : Ref<boolean> = ref(false)
 
     watch(
         () => [props.userProfile, props.foreignUserProfile],
         ([valUserProfile, valForeignUser]) => { 
             if (valForeignUser) {
                 profileShown.value = { ...valForeignUser };
-                selectedRegion.value = valForeignUser.region;
-                selectedProvince.value = valForeignUser.province;
+                selectedRegion.value = regions.find(r => r.label === valForeignUser.region)?.code;
+                selectedProvince.value = provinces.find(p => p.label === valForeignUser.province)?.code;
                 selectedMunicipality.value = valForeignUser.municipality;
 
                 isForeignUser.value = true
             } else if (valUserProfile) {
                 profileShown.value = { ...valUserProfile };
-                selectedRegion.value = valUserProfile.region;
-                selectedProvince.value = valUserProfile.province;
+                selectedRegion.value = regions.find(r => r.label === valUserProfile.region)?.code;
+                selectedProvince.value = provinces.find(p => p.label === valUserProfile.province)?.code;
                 selectedMunicipality.value = valUserProfile.municipality;
-
                 isForeignUser.value = false
             }
         },
@@ -239,9 +275,8 @@ import isEqual from 'lodash/isEqual';
                         municipality: selectedMunicipality.value ?? '',
                     }
                 }
-                
-                if(!isEqual(props.userProfile, profileShown.value)){
 
+                if(!isEqual(props.userProfile, profileShown.value)){
                     emit('updateUserInfo', profileShown.value)
 
                 } else {
@@ -342,9 +377,14 @@ import isEqual from 'lodash/isEqual';
         margin-bottom: 20px;
     }
 
-    .email, .phone, .region, .province, .municipality {
+    .email, .phone, .region, .province, .municipality, .privacy-options {
         width: 100%;
 
+    }
+
+    .privacy-options{
+        position: relative;
+        top: .6em;
     }
 
     .username{
@@ -366,6 +406,7 @@ import isEqual from 'lodash/isEqual';
         white-space: normal;
         overflow-wrap: break-word;
         word-break: break-word; 
+
     }
 
     .update-button, .log-out-button {
@@ -390,6 +431,26 @@ import isEqual from 'lodash/isEqual';
 
     .update-button:hover, .log-out-button:hover {
         background-color: var(--second-accent-color);
+    }
+
+    .info-dialog{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        font-family: var(--font-poppins);
+        padding: 24px;
+        gap: 1em;
+    }
+
+    .info{
+        text-align: justify;
     }
 
     @media (max-width: 1220px){

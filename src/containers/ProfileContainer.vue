@@ -8,7 +8,7 @@
 import ProfileComponent from '@/components/ProfileComponent.vue';
 import { UserDetails } from '@/interfaces/user';
 import router from '@/router';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { onMounted, Ref, ref } from 'vue';
 
@@ -31,7 +31,7 @@ import { onMounted, Ref, ref } from 'vue';
             await AuthStore.fetchUserById(props.userID);
 
         } else {
-            AuthStore.cleanForeignUser()
+            foreignUserProfile.value = null;
         }
         
     })
@@ -39,12 +39,14 @@ import { onMounted, Ref, ref } from 'vue';
     async function updateUserInfo(userUpdatedInfo : UserDetails) : Promise<void>{
         try {
             await AuthStore.updateUserInfo(userUpdatedInfo);
+            await AuthStore.fetchCurrentUserProfile();
 
             success.value = true
             emit("showSuccess", "¡Éxito al actualizar tus datos!")
 
         } catch (error : any) {
-            showError(error)
+            console.error(error.message)
+            showError('Ha habido un error al actualizar tus datos.')
         }
     }
 

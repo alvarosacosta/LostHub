@@ -2,153 +2,224 @@
 <template>
     <main class="SignUpComponent">
         <button class='back-button' @click="$router.back()"> Volver </button>
-        <article class="sign-in-container">
-            <h1 class="title">¡Bienvenido! Regístrate aquí.</h1>
+        <article class="form">
+            <section class="title-container">
+                <h1 class="title">{{ currentTitle }}</h1>
+                <span class="step-number">{{ step }}</span>
+            </section>
 
-            <v-form ref="formRef" class="form" @submit.prevent="onSubmit" v-slot="{ isValid }">
-                <article class="text-fields">
-                    <section class="upper-right">
+            <section class="progress-bar-container">
+                <div class="progress-bar" :style="{ width: progressWidth + '%' }"></div>
+            </section>
 
-                        <article class="image-container">
-                            <figure class="preview-container">
-                                <img :src="previewUrl ? previewUrl : noImage" alt="Preview" class="profile-preview" />
-                            </figure>
-    
-                            <v-file-input
-                                class="profile-picture-input field"
+            <v-window class="window" v-model="step" :touch="false" >
+                <v-window-item :value="1">
+                    <v-form class="window-step" ref="firstForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
+                        <section class="upper-right">
+                            <article class="image-container">
+                                <figure class="preview-container">
+                                    <img :src="previewUrl ? previewUrl : noImage" alt="Preview" class="profile-preview" />
+                                </figure>
+
+                                <v-file-input
+                                    class="profile-picture-input field"
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    label="Foto de perfil"
+                                    accept="image/*"
+                                    :rules="fileSizeRule"
+                                    v-model="profilePicture"
+                                    density="comfortable"
+                                    prepend-icon="mdi-camera"
+                                    variant="solo-filled"
+                                    truncate-length="0"
+                                    clearable
+                                >
+                                    <template v-slot:selection>
+                                        <span class="text-in-file-input">¡Listo!</span>
+                                    </template>
+                                </v-file-input>
+                            </article>
+
+                            <article class="basic-information">
+                                <v-text-field
+                                    class="name field"
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    v-model="username"
+                                    :rules="usernameRules"
+                                    label="Nombre *"
+                                    variant="solo-filled"
+                                    required
+                                ></v-text-field>
+                                
+                                <v-text-field
+                                    class="email field"
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    v-model="email"
+                                    :rules="emailRules"
+                                    label="E-mail *"
+                                    variant="solo-filled"
+                                    required
+                                ></v-text-field>
+
+                                <v-text-field
+                                    class="phone field"
+                                    color="var(--first-color)"
+                                    bg-color="var(--fourth-color)"
+                                    v-model="phone"
+                                    :rules="phoneRules"
+                                    label="Teléfono"
+                                    variant="solo-filled"
+                                ></v-text-field>
+
+                            </article>
+                        </section>
+                    </v-form>
+                </v-window-item>
+
+                <v-window-item :value="2">
+                    <v-form class="window-step" ref="secondForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
+                        <section class="password-section">
+                            <v-text-field
+                                class="password field"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
-                                label="Foto de perfil"
-                                accept="image/*"
-                                :rules="fileSizeRule"
-                                v-model="profilePicture"
                                 density="comfortable"
-                                prepend-icon="mdi-camera"
+                                v-model="password"
+                                :type="showPassword ? 'text' : 'password'"
+                                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                                @click:append="showPassword = !showPassword"
+                                :rules="passwordRules"
+                                label="Contraseña *"
                                 variant="solo-filled"
-                                truncate-length="0"
+                                required
+                            ></v-text-field>
+        
+                            <v-text-field
+                                class="confirm-password field"
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                density="comfortable"
+                                v-model="confirmPassword"
+                                :type="showPassword ? 'text' : 'password'"
+                                :rules="confirmPasswordRules"
+                                label="Confirmar contraseña  *"
+                                variant="solo-filled"
+                                required
+                            ></v-text-field>
+                        </section>
+                    </v-form>
+                </v-window-item>
+
+                <v-window-item :value="3">
+                    <v-form class="window-step" ref="thirdForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
+                        <section class="location">
+                            <v-autocomplete
+                                class="region field "
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                density="comfortable"
+                                v-model="selectedRegion"
+                                :items="regions"
+                                item-title="label"
+                                item-value="code"
+                                label="Comunidad Autónoma"
+                                variant="solo-filled"
+                                @update:modelValue="onRegionChange()"
                                 clearable
-                            >
-                                <template v-slot:selection>
-                                    <span class="text-in-file-input">¡Listo!</span>
-                                </template>
-                            </v-file-input>
-                        </article>
+                            />
+        
+                            <v-autocomplete
+                                class="province field "
+                                color="var(--first-color)"
+                                bg-color="var(--fourth-color)"
+                                density="comfortable"
+                                v-model="selectedProvince"
+                                :items="filteredProvinces"
+                                item-title="label"
+                                item-value="code"
+                                label="Provincia"
+                                variant="solo-filled"
+                                :disabled="!selectedRegion"
+                                @update:modelValue="onProvinceChange()"
+                                clearable
+                            />
                         
-                        <article class="basic-information">
-                            <v-text-field
-                                class="name field"
+                            <v-autocomplete
+                                class="municipality field"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
-                                v-model="username"
-                                :rules="usernameRules"
-                                label="Nombre *"
+                                density="comfortable"
+                                v-model="selectedMunicipality"
+                                :items="filteredMunicipalities"
+                                :disabled="!selectedProvince"
+                                item-title="label"
+                                label="Población"
                                 variant="solo-filled"
-                                required
-                            ></v-text-field>
+                                clearable
+                            />
+
                             
-                            <v-text-field
-                                class="email field"
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                v-model="email"
-                                :rules="emailRules"
-                                label="E-mail *"
-                                variant="solo-filled"
+                        </section>
+                    </v-form>
+                </v-window-item>
+
+                <v-window-item :value="4">
+                    <v-form class="window-step" ref="fourthForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
+                        <section class="final-data">
+                            <v-switch
+                                v-model="isPublicProfile"
+                                label='¿Compartir datos con otros usuarios?'
+                                append-icon="mdi-information-outline"
+                                @click:append="showInfoDialog = true"
+                                color="var(--first-accent-color)"
+                                
+                            >
+                            </v-switch>
+
+                            <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
+                                <template v-slot>
+                                    <section class="info-dialog">
+                                        <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                        <p class="info">
+                                            Si no accedes a compartir tus datos
+                                            no se mostrará a otros usuarios tu correo, teléfono y ubicación. 
+                                            Pero si podrán ver tu foto de perfil y tu nombre de usuario.
+                                        </p>
+                                        <br>
+                                        <p class="info">
+                                            Tus datos podrán ser consultados por administradores de igual manera 
+                                            si fuera necesario, pero no serán públicos.
+                                        </p>
+                                        <br>
+                                    </section>
+                                </template>
+                            </v-dialog>
+    
+                            <v-switch
+                                :rules="dataLaw"
                                 required
-                            ></v-text-field>
+                                color="var(--first-accent-color)"
+                            >
+                                <template v-slot:label>
+                                    ¿Aceptas la&nbsp;<a class="data-law" href="https://www.aepd.es/" target="_blank">ley de protección de datos</a>? *
+                                </template>
+                            </v-switch>
+                        </section>
+                    </v-form>
+                </v-window-item>
+            </v-window>
 
-                            <v-text-field
-                                class="phone field"
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                v-model="phone"
-                                :rules="phoneRules"
-                                label="Teléfono"
-                                variant="solo-filled"
-                            ></v-text-field>
+            <v-card-actions>
+                <v-icon v-if="step > 1" class="arrow" @click="step--" size="90">mdi-arrow-left-thick</v-icon>
 
-                            <p class="sign-in-label" >¿Ya tienes una cuenta? <router-link class="sign-in-button" to="/">Inicia sesión</router-link> </p>
+                <v-spacer></v-spacer>
 
-                        </article>
-                    </section>
-                    
-                    <section class="password-section">
-                        <v-text-field
-                            class="password field"
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            v-model="password"
-                            :type="showPassword ? 'text' : 'password'"
-                            :prepend-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                            @click:prepend="showPassword = !showPassword"
-                            :rules="passwordRules"
-                            label="Contraseña *"
-                            variant="solo-filled"
-                            required
-                        ></v-text-field>
-    
-                        <v-text-field
-                            class="confirm-password field"
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            v-model="confirmPassword"
-                            :type="showPassword ? 'text' : 'password'"
-                            :rules="confirmPasswordRules"
-                            label="Confirmar contraseña  *"
-                            variant="solo-filled"
-                            required
-                        ></v-text-field>
-                    </section>
-
-                    <section class="region-province">
-                        <v-autocomplete
-                            class="region field "
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            v-model="selectedRegion"
-                            :items="regions"
-                            item-title="label"
-                            item-value="code"
-                            label="Comunidad Autónoma"
-                            variant="solo-filled"
-                            @update:modelValue="onRegionChange()"
-                            clearable
-                        />
-    
-                        <v-autocomplete
-                            class="province field "
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            v-model="selectedProvince"
-                            :items="filteredProvinces"
-                            item-title="label"
-                            item-value="code"
-                            label="Provincia"
-                            variant="solo-filled"
-                            :disabled="!selectedRegion"
-                            @update:modelValue="onProvinceChange()"
-                            clearable
-                        />
-                    </section>
-                    
-                    <section class="municipality-arrow">
-                        <v-autocomplete
-                            class="municipality field"
-                            color="var(--first-color)"
-                            bg-color="var(--fourth-color)"
-                            v-model="selectedMunicipality"
-                            :items="filteredMunicipalities"
-                            :disabled="!selectedProvince"
-                            item-title="label"
-                            label="Población"
-                            variant="solo-filled"
-                            clearable
-                        />
-                        <button class="submit-button"><v-icon class="view-details-arrow" size="100">mdi-arrow-right-thick</v-icon></button>
-                    </section>
-                </article>
-            </v-form>
-        </article>
+                <v-icon class="arrow" @click="onSubmit" size="90">mdi-arrow-right-thick</v-icon>
+            </v-card-actions>
+        </article>  
     </main>
 </template>
   
@@ -170,7 +241,7 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
     const confirmPassword : Ref<string> = ref('');
     const username : Ref<string> = ref('');
     const phone : Ref<string> = ref('');
-    const showPassword : Ref<boolean> = ref(false);
+    const isPublicProfile : Ref<boolean> = ref(false);
 
     const profilePicture = ref<File | undefined>(undefined)
     const previewUrl = ref<string>('')
@@ -178,6 +249,9 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
     const selectedRegion = ref<string | undefined>(undefined)
     const selectedProvince = ref<string | undefined>(undefined)
     const selectedMunicipality = ref<string | undefined>(undefined)
+
+    const showInfoDialog : Ref<boolean> = ref(false)
+    const showPassword : Ref<boolean> = ref(false);
 
     const usernameRules = [
         (value: string) => {
@@ -228,6 +302,13 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
                 return true;
         },
     ]
+
+    const dataLaw = [
+        (value: string) => {
+            if (value) return true
+            return 'Debes leer y aceptar la ley de protección de datos.'
+        },
+    ]
     
     const phoneRules = [
         (value: string) => {
@@ -248,6 +329,22 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
             return true;
         }
     ]
+    
+    var step : Ref<number> = ref(1)
+    const currentTitle = computed(() => {
+        switch (step.value) {
+            case 1: return '¡Bienvenido!'
+            case 2: return 'Introduce una contraseña'
+            case 3: return 'Especifica tu ubicación'
+            case 4: return 'Datos finales'
+            default: return ''
+        }
+    })
+
+    const totalSteps = 4
+    const progressWidth = computed(() => {
+        return (step.value / totalSteps) * 100
+    })
 
     watch(profilePicture, (newFile) => {
         if (newFile) {
@@ -274,36 +371,67 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         selectedMunicipality.value = undefined
     }
 
-    const formRef = ref()
+    const firstForm = ref()
+    const secondForm = ref()
+    const thirdForm = ref()
+    const fourthForm = ref()
+
     async function onSubmit() : Promise<void> {
-        const { valid } = await formRef.value.validate()
+        switch (step.value) {
+            case 1:
+                var { valid } = await firstForm.value.validate()
+                break;
+
+            case 2:
+                var { valid } = await secondForm.value.validate()
+                break;
+
+            case 3:
+                var { valid } = await thirdForm.value.validate()
+                break;
+
+            case 4:
+                var { valid } = await fourthForm.value.validate()
+                if (!valid) {
+                    break;
+                }
+
+                const user: User = {
+                    email: email.value,
+                    password: password.value,
+                }
+
+                const selectedRegionLabel = regions.find(r => r.code === selectedRegion.value)?.label || ''
+                const selectedProvinceLabel = provinces.find(p => p.code === selectedProvince.value)?.label || ''
+
+                const userDetails: UserDetails = {
+                    username: username.value,
+                    email: email.value,
+                    phone: phone.value,
+                    region: selectedRegionLabel,
+                    province: selectedProvinceLabel,
+                    municipality: selectedMunicipality.value ?? '',
+                    isPublic: isPublicProfile.value
+                }
+
+                const userImage: UserProfileImage = {
+                    profilePicture: profilePicture.value,
+                }
+
+                emit('signUp', user, userDetails, userImage);
+                break;
+
+            default:
+                break;
+        }
+
         if (!valid) {
-            emit('failure', 'Registro de usuario fallido. Asegúrate de que los datos sean válidos.');
+            emit('failure', 'Hay campos incompletos o mal rellenados.');
             return;
+
+        } else if (step.value < 4) {
+            step.value++;
         }
-
-        const user: User = {
-            email: email.value,
-            password: password.value,
-        }
-
-        const selectedRegionLabel = regions.find(r => r.code === selectedRegion.value)?.label || ''
-        const selectedProvinceLabel = provinces.find(p => p.code === selectedProvince.value)?.label || ''
-
-        const userDetails: UserDetails = {
-            username: username.value,
-            email: email.value,
-            phone: phone.value,
-            region: selectedRegionLabel,
-            province: selectedProvinceLabel,
-            municipality: selectedMunicipality.value ?? '',
-        }
-
-        const userImage: UserProfileImage = {
-            profilePicture: profilePicture.value,
-        }
-
-        emit('signUp', user, userDetails, userImage);
     };
 
 </script>
@@ -312,76 +440,20 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
     .SignUpComponent {
         display: flex;
         justify-content: center;
-
-        padding-top: 2em;
-
-        width: 100%;
-        height: auto;
+        align-items: center;
+        min-height: 100vh;
 
         opacity: 0;
         animation: aparecer 1s forwards;
     }
 
-    .sign-in-container {
-        font-family: var(--font-poppins);
-
-        background-color: var(--third-color);
-        border: 3px solid var(--first-color);
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, .8);
-        border-radius: 1em;
-        
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-
-        gap: 1em;
-        padding: 2em 1em 3em 1em;
-        margin: 2em;
-
-        width: 55em;
-        height: auto;
-
-    }
-
-    .title{
-        color: var(--text-color);
-        font-size: 2em;
-        font-weight: bold;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-
-        text-align: center;
-
-        border-bottom: 2px solid var(--first-color);
-        border-radius: 0.5em 0.5em 0 0;
-
-        margin-bottom: 1em;
-    }
-
-    .form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-
-        width: 95%;
-    }
-
-    .text-fields{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: space-between;
-
-        width: 95%;
-        gap: 1em;
-    }
-
     .upper-right {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1em;
-        width: 100%;
+        display: flex;
+
+        gap: 2em;
+        width: 85%;
+
+        padding-top: 1em;
     }
 
     .image-container{
@@ -416,22 +488,21 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
     .basic-information{
         display: flex;
         flex-direction: column;
+        align-items: center;
+        justify-content: center;
         width: 100%;
-        height: 1em;
-        gap: 1em;
+        gap: 1.5em;
+
     }
 
     .password-section{
         display: flex;
         align-items: center;
+        flex-direction: column;
         justify-content: space-between;
 
-        width: 100%;
+        width: 50%;
         gap: 1em;
-    }
-
-    .field{
-        width: 100%;
     }
 
     .profile-picture-input{
@@ -441,89 +512,124 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         width: 95%;
     }
 
-    .sign-in-label{
-        color: var(--text-color);
-        font-size: smaller;
-
-        position: relative;
-        bottom: 1.5em;
-    }
-
-    .sign-in-button{
-        color: var(--first-accent-color);
-        font-weight: bold;
-    }
-
-    .region-province {
+    .location {
         display: flex;
         align-items: center;
+        flex-direction: column;
         justify-content: space-between;
 
-        width: 100%;
+        width: 85%;
         gap: 1em;
     }
 
-    .municipality-arrow{
+    .form {
+        background-color: var(--third-color);
+        color: var(--text-color);
+
+        box-shadow: 0px 0px 11px rgba(0, 0, 0, .9);
+        width: 100%;
+        max-width: 1000px;
         display: flex;
+        flex-direction: column;
+
+        border-radius: 1.2em;
+        border: 3px solid var(--first-color);
+
+        margin: 1em;
+    }
+
+    .title-container {
+        background-color: var(--second-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+
+        border-radius: 1em 1em 0 0;
+    }
+
+    .title, .step-number {
+        font-size: 22px;
+        font-weight: 600;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 5px;
+        background-color: var(--fourth-color);
+        overflow: hidden;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 1);
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: var(--first-color);
+        transition: width 0.3s ease;
+    }
+
+    .window-step {
+        padding: 32px 24px 32px 24px;
+        min-height: 350px;
 
         width: 100%;
-        height: 5em;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        gap: .5em;
+    }
+
+    .field {
+        width: 95%;
+    }
+
+    .data-law{
+        color: var(--first-accent-color);
+    }
+
+    .info-dialog{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        background-color: var(--second-color);
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
+        color: var(--text-color);
+        border-radius: 1em;
+        border: 3px solid var(--first-color);
+        font-family: var(--font-poppins);
+        padding: 24px;
         gap: 1em;
     }
 
-    .view-details-arrow {
+    .info{
+        text-align: justify;
+    }
+
+    .v-card-actions {
+        background-color: var(--second-color);
+        box-shadow: 0px -2px 2px rgba(0, 0, 0, 1);
+        display: flex;
+        align-items: center;
+        padding: 12px 24px;
+
+        border-radius: 0 0 1em 1em;
+    }
+
+    .arrow {
         filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, .6));
         color: var(--first-accent-color);
 
         position: relative;
-        bottom: 12px;
     }
 
-    .view-details-arrow:hover {
+    .arrow:hover {
         color: var(--second-accent-color);
-
-    }
-
-    @media (max-width: 885px) {
-        .upper-right {
-            grid-template-columns: auto;
-            grid-template-rows: auto 300px;
-        }
-
-        .preview-container{
-            display: flex;
-            align-self: center;
-            justify-self: center;
-        }
-
-    }
-
-    @media (max-width: 690px) {
-        .password-section{
-            flex-direction: column;
-        }
-
-        .text-fields{
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: space-between;
-
-            width: 95%;
-            gap: 1em;
-        }
-
-        .municipality-arrow{
-            height: auto;
-        }
-
-        .municipality-arrow, .region-province {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            gap: 1em;
-        }
+        transform: scale(1.2);
 
     }
 
