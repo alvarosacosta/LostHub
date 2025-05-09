@@ -73,8 +73,8 @@
                         <section class="time-container">
                             <v-text-field 
                                 class="time"    
-                                v-model="startTime"
-                                label="Entre las" 
+                                v-model="time"
+                                label="Hora" 
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
@@ -82,19 +82,6 @@
                                 prepend-icon="mdi-clock-time-four-outline"
                                 clearable
 
-                            ></v-text-field>
-
-                            <v-text-field 
-                                class="time"    
-                                v-model="endTime"
-                                :rules="endTimeRules"
-                                label="y las" 
-                                type="time"
-                                variant="solo-filled"
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                :disabled="!startTime"
-                                clearable
                             ></v-text-field>
                         </section>
                     </v-form>
@@ -205,9 +192,10 @@ import L from 'leaflet';
 import { reverseGeocode } from '@/utils/nominatim';
 import { ItemFoundNotification, NotificationImages } from '@/interfaces/notifications';
 import { UserDetails } from '@/interfaces/user';
+import { MixedItem } from '@/interfaces/items';
 
     const props = defineProps<{
-        itemID: string
+        item: MixedItem | undefined
         sender: UserDetails | null
         receiver: UserDetails | null
     }>()
@@ -220,8 +208,7 @@ import { UserDetails } from '@/interfaces/user';
         displayDate.value = val.map(formatDate).join(' ')
     }
 
-    const startTime = ref()
-    const endTime = ref()
+    const time = ref()
     const displayDate : Ref<string> = ref('')
 
     const itemDelivered : Ref<boolean> = ref(false)
@@ -337,27 +324,6 @@ import { UserDetails } from '@/interfaces/user';
         }
     ]
 
-    const endTimeRules = [
-        (value: string) => {
-            if (startTime.value && !value) {
-                return 'Hora final es obligatoria.';
-            }
-            if (!value) return true;
-
-            const [startHours, startMinutes] = startTime.value.split(':').map(Number);
-            const [endHours, endMinutes] = value.split(':').map(Number);
-            
-            const startTotalMinutes = startHours * 60 + startMinutes;
-            const endTotalMinutes = endHours * 60 + endMinutes;
-            
-            if (endTotalMinutes < startTotalMinutes) {
-                return 'Hora final inválida';
-            }
-            
-            return true;
-        }
-    ];
-
     const emailRules = [
         (value: string) => {
             if (phone.value || value) return true;  
@@ -465,11 +431,12 @@ import { UserDetails } from '@/interfaces/user';
 
         if(props.sender?.isPublic) {
             notification = {
-                itemID: props.itemID,
+                itemID: props.item?.id!,
+                itemName: props.item?.name!,
                 senderID: props.sender?.id || 'not-logged-user',
                 receiverID: props.receiver?.id || '',
                 findingDate: displayDate.value,
-                findingTime: startTime.value && endTime.value ? startTime.value + ' - ' + endTime.value  :  '',
+                findingTime: time.value,
                 message: message.value,
                 finding_location: location.value,
                 deliveryLocation: deliveryLocation.value,
@@ -481,11 +448,12 @@ import { UserDetails } from '@/interfaces/user';
 
         } else {
             notification = {
-                itemID: props.itemID,
+                itemID: props.item?.id!,
+                itemName: props.item?.name!,
                 senderID: props.sender?.id || 'not-logged-user',
                 receiverID: props.receiver?.id || '',
                 findingDate: displayDate.value,
-                findingTime: startTime.value && endTime.value ? startTime.value + ' - ' + endTime.value  :  '',
+                findingTime: time.value,
                 message: message.value,
                 finding_location: location.value,
                 deliveryLocation: deliveryLocation.value,

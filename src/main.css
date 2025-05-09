@@ -64,3 +64,23 @@ body {
 .back-button:hover {
     background-color: var(--second-accent-color);
 }
+
+.info-dialog{
+    background-color: var(--fourth-color); 
+
+    border-left: 4px solid var(--second-accent-color);
+
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    color: var(--first-color); 
+
+    font-family: var(--font-inter);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 1);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}

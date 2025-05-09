@@ -84,7 +84,7 @@
                 <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
                     <template v-slot>
                         <section class="info-dialog">
-                            <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                            <v-icon color="var(--first-color)">mdi-penguin</v-icon>
                             <p class="info">
                                 Puedes guardar una petición para poder acceder a ella fácilmente en el futuro,
                                 para hacerlo simplemente dale click a 'Guardar petición'.
@@ -95,7 +95,6 @@
                                 También puedes notificar a un usuario de que has encontrado su objeto,
                                 para hacerlo simplemente dale click a 'Notificar hallazgo'.
                             </p>
-                            <br>
                         </section>
                     </template>
                 </v-dialog>
@@ -204,13 +203,8 @@
                     <v-dialog v-model="showDeleteDialog" max-width="450" max-height="600" scroll-strategy="close">
                         <template v-slot>
                             <section class="info-dialog">
-                                <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
-                                <p class="info">
-                                    ¿Estás seguro de que quieres borrar este objeto?
-                                </p>
-                                <p>
-                                    Esta acción no se puede deshacer.
-                                </p>
+                                <p class="info"><strong>¿Estás seguro?</strong> Esta acción <strong>NO</strong> se puede deshacer</p>
+                                <br>
                                 <div class="buttons-in-dialog">
                                     <button class="delete-button" @click="deleteItem()">BORRAR OBJETO</button>
                                     <button class="cancel-button" @click="showDeleteDialog = false">CANCELAR</button>
@@ -530,22 +524,6 @@ import { nextTick, Ref, ref, watch } from 'vue';
         top: 1em;
     }
 
-    .info-dialog{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-
-        background-color: var(--second-color);
-        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
-        color: var(--text-color);
-        border-radius: 1em;
-        border: 3px solid var(--first-color);
-        font-family: var(--font-poppins);
-        padding: 24px;
-        gap: 1em;
-    }
-
     .info{
         text-align: justify;
     }
@@ -796,7 +774,7 @@ import { nextTick, Ref, ref, watch } from 'vue';
 
     .delete-button, .cancel-button{
         background-color: var(--first-accent-color);
-        color: inherit;
+        color: var(--text-color);
 
         padding: 10px;
         cursor: pointer;

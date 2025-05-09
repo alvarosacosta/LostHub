@@ -182,7 +182,7 @@
                             <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
                                 <template v-slot>
                                     <section class="info-dialog">
-                                        <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                        <v-icon color="var(--first-color)">mdi-penguin</v-icon>
                                         <p class="info">
                                             Si no accedes a compartir tus datos
                                             no se mostrará a otros usuarios tu correo, teléfono y ubicación. 
@@ -193,7 +193,6 @@
                                             Tus datos podrán ser consultados por administradores de igual manera 
                                             si fuera necesario, pero no serán públicos.
                                         </p>
-                                        <br>
                                     </section>
                                 </template>
                             </v-dialog>
@@ -588,22 +587,6 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
 
     .data-law{
         color: var(--first-accent-color);
-    }
-
-    .info-dialog{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-
-        background-color: var(--second-color);
-        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
-        color: var(--text-color);
-        border-radius: 1em;
-        border: 3px solid var(--first-color);
-        font-family: var(--font-poppins);
-        padding: 24px;
-        gap: 1em;
     }
 
     .info{

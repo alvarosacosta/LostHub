@@ -1,6 +1,7 @@
 export interface ItemFoundNotification {
     id?: string;
     itemID: string;
+    itemName: string;
     senderID: string | null;
     anonID?: string;
     receiverID: string;
