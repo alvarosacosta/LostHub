@@ -3,15 +3,26 @@
     <article class="notification-content">
         <p class="title"><v-icon>mdi-bullhorn-outline</v-icon> ¡Se ha encontrado uno de tus objetos!</p>
         <p><strong>Parece que alguien ha encontrado tu</strong> {{ notification?.itemName }}</p>
-        <p><strong>Mensaje:</strong> {{ notification?.message }}</p>
-        <p><strong>Lugar donde se encontró:</strong> {{ notification?.finding_location }}<v-icon class="map-icon">mdi-map-search-outline</v-icon></p>
+        <p v-if="notification?.message" ><strong>Mensaje:</strong> {{ notification?.message }}</p>
+        <p>
+            <strong>Lugar donde se encontró:</strong> 
+            {{ notification?.finding_location }}
+            <v-icon @click="showMap = true" class="map-icon">mdi-map-search-outline</v-icon>
+        </p>
 
         <section class="button-section">
             <button class="notification-button" @click="showAllInfo = true">Ver detalles</button>
             <button class="notification-button" @click="showNotMineInfo = true">Este objeto no es mio</button>
             <button class="notification-button" @click="showFoundInfo = true">He recuperado este objeto</button>
+            <router-link class="notification-button last" :to="{ name: 'item-details', params: { id: notification?.itemID }}">Objeto asociado</router-link>
         </section>
     </article>
+
+    <v-dialog v-model="showMap" scroll-strategy="close">
+        <template v-slot>
+            <div id="map"></div>
+        </template>
+    </v-dialog>
 
     <v-dialog v-model="showAllInfo" max-width="450" max-height="600" scroll-strategy="close">
         <template v-slot>
@@ -21,7 +32,7 @@
                 <p class="info-text"><strong>Fecha:</strong> {{ notification?.findingDate }}</p>
                 <p class="info-text" v-if="notification?.findingTime"><strong>Hora:</strong> {{ notification?.findingTime }}</p>
                 <p class="info-text"><strong>Lugar donde se encontró:</strong> {{ notification?.finding_location }}</p>
-                <p class="info-text" v-if="notification?.deliveryLocation"><strong>Lugar de entrega:</strong> {{ notification?.deliveryLocation }}</p>
+                <p class="info-text" v-if="notification?.deliveryLocation"><strong>Lugar donde se ha entregado:</strong> {{ notification?.deliveryLocation }}</p>
                 <p class="info-text"><strong>Correo del remitente:</strong> {{ notification?.sender_email }}</p>
                 <p class="info-text" v-if="notification?.sender_phone"><strong>Teléfono del remitente:</strong> {{ notification.sender_phone }}</p>
             </section>
@@ -38,7 +49,7 @@
                 <br>
                 <section class="button-section">
                     <button class="notification-button">Si, borrar esta notificación</button>
-                    <button class="notification-button">No, mantener esta notificación</button>
+                    <button class="notification-button" @click="showNotMineInfo = false">No, mantener esta notificación</button>
                 </section>
             </section>
         </template>
@@ -56,7 +67,7 @@
                 <br>
                 <section class="button-section">
                     <button class="notification-button">Si, he recuperado mi objeto</button>
-                    <button class="notification-button">No, mantener esta notificación</button>
+                    <button class="notification-button" @click="showFoundInfo = false">No, mantener esta notificación</button>
                 </section>
             </section>
         </template>
@@ -66,19 +77,63 @@
 
 <script setup lang="ts">
 import { ItemFoundNotification } from '@/interfaces/notifications';
-import { Ref, ref } from 'vue';
+import L from 'leaflet';
+import { nextTick, Ref, ref, watch } from 'vue';
 
-    defineProps<{
+    const props = defineProps<{
         notification: ItemFoundNotification  | null
     }>();
 
     const showAllInfo : Ref<boolean> = ref(false);
     const showNotMineInfo : Ref<boolean> = ref(false);
     const showFoundInfo : Ref<boolean> = ref(false);
+    const showMap : Ref<boolean> = ref(false);
+
+    const map = ref<L.Map | null>(null);
+    const markerIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
+
+    async function initMap() {
+        const mapContainer = document.getElementById('map');
+        if (mapContainer && props.notification) {
+            map.value = L.map(mapContainer, {
+                doubleClickZoom: false,
+            }).setView([props.notification.latLong[0], props.notification.latLong[1]], 18);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            }).addTo(map.value as L.Map);
+
+            L.marker([props.notification?.latLong[0], props.notification?.latLong[1]], { icon: markerIcon }).addTo(map.value as L.Map);
+        }
+    }
+
+    watch(showMap, async (newStep) => {
+        if (newStep) {
+            await nextTick();
+            initMap();
+        }
+    });
 
 </script>
 
 <style scoped lang="css">
+    #map {
+        min-height: 300px;
+        width: 50%;
+
+        align-self: center;
+
+        border-radius: .8em;
+        box-shadow: 0px 0px 9px rgba(0, 0, 0, .9);
+    }
+
     .NotificationComponent {
         background-color: var(--fourth-color); 
         border-left: 4px solid var(--second-accent-color);
@@ -134,6 +189,10 @@ import { Ref, ref } from 'vue';
 
     }
 
+    .last{
+        margin-left: auto
+    }
+
     .notification-button:hover{
         background-color: var(--second-accent-color);
 
@@ -158,9 +217,13 @@ import { Ref, ref } from 'vue';
         }
     }
 
-    @media (max-width: 577px) {
+    @media (max-width: 700px) {
         .button-section {
             flex-direction: column;
+        }
+
+        .last{
+            margin-left: 0
         }
     }
 </style>

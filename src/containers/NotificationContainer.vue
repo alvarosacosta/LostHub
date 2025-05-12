@@ -9,7 +9,7 @@ import NotificationComponent from '@/components/NotificationComponent.vue';
 import { ItemFoundNotification } from '@/interfaces/notifications';
 
     defineProps<{
-        notification: ItemFoundNotification  | undefined
+        notification: ItemFoundNotification  | null
     }>();
     
 </script>

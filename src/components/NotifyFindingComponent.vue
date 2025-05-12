@@ -22,6 +22,7 @@
                             class="field under-map"
                             style="pointer-events: none;"
                             v-model=location
+                            :rules="requiredField"
                             placeholder="Ubicación"
                             label="Ubicación"
                             color="var(--first-color)"
@@ -125,23 +126,6 @@
                             required
                         ></v-textarea>
 
-                        <section class="file-uploader">
-                            <v-file-upload 
-                                class="field"
-                                v-model=files
-                                color="var(--fourth-color)"
-                                density="compact"
-                                variant="compact"
-                                clearable 
-                                multiple
-                                accept="image/*"
-                                show-size
-                                icon="mdi-upload"
-                                title="¡Arrastra tus imágenes aquí!"
-                            ></v-file-upload>
-
-                        </section>
-
                     </v-form>
                 </v-window-item>
 
@@ -190,7 +174,7 @@
 import { computed, Ref, ref, watch, nextTick } from 'vue'
 import L from 'leaflet';
 import { reverseGeocode } from '@/utils/nominatim';
-import { ItemFoundNotification, NotificationImages } from '@/interfaces/notifications';
+import { ItemFoundNotification } from '@/interfaces/notifications';
 import { UserDetails } from '@/interfaces/user';
 import { MixedItem } from '@/interfaces/items';
 
@@ -218,13 +202,12 @@ import { MixedItem } from '@/interfaces/items';
     const latLong : Ref<number[]> = ref([40.4168, -3.7038]);
 
     const message : Ref<string> = ref('');
-    const files: Ref<File[] | undefined> = ref(undefined);
 
     const phone : Ref<string> = ref('');
     const email : Ref<string> = ref('');
     
     const emit = defineEmits<{
-        (e: 'success', notification: ItemFoundNotification, images: NotificationImages): void
+        (e: 'success', notification: ItemFoundNotification): void
         (e: 'failure', error: string): void
     }>()
         
@@ -372,27 +355,6 @@ import { MixedItem } from '@/interfaces/items';
                     break;
                 }
 
-                if (files.value) {
-                    const fileList = Array.isArray(files.value) ? files.value : [files.value];
-
-                    if (fileList.length > 5) {
-                        emit('failure', `Solo se pueden introducir como máximo 5 imágenes.`);
-                        return;
-                    }
-
-                    for (const file of fileList) {
-                        if (file.size > 5 * 1024 * 1024) {
-                            emit('failure', 'Al menos una de las imágenes pesa más de 5MB.');
-                            return;
-                        }
-
-                        if (!file.type.startsWith('image/')) {
-                            emit('failure', `Al menos uno de los archivos no es una imagen.`);
-                            return;
-                        }
-                    }
-                }
-
                 if(!props.sender?.isPublic){
                     break;
                 }
@@ -464,16 +426,12 @@ import { MixedItem } from '@/interfaces/items';
             }
         }
 
-        const images : NotificationImages = {
-            notificationImages: files.value
-        }
-
         if (notification.senderID === 'not-logged-user') {
             notification.anonID = 'anon_' + crypto.randomUUID();
             notification.senderID = null;
         }
 
-        emit('success', notification, images)
+        emit('success', notification)
     }
 
 </script>

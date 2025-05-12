@@ -13,6 +13,20 @@ export const useAuthStore = defineStore('auth', () => {
   const foreignUserProfile = ref<UserDetails | null>(null)
   const isFetchingOwnProfile = ref<boolean>(false);
 
+  function mapToUserDetails(data: any): UserDetails {
+    return {
+      id: data.id,
+      username: data.Username,
+      isPublic: data.isPublic,
+      email: data.Email,
+      phone: data.Phone,
+      region: data.Region,
+      province: data.Province,
+      municipality: data.Municipality,
+      profilePictureURL: data.ProfileImageURL,
+    };
+  }
+
   async function init() : Promise<void> {
     const { data: { session } } = await supabase.auth.getSession(); 
     if (session) user.value = session.user; 
@@ -62,19 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (error) throw error;
       
-      if (data){
-        userProfile.value = {
-          id: data.id,
-          username: data.Username,
-          isPublic: data.isPublic,
-          email: data.Email,
-          phone: data.Phone,
-          region: data.Region,
-          province: data.Province,
-          municipality: data.Municipality,
-          profilePictureURL: data.ProfileImageURL,
-        };
-      }
+      if (data) userProfile.value = mapToUserDetails(data);
     
     } catch (err: any) {
       console.error('Error fetching user profile:', err.message);
@@ -99,6 +101,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     } catch (err: any) {
       const error = 'Error during log in: ' + err.message;
+      console.error(error);
       throw error;
 
     }
@@ -114,6 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     } catch (err: any) {
       const error = 'Error logging out: ' + err.message
+      console.error(error);
       throw error;
 
     } finally {
@@ -173,6 +177,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     } catch (err: any) {
       const error = 'Error during sign up: ' + err.message;
+      console.error(error);
       throw error;
   
     } finally {
@@ -186,14 +191,6 @@ export const useAuthStore = defineStore('auth', () => {
 
       const userID = user.value.id;
       if (!userID) throw new Error('Could not get user ID.');
-
-      // Al cambiar el email, se hacen comprobaciones que no se hacen al hacer el log-in, por lo que emails
-      // que antes eran válidos, ahora pueden no serlo. Es mejor impedir que se cambie el email por ahora.
-      
-      // const { error : updateUserError } = await supabase.auth.updateUser({
-      //   email: userUpdatedInfo.email,
-      // })
-      // if (updateUserError) throw updateUserError;
 
       const { error : updateProfileError } = await supabase
         .from('user_details')
@@ -212,6 +209,7 @@ export const useAuthStore = defineStore('auth', () => {
   
     } catch (err: any) {
       const error = 'Error updating the user:' + err.message;
+      console.error(error);
       throw error;
 
     } finally {
@@ -232,19 +230,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (error) throw error;
       
-      if (data){
-        foreignUserProfile.value = {
-          id: data.id,
-          username: data.Username,
-          isPublic: data.isPublic,
-          email: data.Email,
-          phone: data.Phone,
-          region: data.Region,
-          province: data.Province,
-          municipality: data.Municipality,
-          profilePictureURL: data.ProfileImageURL,
-        };
-      }
+      if (data) foreignUserProfile.value = mapToUserDetails(data);
       
     } catch(err : any) {
       console.error('Error fetching foreign user profile:' + err.message)

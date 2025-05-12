@@ -1,7 +1,7 @@
 <template>
     <main class="ItemDetailsComponent">
         <span class="type">{{"OBJETO " + singleItem?.type }}</span>
-        <router-link class='back-button' to="/hub"> Volver </router-link>
+        <button class='back-button' @click="$router.back()"> Volver </button>
         <article class="item">
             <article v-if="singleItem?.url_images && singleItem?.url_images.length > 0" class="carousel-container">
                 <section class="list">
@@ -60,8 +60,8 @@
             </article>
 
             <article class="profile-article">
-                <label class="label profile-label" for="profile-article">Usuario asociado</label>
                 <section v-if="foreignUserProfile" class="profile">
+                    <label class="label profile-label" for="profile-article">Usuario asociado</label>
                     <figure class="profile-image-container">
                         <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
@@ -69,7 +69,7 @@
                     <p v-else class="profile-name">{{ foreignUserProfile.username }}</p>
                 </section>
                 
-                <section class="interaction-buttons">
+                <section v-if="foreignUserProfile?.id !== userProfile?.id" class="interaction-buttons">
                     <section class="save-container">
                         <v-icon class="save-icon" size="80">mdi-content-save</v-icon>
                         <span class="tooltip">Guardar petición</span>
@@ -452,15 +452,14 @@ import { nextTick, Ref, ref, watch } from 'vue';
         align-items: center;
         justify-content: space-evenly;
 
-        position: relative;
-
     }
 
     .profile {
         display: flex;
         flex-direction: column;
 
-        gap: 2em;
+
+        gap: 1em;
     }
     
     .profile-image-container {
@@ -687,9 +686,11 @@ import { nextTick, Ref, ref, watch } from 'vue';
     }
 
     .profile-label{
-        position: absolute;
-        top: 69%;
-        left: 15%;
+        opacity: 0.9;
+        align-self: center;
+
+        position: relative;
+        top: 2em;
     }
 
     .field {
@@ -767,7 +768,7 @@ import { nextTick, Ref, ref, watch } from 'vue';
     .delete-button-section{
         display: flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: center;
 
         padding-top: 1em;
     }
@@ -881,7 +882,12 @@ import { nextTick, Ref, ref, watch } from 'vue';
 
         .profile-article {
             grid-column: 1;
-            grid-row: 4;
+            grid-row: 2;
+
+            height: 15em;
+
+            position: relative;
+            bottom: 2em;
 
             align-items: center;
         }
@@ -905,12 +911,14 @@ import { nextTick, Ref, ref, watch } from 'vue';
         .resume-article {
             padding: 0 40px 0 40px;
             grid-column: 1;
-            grid-row: 2;
+            grid-row: 3;
         }
 
         .main-text {
             grid-column: 1;
-            grid-row: 3;
+            grid-row: 4;
+
+            margin-bottom: 2em;
         }
 
         .interaction-buttons{
@@ -921,11 +929,11 @@ import { nextTick, Ref, ref, watch } from 'vue';
         }
 
         .info-icon {
-            left: 109%;
+            left: 106%;
         }
 
-        .profile-label{
-            left: 12%;
+        .delete-button{
+            align-self: center;
         }
 
     }
@@ -966,8 +974,6 @@ import { nextTick, Ref, ref, watch } from 'vue';
         }
 
         .no-image-container {
-            grid-column: 1;
-            grid-row: 1;
 
             width: 344px;
             height: 510px;
@@ -991,36 +997,28 @@ import { nextTick, Ref, ref, watch } from 'vue';
         }
 
         .profile-article {
-            grid-column: 1;
-            grid-row: 4;
-
             height: auto;
-            width: 344px;
             gap: 2em;
 
             flex-direction: column;
 
             padding: 2em 0 2em 0;
+            bottom: 3em;
+
+            
         }
 
-        .profile-image-container{
-            display: none;
-        }
 
         .profile-button {
             width: 15em;
 
             font-size: medium;
+            margin-bottom: .8em;
         }
 
         .info-icon {
-            left: 103%;
-            bottom: 0%;
-        }
-
-        .profile-label{
-            left: 33.5%;
-            top: 4.2%;
+            left: 104%;
+            bottom: -1%;
         }
 
         .location-section{

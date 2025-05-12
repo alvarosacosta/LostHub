@@ -43,6 +43,9 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+
+        opacity: 0;
+        animation: aparecer 1s forwards;
     }
 
     .about-us-title {

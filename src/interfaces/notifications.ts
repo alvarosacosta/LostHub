@@ -13,11 +13,6 @@ export interface ItemFoundNotification {
 
     sender_email: string;
     sender_phone?: string;
-
-    url_images?: string[];
+    
     latLong: number[];
-}
-
-export interface NotificationImages {
-    notificationImages?: File[];
 }

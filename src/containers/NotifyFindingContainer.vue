@@ -14,7 +14,7 @@
   
 <script setup lang="ts">
 import NotifyFindingComponent from '@/components/NotifyFindingComponent.vue';
-import { ItemFoundNotification, NotificationImages } from '@/interfaces/notifications';
+import { ItemFoundNotification } from '@/interfaces/notifications';
 import router from '@/router';
 import { useAuthStore } from '@/stores/AuthStore';
 import { useItemsStore } from '@/stores/ItemStore';
@@ -45,9 +45,9 @@ import { onMounted } from 'vue';
 
     });
 
-    async function uploadNotification(notification : ItemFoundNotification, images: NotificationImages) : Promise<void> {
+    async function uploadNotification(notification : ItemFoundNotification) : Promise<void> {
         try {
-            await NotificationStore.uploadNotification(notification, images)
+            await NotificationStore.uploadNotification(notification)
 
             router.push('/hub')
             emit('showSuccess', 'Se ha enviado una notificación al usuario involucrado. ¡Muchas gracias!')

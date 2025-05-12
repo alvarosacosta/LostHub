@@ -330,7 +330,7 @@ import isEqual from 'lodash/isEqual';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 40%;
+        width: 50%;
 
         border-radius: 1em;
         border: 3px solid var(--first-color);

@@ -15,6 +15,46 @@ export const useItemsStore = defineStore('items', () => {
   const fetchedUserID = ref<string>('')
   const lastItemPostID = ref<string>('')
 
+  function mapToMixedItem(item: any): MixedItem {
+    const baseItem = {
+      id: item.id,
+      type: item.type,
+
+      name: item.name,
+      detailedDescription: item.description,
+      category: item.category,
+      subcategory: item.subcategory,
+      gender: item.gender,
+      color: item.color,
+      race: item.race,
+      brand: item.brand,
+
+      location: item.location,
+      latLong: item.latLong,
+      locationDescription: item.location_description,
+      publicTransport: item.publicTransport,
+      transportInfo: item.transportInfo,
+
+      date: item.date,
+      time: item.time,
+      confidence: item.confidence,
+
+      url_images: item.url_images,
+    };
+
+    if (item.type === 'Perdido') {
+      return {
+        ...baseItem,
+        reward: item.reward,
+      };
+    } else {
+      return {
+        ...baseItem,
+        deliveryLocation: item.deliveryLocation,
+      };
+    }
+  }
+
   async function fetchAllItems() : Promise<void>{
     try {
         LoadingStore.startLoading()
@@ -26,45 +66,7 @@ export const useItemsStore = defineStore('items', () => {
         if (error) throw error;
 
         if (data) {
-            allItems.value = data.map((item: any): MixedItem => {
-                const baseItem = {
-                  id: item.id,
-                  type: item.type,
-        
-                  name: item.name,
-                  detailedDescription: item.description,
-                  category: item.category,
-                  subcategory: item.subcategory,
-                  gender: item.gender,
-                  color: item.color,
-                  race: item.race,
-                  brand: item.brand,
-        
-                  location: item.location,
-                  latLong: item.latLong,
-                  locationDescription: item.location_description,
-                  publicTransport: item.publicTransport,
-                  transportInfo: item.transportInfo,
-        
-                  date: item.date,
-                  time: item.time,
-                  confidence: item.confidence,
-        
-                  url_images: item.url_images,
-                };
-        
-                if (item.type === 'Perdido') {
-                    return {
-                        ...baseItem,
-                        reward: item.reward,
-                    };
-                } else {
-                    return {
-                        ...baseItem,
-                        deliveryLocation: item.deliveryLocation,
-                    };
-                }
-            });
+            allItems.value = data.map(mapToMixedItem)
         }
     
     } catch(err: any) {
@@ -86,47 +88,8 @@ export const useItemsStore = defineStore('items', () => {
 
         if (error) throw error;
 
-        if (data) {
-          userItems.value = data.map((item: any): MixedItem => {
-                const baseItem = {
-                  id: item.id,
-                  type: item.type,
+        if (data) userItems.value = data.map(mapToMixedItem)
         
-                  name: item.name,
-                  detailedDescription: item.description,
-                  category: item.category,
-                  subcategory: item.subcategory,
-                  gender: item.gender,
-                  color: item.color,
-                  race: item.race,
-                  brand: item.brand,
-        
-                  location: item.location,
-                  latLong: item.latLong,
-                  locationDescription: item.location_description,
-                  publicTransport: item.publicTransport,
-                  transportInfo: item.transportInfo,
-        
-                  date: item.date,
-                  time: item.time,
-                  confidence: item.confidence,
-        
-                  url_images: item.url_images,
-                };
-        
-                if (item.type === 'Perdido') {
-                    return {
-                        ...baseItem,
-                        reward: item.reward,
-                    };
-                } else {
-                    return {
-                        ...baseItem,
-                        deliveryLocation: item.deliveryLocation,
-                    };
-                }
-            });
-        }
     
     } catch(err: any) {
       console.error("Error fetching all user items: " + err.message)
@@ -148,45 +111,7 @@ export const useItemsStore = defineStore('items', () => {
 
       if (error) throw error
 
-      if (data) {
-        const baseItem = {
-          id: data.id,
-          type: data.type,
-
-          name: data.name,
-          detailedDescription: data.description,
-          category: data.category,
-          subcategory: data.subcategory,
-          gender: data.gender,
-          color: data.color,
-          race: data.race,
-          brand: data.brand,
-
-          location: data.location,
-          latLong: data.latLong,
-          locationDescription: data.location_description,
-          publicTransport: data.publicTransport,
-          transportInfo: data.transportInfo,
-
-          date: data.date,
-          time: data.time,
-          confidence: data.confidence,
-
-          url_images: data.url_images,
-        }
-
-        if (data.type === 'Perdido') {
-          singleItem.value = {
-            ...baseItem,
-            reward: data.reward,
-          }
-        } else {
-          singleItem.value = {
-            ...baseItem,
-            deliveryLocation: data.deliveryLocation,
-          }
-        }
-      }
+      if (data) singleItem.value = mapToMixedItem(data)
 
     } catch (err: any) {
       console.error('Error fetching item by ID:', err.message)
