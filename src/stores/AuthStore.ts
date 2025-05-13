@@ -103,8 +103,10 @@ export const useAuthStore = defineStore('auth', () => {
       const error = 'Error during log in: ' + err.message;
       console.error(error);
       throw error;
-
+    } finally {
+      LoadingStore.endLoading()
     }
+    
   };
 
   async function logOut() : Promise<void> {

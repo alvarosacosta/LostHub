@@ -37,20 +37,18 @@
                 <router-link v-if="userProfile" class="navigation-button" to="/hub">Objetos guardados</router-link>
                 <router-link class="navigation-button" to="/about-us">Quiénes somos</router-link>
             </section>
+
+            <button v-if="userProfile" class="log-out-button" @click="logOut()">Cerrar sesión</button>
         </article>
+
 
         <section class="secondary-content">
             <a class='github-ref' href="https://github.com/alvarosacosta">
                 <v-icon class="github-icon" size="50">mdi-github</v-icon>
             </a>
-
-            <section class="log-out-icon">
-                <label class="tooltip-logout" for="log-out-icon">Cerrar sesión</label>
-                <v-icon v-if="userProfile" type="button" size="50" @click="logOut()">mdi-logout</v-icon>
-            </section>
             
             <router-link v-if="userProfile" class="publish-button" to="/postItem">
-                <label class="tooltip-post" for="new-post-icon">Publicar un objeto</label>
+                <span class="tooltip-post">Publicar un objeto</span>
                 <v-icon class="new-post-icon" size="40" color="var(--fourth-color)">mdi-feather</v-icon>
             </router-link>
         </section>
@@ -244,7 +242,7 @@ import { useRoute } from 'vue-router';
 
     }
 
-    .navigation-button {
+    .navigation-button, .log-out-button {
         text-decoration: none;
         background-color: var(--first-accent-color);
         color: inherit;
@@ -260,7 +258,7 @@ import { useRoute } from 'vue-router';
         margin-right: 1.2em;
     }
 
-    .navigation-button:hover {
+    .navigation-button:hover, .log-out-button:hover {
         background-color: var(--second-accent-color);
     }
 
@@ -353,7 +351,7 @@ import { useRoute } from 'vue-router';
         align-items: center;
 
         position: relative;
-        bottom: 30px;
+        bottom: 40px;
         left: 20px;
         
     }

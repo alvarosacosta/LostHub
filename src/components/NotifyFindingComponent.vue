@@ -171,12 +171,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, ref, watch, nextTick } from 'vue'
-import L from 'leaflet';
-import { reverseGeocode } from '@/utils/nominatim';
+import { computed, Ref, ref, watch, nextTick, onMounted } from 'vue'
 import { ItemFoundNotification } from '@/interfaces/notifications';
 import { UserDetails } from '@/interfaces/user';
 import { MixedItem } from '@/interfaces/items';
+import { storeToRefs } from 'pinia';
+import { useLeafletStore } from '@/stores/LeafletStore';
 
     const props = defineProps<{
         item: MixedItem | undefined
@@ -197,9 +197,6 @@ import { MixedItem } from '@/interfaces/items';
 
     const itemDelivered : Ref<boolean> = ref(false)
     const deliveryLocation : Ref<string> = ref('');
-
-    const location : Ref<string> = ref('');
-    const latLong : Ref<number[]> = ref([40.4168, -3.7038]);
 
     const message : Ref<string> = ref('');
 
@@ -234,69 +231,17 @@ import { MixedItem } from '@/interfaces/items';
         return (step.value / totalSteps) * 100
     })
 
-    const map = ref<L.Map | null>(null);
-    let userMarker: L.Marker | null = null;
-    const markerIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
+    onMounted(() => {
+        LeafletStore.cleanVariables();
     });
 
-    async function onMapClick(e: L.LeafletMouseEvent) {
-        const { lat, lng } = e.latlng;
-
-        if (userMarker) {
-            userMarker.setLatLng([lat, lng]);
-        } else {
-            userMarker = L.marker([lat, lng], { icon: markerIcon }).addTo(map.value as L.Map);
-        }
-        latLong.value = [lat, lng]
-        location.value = await reverseGeocode(lat, lng);
-    }
-
-    async function initMap() {
-        const mapContainer = document.getElementById('map');
-        if (mapContainer && !map.value) {
-            map.value = L.map(mapContainer, {
-                doubleClickZoom: false,
-            }).setView([40.4168, -3.7038], 10);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            }).addTo(map.value as L.Map);
-            
-            map.value.locate({
-                setView: true,
-                maxZoom: 18,
-                timeout: 10000,
-            });
-            
-            map.value.on('locationfound', async function (e) {
-                if (!userMarker) {
-                    userMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon }).addTo(map.value as L.Map);
-                }
-
-                (map.value as L.Map).setView([e.latlng.lat, e.latlng.lng], 18);
-
-                latLong.value = [e.latlng.lat, e.latlng.lng]
-                location.value = await reverseGeocode(e.latlng.lat, e.latlng.lng);
-            });
-
-            map.value.on('locationerror', function (e) {
-                console.error('Error obtaining  ubication:', e.message);
-            });
-
-            map.value.on('click', onMapClick);
-        }
-    }
+    const LeafletStore = useLeafletStore()
+    const {location, latLng} = storeToRefs(LeafletStore)
 
     watch(step, async (newStep) => {
         if (newStep === 1) {
             await nextTick();
-            initMap();
+            LeafletStore.initInteractuableMapWithUserLocation('map');
         }
     }, { immediate: true });
 
@@ -405,7 +350,7 @@ import { MixedItem } from '@/interfaces/items';
                 sender_email: props.sender?.email, 
                 sender_phone: props.sender?.phone,
     
-                latLong: latLong.value,
+                latLong: latLng.value,
             }
 
         } else {
@@ -422,7 +367,7 @@ import { MixedItem } from '@/interfaces/items';
                 sender_email: email.value, 
                 sender_phone: phone.value,
     
-                latLong: latLong.value,
+                latLong: latLng.value,
             }
         }
 

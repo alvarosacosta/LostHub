@@ -62,6 +62,7 @@ export const useItemsStore = defineStore('items', () => {
         const { data, error } = await supabase
             .from('item_details')
             .select('*')
+            .order('created_at', { ascending: false })
 
         if (error) throw error;
 
@@ -84,7 +85,8 @@ export const useItemsStore = defineStore('items', () => {
         const { data, error } = await supabase
             .from('item_details')
             .select('*')
-            .eq('user_id', userID);
+            .eq('user_id', userID)
+            .order('created_at', { ascending: false })
 
         if (error) throw error;
 

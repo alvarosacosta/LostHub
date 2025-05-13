@@ -61,7 +61,7 @@
 
             <article class="profile-article">
                 <section v-if="foreignUserProfile" class="profile">
-                    <label class="label profile-label" for="profile-article">Usuario asociado</label>
+                    <span class="label profile-label">Usuario asociado</span>
                     <figure class="profile-image-container">
                         <img class="profile-image" :src="foreignUserProfile.profilePictureURL" alt="profile-image">
                     </figure>
@@ -102,23 +102,23 @@
 
             <article class="resume-article">
                 <section class="normal-section name-section">
-                    <label class="label" for="name">Descripción corta / Nombre</label>
+                    <span class="label">Descripción corta / Nombre</span>
                     <span class="field name">{{ singleItem?.name }}</span>
                 </section>
 
                 <section class="down-section">
                     <section v-if="singleItem?.type === 'Perdido' && singleItem?.reward" class="reward-section">
-                        <label class="label reward-label" for="reward">Recompensa</label>
+                        <span class="label reward-label">Recompensa</span>
                         <span class="reward">{{ singleItem?.reward + " €" }}</span>
                     </section>
                     <section class="categories-section">
                         <section class="category-section">
-                            <label class="label" for="category">Categoría</label>
+                            <span class="label">Categoría</span>
                             <span class="field category">{{ singleItem?.category }}</span>
                         </section>
         
                         <section v-if="singleItem?.subcategory" class="normal-section subcategory-section">
-                            <label class="label" for="subcategory">Subcategoría</label>
+                            <span class="label">Subcategoría</span>
                             <span class="field subcategory">{{ singleItem?.subcategory }}</span>
                         </section>
                     </section>
@@ -129,44 +129,44 @@
 
                 <section class="color-gender-race-brand">
                     <section class="normal-section color-section">
-                        <label class="label" for="color">Color</label>
+                        <span class="label">Color</span>
                         <span class="field color">{{ singleItem?.color }}</span>
                     </section>
 
                     <section v-if="singleItem?.gender" class="normal-section gender-section">
-                        <label class="label" for="gender">Sexo</label>
+                        <span class="label">Sexo</span>
                         <span class="field gender">{{ singleItem?.gender }}</span>
                     </section>
 
                     <section v-if="singleItem?.race" class="normal-section race-section">
-                        <label class="label" for="race">Raza</label>
-                        <p class="field race">{{ singleItem?.race }}</p>
+                        <span class="label">Raza</span>
+                        <span class="field race">{{ singleItem?.race }}</span>
                     </section>
 
                     <section v-if="singleItem?.brand" class="normal-section brand-section">
-                        <label class="label" for="brand">Marca</label>
-                        <p class="field brand">{{ singleItem.brand }}</p>
+                        <span class="label">Marca</span>
+                        <span class="field brand">{{ singleItem.brand }}</span>
                     </section>
                 </section>
 
                 <section class="date-time">
                     <section class="normal-section date-section">
-                        <label v-if="singleItem?.type === 'Perdido'" class="label" for="date">Fecha(s) de pérdida</label>
-                        <label v-else class="label" for="date-time">Fecha(s) de encuentro</label>
-                        <span class="field date">{{ singleItem?.date }}</span>
+                        <span v-if="singleItem?.type === 'Perdido'" class="label">Fecha(s) de pérdida</span>
+                        <span v-else class="label">Fecha(s) de encuentro</span>
+                        <p class="field date">{{ singleItem?.date }}</p>
                     </section>
 
                     <section v-if="singleItem?.time" class="normal-section time-section">
-                        <label v-if="singleItem?.type === 'Perdido'" class="label" for="time">Hora de pérdida</label>
-                        <label v-else class="label" for="time">Hora de encuentro</label>
+                        <span v-if="singleItem?.type === 'Perdido'" class="label odd-label">Hora de pérdida</span>
+                        <span v-else class="label odd-label" >Hora de encuentro</span>
                         <p class="field time">{{ singleItem.time }}</p>
                     </section>
 
                 </section>
 
                 <section class="normal-section location-section">
-                    <label class="label odd-label" for="location">Última ubicación conocida</label>
-                    <span class="field location">{{ singleItem?.location }} <v-icon class="map-icon" @click="showMap = true" >mdi-map-search-outline</v-icon></span>
+                    <span class="label odd-label">Última ubicación conocida</span>
+                    <p class="field location">{{ singleItem?.location }} <v-icon class="map-icon" @click="showMap = true" >mdi-map-search-outline</v-icon></p>
                     <v-dialog v-model="showMap" scroll-strategy="close">
                         <template v-slot>
                             <div id="map"></div>
@@ -176,25 +176,25 @@
 
                 <section class="transport-container">
                     <section v-if="singleItem?.publicTransport && singleItem?.type === 'Perdido'" class="normal-section public-transport-section">
-                        <label v-if="singleItem?.type === 'Perdido'" class="label odd-label" for="public-transport">Perdido en</label>
-                        <label v-else class="label odd-label" for="public-transport">Encontrado en</label>
+                        <span v-if="singleItem?.type === 'Perdido'" class="label odd-label">Perdido en</span>
+                        <span v-else class="label odd-label">Encontrado en</span>
                         <span class="field public-transport">{{ singleItem?.publicTransport }}</span>
                     </section>
 
                     <section v-if="singleItem?.transportInfo" class="normal-section transportInfo-section">
-                        <label class="label" for="transportInfo">Información sobre el transporte</label>
+                        <span class="label">Información sobre el transporte</span>
                         <p class="field transportInfo">{{ singleItem.transportInfo }}</p>
                     </section>
 
                 </section>
 
                 <section class="description-section">
-                    <label class="label odd-label" for="description">Descripción del objeto</label>
+                    <span class="label odd-label">Descripción del objeto</span>
                     <p class="field description">{{ singleItem?.detailedDescription }}</p>
                 </section>
                 
                 <section v-if="singleItem?.locationDescription" class="location-description-section">
-                    <label class="label odd-label" for="location-description">Descripción de lugar de pérdida</label>
+                    <span class="label odd-label">Descripción de lugar de pérdida</span>
                     <p class="field location-description">{{ singleItem?.locationDescription }}</p>
                 </section>
 
@@ -205,10 +205,10 @@
                             <section class="info-dialog">
                                 <p class="info"><strong>¿Estás seguro?</strong> Esta acción <strong>NO</strong> se puede deshacer</p>
                                 <br>
-                                <div class="buttons-in-dialog">
+                                <section class="buttons-in-dialog">
                                     <button class="delete-button" @click="deleteItem()">BORRAR OBJETO</button>
                                     <button class="cancel-button" @click="showDeleteDialog = false">CANCELAR</button>
-                                </div>
+                                </section>
                                 <br>
                             </section>
                         </template>
@@ -222,7 +222,7 @@
 <script setup lang="ts">
 import { MixedItem } from '@/interfaces/items';
 import { UserDetails } from '@/interfaces/user';
-import L from 'leaflet';
+import { useLeafletStore } from '@/stores/LeafletStore';
 import { nextTick, Ref, ref, watch } from 'vue';
     
     const props = defineProps<{
@@ -235,41 +235,17 @@ import { nextTick, Ref, ref, watch } from 'vue';
         (e: 'deleteItem'): void
     }>()
 
-    const map = ref<L.Map | null>(null);
-    const markerIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
-    });
-
-    async function initMap() {
-        const mapContainer = document.getElementById('map');
-        if (mapContainer && props.singleItem) {
-            map.value = L.map(mapContainer, {
-                doubleClickZoom: false,
-            }).setView([props.singleItem?.latLong[0], props.singleItem?.latLong[1]], 18);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            }).addTo(map.value as L.Map);
-
-            L.marker([props.singleItem?.latLong[0], props.singleItem?.latLong[1]], { icon: markerIcon }).addTo(map.value as L.Map);
-        }
-    }
-
     const selectedIndex: Ref<number> = ref(0)
     const isHovered: Ref<boolean> = ref(false)
     const showInfoDialog : Ref<boolean> = ref(false)
     const showDeleteDialog : Ref<boolean> = ref(false)
     const showMap : Ref<boolean> = ref(false)
 
+    const LeafletStore = useLeafletStore()
     watch(showMap, async (newStep) => {
         if (newStep) {
             await nextTick();
-            initMap();
+            LeafletStore.initMapWithFixedLatLng('map', props.singleItem?.latLong as number[])
         }
     });
 

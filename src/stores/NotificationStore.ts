@@ -90,6 +90,25 @@ export const useNotificationStore = defineStore('notification', () => {
         }
     }
 
+    async function deleteNotificationById(notificationID: string): Promise<void> {
+        try {
+            if (!user.value.id) throw new Error('User not authenticated')
+
+            const { error } = await supabase
+                .from('item_notifications')
+                .delete()
+                .eq('id', notificationID)
+
+            if (error) throw error
+
+        } catch (err: any) {
+            const error = 'Error deleting notification: ' + err.message
+            console.error(error)
+            throw error
+
+        } 
+    }
+
     function listenToRealtime(): void {
         const channel = supabase
             .channel('public:item_notifications')
@@ -117,6 +136,7 @@ export const useNotificationStore = defineStore('notification', () => {
     return {
         userNotifications,
         fetchUserNotifications,
+        deleteNotificationById,
         listenToRealtime,
         uploadNotification,
     }

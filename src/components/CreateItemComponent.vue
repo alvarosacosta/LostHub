@@ -341,12 +341,14 @@
                                 v-if="type === 'Perdido'"
                                 class="field reward"
                                 type="number"
+                                :rules="rewardRules"
                                 v-model=reward
                                 placeholder="Recompensa (€)"
                                 label="Recompensa por la búsqueda (€)"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
+                                clearable
                                 density="comfortable"
                             ></v-text-field>
 
@@ -392,10 +394,10 @@
 
 <script setup lang="ts">
 import { Category, categoryToSubcategories, Color, Gender, PublicTransports, Subcategory, Brand, ItemType } from '@/enums/item_enums';
-import { computed, Ref, ref, watch, nextTick } from 'vue'
-import L from 'leaflet';
-import { reverseGeocode } from '@/utils/nominatim';
+import { computed, Ref, ref, watch, nextTick, onMounted } from 'vue'
 import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/items';
+import { useLeafletStore } from '@/stores/LeafletStore';
+import { storeToRefs } from 'pinia';
 
     const type : Ref<string> = ref('Perdido');
 
@@ -409,8 +411,6 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
     const brand : Ref<Brand | undefined> = ref();
     const files: Ref<File[] | undefined> = ref(undefined);
         
-    const location : Ref<string> = ref('');
-    const latLong : Ref<number[]> = ref([40.4168, -3.7038]);
     const locationDescription : Ref<string> = ref('');
     const publicTransport : Ref<PublicTransports | undefined> = ref();
     const transportInfo : Ref<string> = ref('');
@@ -470,69 +470,18 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
         gender.value = undefined
     }
 
-    const map = ref<L.Map | null>(null);
-    let userMarker: L.Marker | null = null;
-    const markerIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
+    const LeafletStore = useLeafletStore()
+    const {location, latLng} = storeToRefs(LeafletStore)
+
+    onMounted(() => {
+        LeafletStore.cleanVariables();
     });
-
-    async function onMapClick(e: L.LeafletMouseEvent) {
-        const { lat, lng } = e.latlng;
-
-        if (userMarker) {
-            userMarker.setLatLng([lat, lng]);
-        } else {
-            userMarker = L.marker([lat, lng], { icon: markerIcon }).addTo(map.value as L.Map);
-        }
-        latLong.value = [lat, lng]
-        location.value = await reverseGeocode(lat, lng);
-    }
-
-    async function initMap() {
-        const mapContainer = document.getElementById('map');
-        if (mapContainer && !map.value) {
-            map.value = L.map(mapContainer, {
-                doubleClickZoom: false,
-            }).setView([40.4168, -3.7038], 10);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            }).addTo(map.value as L.Map);
-            
-            map.value.locate({
-                setView: true,
-                maxZoom: 18,
-                timeout: 10000,
-            });
-            
-            map.value.on('locationfound', async function (e) {
-                if (!userMarker) {
-                    userMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon }).addTo(map.value as L.Map);
-                }
-
-                (map.value as L.Map).setView([e.latlng.lat, e.latlng.lng], 18);
-
-                latLong.value = [e.latlng.lat, e.latlng.lng]
-                location.value = await reverseGeocode(e.latlng.lat, e.latlng.lng);
-            });
-
-            map.value.on('locationerror', function (e) {
-                console.error('Error obtaining  ubication:', e.message);
-            });
-
-            map.value.on('click', onMapClick);
-        }
-    }
 
     watch(step, async (newStep) => {
         if (newStep === 3) {
             await nextTick();
-            initMap();
+            LeafletStore.initInteractuableMapWithUserLocation('map');
+            
         }
     });
 
@@ -597,6 +546,14 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
         (value: string) => {
             if (value?.length >= 50) return true
             return 'La descripción debe tener al menos 50 caractéres.'
+        },
+    ]
+
+    const rewardRules = [
+        (value: number) => {
+            if (!value) return true
+            if (value > 0) return true
+            return 'Recompensa no válida.'
         },
     ]
     
@@ -671,7 +628,7 @@ import { FoundItem, Item, ItemImages, LostItem, MixedItem } from '@/interfaces/i
                     brand: brand.value,
 
                     location: location.value,
-                    latLong: latLong.value,
+                    latLong: latLng.value,
                     locationDescription: locationDescription.value,
                     publicTransport: publicTransport.value,
                     transportInfo: transportInfo.value,

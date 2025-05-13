@@ -31,10 +31,11 @@ import { ItemFoundNotification } from '@/interfaces/notifications';
 
         position: relative;
 
-        margin: 2em;
-
         opacity: 0;
         animation: aparecer 1s forwards;
+
+        margin-left: 2em;
+        margin-right: 2em;
 
     }
 
@@ -50,10 +51,11 @@ import { ItemFoundNotification } from '@/interfaces/notifications';
         border: 2px solid var(--first-color);
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 1);
 
-        min-height: 93vh;
         max-width: 1500px;
         width: 100%;
         padding: 1.5em;
+
+        margin-top: 1.5em;
     }
 
     .item {

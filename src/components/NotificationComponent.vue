@@ -24,7 +24,7 @@
         </template>
     </v-dialog>
 
-    <v-dialog v-model="showAllInfo" max-width="450" max-height="600" scroll-strategy="close">
+    <v-dialog v-model="showAllInfo" max-width="700" max-height="600" scroll-strategy="close">
         <template v-slot>
             <section class="info-dialog">
                 <p class="info-text"><strong>Nombre / Descripción corta: </strong> {{ notification?.itemName }}</p>
@@ -39,23 +39,23 @@
         </template>
     </v-dialog>
 
-    <v-dialog v-model="showNotMineInfo" max-width="450" max-height="600" scroll-strategy="close">
+    <v-dialog v-model="showNotMineInfo" max-width="700" max-height="600" scroll-strategy="close">
         <template v-slot>
             <section class="info-dialog">
                 <p><strong>¿Estás seguro?</strong> Esta acción <strong>NO</strong> se puede deshacer</p>
                 <br>
                 <p class="info-text-justified">Haga click en 'Si, borrar esta notificación' si ya has contactado con el 
-                usuario que ha encontrado tu objeto, y resulta que este no es tuyo.</p>
+                usuario que ha encontrado tu objeto y estás seguro de que no es realmente tuyo.</p>
                 <br>
                 <section class="button-section">
-                    <button class="notification-button">Si, borrar esta notificación</button>
+                    <button class="notification-button" @click="deleteNotification">Si, borrar esta notificación</button>
                     <button class="notification-button" @click="showNotMineInfo = false">No, mantener esta notificación</button>
                 </section>
             </section>
         </template>
     </v-dialog>
 
-    <v-dialog v-model="showFoundInfo" max-width="450" max-height="600" scroll-strategy="close">
+    <v-dialog v-model="showFoundInfo" max-width="700" max-height="600" scroll-strategy="close">
         <template v-slot>
             <section class="info-dialog">
                 <p><strong>¿Estás seguro?</strong> Esta acción <strong>NO</strong> se puede deshacer</p>
@@ -66,7 +66,7 @@
                 <p class="info-text-justified">También se borrará el objeto asociado automáticamente de la base de datos.</p>
                 <br>
                 <section class="button-section">
-                    <button class="notification-button">Si, he recuperado mi objeto</button>
+                    <button class="notification-button" @click="deleteNotificationAndItem">Si, he recuperado mi objeto</button>
                     <button class="notification-button" @click="showFoundInfo = false">No, mantener esta notificación</button>
                 </section>
             </section>
@@ -77,8 +77,13 @@
 
 <script setup lang="ts">
 import { ItemFoundNotification } from '@/interfaces/notifications';
-import L from 'leaflet';
+import { useLeafletStore } from '@/stores/LeafletStore';
 import { nextTick, Ref, ref, watch } from 'vue';
+
+    const emit = defineEmits<{
+        (e: 'deleteNotification', notificationID: string): void
+        (e: 'deleteNotificationAndItem', itemID: string): void
+    }>()
 
     const props = defineProps<{
         notification: ItemFoundNotification  | null
@@ -89,37 +94,27 @@ import { nextTick, Ref, ref, watch } from 'vue';
     const showFoundInfo : Ref<boolean> = ref(false);
     const showMap : Ref<boolean> = ref(false);
 
-    const map = ref<L.Map | null>(null);
-    const markerIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
-    });
-
-    async function initMap() {
-        const mapContainer = document.getElementById('map');
-        if (mapContainer && props.notification) {
-            map.value = L.map(mapContainer, {
-                doubleClickZoom: false,
-            }).setView([props.notification.latLong[0], props.notification.latLong[1]], 18);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            }).addTo(map.value as L.Map);
-
-            L.marker([props.notification?.latLong[0], props.notification?.latLong[1]], { icon: markerIcon }).addTo(map.value as L.Map);
-        }
-    }
-
+    const LeafletStore = useLeafletStore()
     watch(showMap, async (newStep) => {
         if (newStep) {
             await nextTick();
-            initMap();
+            LeafletStore.initMapWithFixedLatLng('map', props.notification?.latLong as number[])
         }
     });
+
+    function deleteNotification() : void {
+        if (props.notification?.id && props.notification?.itemID){
+            emit('deleteNotification', props.notification?.id);
+            showNotMineInfo.value = false
+        }
+    }
+
+    function deleteNotificationAndItem() : void {
+        if (props.notification?.id && props.notification?.itemID){
+            emit('deleteNotificationAndItem', props.notification?.itemID);
+            showFoundInfo.value = false
+        }
+    }
 
 </script>
 

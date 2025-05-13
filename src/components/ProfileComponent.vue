@@ -10,7 +10,7 @@
             </section>
 
             <section class="username">
-                <label class="label">Nombre</label>
+                <span class="label">Nombre</span>
                 <v-text-field 
                     class="field"
                     v-model=profileShown.username
@@ -26,7 +26,7 @@
 
             <section class="email-phone">
                 <section class="email">
-                    <label class="label">Email</label>
+                    <span class="label">Email</span>
                     <v-text-field 
                         class="field"
                         v-model=profileShown.email
@@ -41,7 +41,7 @@
                 </section>
 
                 <section v-if="isEditable || profileShown.phone" class="phone">
-                    <label class="label">Teléfono</label>
+                    <span class="label">Teléfono</span>
                     <v-text-field 
                         class="field"
                         v-model=profileShown.phone
@@ -57,7 +57,7 @@
 
             <section class="region-province">
                 <section v-if="isEditable || profileShown.region" class="region">
-                    <label class="label">Comunidad</label>
+                    <span class="label">Comunidad</span>
                     <v-autocomplete  
                         class="field"
                         v-model=selectedRegion
@@ -75,7 +75,7 @@
                 </section>
 
                 <section v-if="isEditable || profileShown.province" class="province">
-                    <label class="label">Provincia</label>
+                    <span class="label">Provincia</span>
                     <v-autocomplete  
                         class="field"
                         v-model=selectedProvince
@@ -95,7 +95,7 @@
 
             <section class="municipality-update-button">
                 <section v-if="isEditable || profileShown.municipality" class="municipality">
-                    <label class="label">Población</label>
+                    <span class="label">Población</span>
                     <v-autocomplete 
                         class="field"
                         v-model=selectedMunicipality
