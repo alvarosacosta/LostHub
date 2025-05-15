@@ -73,7 +73,7 @@ export const useLeafletStore = defineStore('leaflet', () => {
         if (!mapContainer) return;
 
         if (!map.value) {
-            initInteractuableMapEO(containerId);
+            initInteractuableMap(containerId);
 
             try {
                 await locateUser();
@@ -84,7 +84,7 @@ export const useLeafletStore = defineStore('leaflet', () => {
         }
     }
 
-    async function initInteractuableMapEO(containerId: string) {
+    async function initInteractuableMap(containerId: string) {
         resetMap();
 
         const mapContainer = document.getElementById(containerId);
@@ -148,7 +148,7 @@ export const useLeafletStore = defineStore('leaflet', () => {
         latLng,
         map,
         initInteractuableMapWithUserLocation,
-        initInteractuableMapEO,
+        initInteractuableMap,
         initMapWithFixedLatLng,
         locateUser,
         resetMap,

@@ -93,6 +93,7 @@ import { useRoute } from 'vue-router';
         }
 
         if (route.query.login === 'true') {
+            isClosed.value = false;
             dialogVisible.value = true
 
             router.replace({ query: { ...route.query, login: undefined } })

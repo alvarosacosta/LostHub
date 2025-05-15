@@ -32,11 +32,11 @@
                             </button>
                         </template>
     
-                        <v-card class="menu-card" color="var(--first-color)">
+                        <v-card class="menu-card" color="var(--third-color)">
                             <v-text-field
                                 v-model="location"
                                 class="field"
-                                label="Ubicación"
+                                label="Ubicación específica"
                                 variant="solo-filled"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
@@ -143,7 +143,7 @@
                             </button>
                         </template>
     
-                        <v-card class="menu-card" color="var(--first-color)">
+                        <v-card class="menu-card" color="var(--third-color)">
                             <v-text-field
                                 v-model="reward"
                                 class="field"
@@ -250,7 +250,7 @@
                             </button>
                         </template>
     
-                        <v-card class="menu-card" color="var(--first-color)">
+                        <v-card class="menu-card" color="var(--third-color)">
                             <v-text-field
                                 v-model="displayDate"
                                 class="field"
@@ -261,6 +261,7 @@
                                 variant="solo-filled"
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
+                                @click:clear="date = []"
                                 clearable
                                 hide-details
                             >
@@ -273,7 +274,7 @@
                                     <v-date-picker
                                         v-model="date"
                                         :max="maxDateToPick"
-                                        @update:model-value="parseCustomDate"
+                                        @update:model-value="parseDisplayDate"
                                         hide-header
                                         hide-actions
                                         show-adjacent-months
@@ -295,6 +296,7 @@
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 hide-details
+                                @click:clear="maxDate = []"
                                 clearable
                             >
                                 <v-menu
@@ -306,7 +308,7 @@
                                     <v-date-picker
                                         v-model="maxDate"
                                         :max="maxDateToPick"
-                                        @update:model-value="parseCustomDate"
+                                        @update:model-value="parseDisplayMaxDate"
                                         hide-header
                                         hide-actions
                                         show-adjacent-months
@@ -461,15 +463,32 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
     const date = ref([])
     const maxDate = ref([])
     const maxDateToPick = new Date();
+
     const menuMaxDate : Ref<boolean> = ref(false)
     const menuDate : Ref<boolean> = ref(false)
+    const locationMenu : Ref<boolean> = ref(false)
+    const rewardMenu : Ref<boolean> = ref(false)
+    const dateTimeMenu : Ref<boolean> = ref(false)
+
+    const showFilters : Ref<boolean> = ref(false)
+    const showLocationDialog : Ref<boolean> = ref(false)
+
     const formatDate = (d: Date) => new Date(d).toLocaleDateString('es-ES')
-    function parseCustomDate(val: (Date)[]) {
+    function parseDisplayDate(val: (Date)[]) {
         if(val instanceof Date){
             displayDate.value = formatDate(val);
 
         } else {
             displayDate.value = val.map(formatDate).join(' ')
+        }
+    }
+
+    function parseDisplayMaxDate(val: (Date)[]) {
+        if(val instanceof Date){
+            displayMaxDate.value = formatDate(val);
+
+        } else {
+            displayMaxDate.value = val.map(formatDate).join(' ')
         }
     }
 
@@ -495,13 +514,6 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
         gender.value = undefined
     }
 
-    const locationMenu : Ref<boolean> = ref(false)
-    const rewardMenu : Ref<boolean> = ref(false)
-    const dateTimeMenu : Ref<boolean> = ref(false)
-
-    const showFilters : Ref<boolean> = ref(false)
-    const showLocationDialog : Ref<boolean> = ref(false)
-
     const LeafletStore = useLeafletStore()
     const {location : locationRadio, latLng, defaultLatLng} = storeToRefs(LeafletStore)
     const locationArea : Ref<number> = ref(5)
@@ -512,13 +524,13 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
 
     function onLocationClean() {
         LeafletStore.cleanVariables();
-        LeafletStore.initInteractuableMapEO('map');
+        LeafletStore.initInteractuableMap('map');
     }
 
     watch(showLocationDialog, async (newStep) => {
         if (newStep) {
             await nextTick();
-            LeafletStore.initInteractuableMapEO('map');
+            LeafletStore.initInteractuableMap('map');
         }
     });
 
@@ -534,26 +546,61 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
     const filteredItems = computed(() => {
         return props.items?.filter((item: MixedItem) => {
             return (
-                (!name.value || item.name.toLowerCase().includes(name.value.toLowerCase())) &&
-                (!location.value || item.location.toLowerCase().includes(location.value.toLowerCase())) &&
+                (item.type === 'Perdido' ) &&
+
+                (!name.value || normalize(item.name).toLowerCase().includes(normalize(name.value).toLowerCase())) &&
+                (!location.value || normalize(item.location).toLowerCase().includes(normalize(location.value).toLowerCase())) &&
                 (!color.value || item.color === color.value) &&
                 (!brand.value || item.brand === brand.value) &&
                 (!displayMaxDate.value || itemHasDateBeforeOrEqual(displayMaxDate.value, item.date)) &&
-                (!displayDate.value || displayDate.value.toLowerCase().includes(item.date.toLowerCase())) &&
+                (!displayDate.value || displayDate.value.split(' ').some(date => item.date.split(' ').includes(date))) &&
                 (!time.value || time.value && (isTimeInRange(time.value, item.time)) || !item.time) &&
                 (!publicTransport.value || item.publicTransport === publicTransport.value) &&
                 (!category.value || item.category === category.value) &&
                 (!subcategory.value || item.subcategory === subcategory.value) &&
                 (!gender.value || item.gender === gender.value) &&
-                (!race.value || item.race && item.race.toLowerCase().includes(race.value.toLowerCase())) &&
-                (!minReward.value || (item.type === 'Perdido' && parseFloat(item.reward) >= parseFloat(minReward.value))) &&
-                (!maxReward.value || (item.type === 'Perdido' && parseFloat(item.reward) <= parseFloat(maxReward.value))) &&
-                (!reward.value || (item.type === 'Perdido' && item.reward.toLowerCase().includes(reward.value.toLowerCase()))) &&
+                (!race.value || item.race && normalize(item.race).toLowerCase().includes(normalize(race.value).toLowerCase())) &&
+                (!minReward.value || parseFloat(item.reward) >= parseFloat(minReward.value)) &&
+                (!maxReward.value || parseFloat(item.reward) <= parseFloat(maxReward.value)) &&
+                (!reward.value || item.reward.toLowerCase().includes(reward.value.toLowerCase())) &&
                 (latLng.value[0] === defaultLatLng.value[0] && latLng.value[1] === defaultLatLng.value[1] || 
                 isInRadius(latLng.value[0], latLng.value[1], item.latLong[0], item.latLong[1],  locationArea.value))
             );
         }) || [];
     });
+
+    function isTimeInRange(time: string, timeRange: string): boolean {
+        if(!timeRange){
+            return false
+        }
+
+        const [startTime, endTime] = timeRange.split(' - ');
+
+        const timeTotalMinutes = parseTimeToMinutes(time);
+        const startTotalMinutes = parseTimeToMinutes(startTime);
+        const endTotalMinutes = parseTimeToMinutes(endTime);
+
+        return timeTotalMinutes >= startTotalMinutes && timeTotalMinutes <= endTotalMinutes;
+    }
+
+    function itemHasDateBeforeOrEqual(display: string, itemDateStr: string): boolean {
+        const displayDateParsed = parseNormalDate(display);
+        const itemDates = itemDateStr.split(' ');
+
+        return itemDates.some(dateStr => {
+            const parsed = parseNormalDate(dateStr);
+            return parsed <= displayDateParsed;
+        });
+    }
+
+    function parseTimeToMinutes(time: string): number {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+    }
+
+    function normalize(text: string): string {
+        return text.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+    }
 
     const anyFilterActive = computed(() => {
         return (
@@ -593,35 +640,6 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
             time.value
         );
     });
-    
-    function isTimeInRange(time: string, timeRange: string): boolean {
-        if(!timeRange){
-            return false
-        }
-
-        const [startTime, endTime] = timeRange.split(' - ');
-
-        const timeTotalMinutes = parseTimeToMinutes(time);
-        const startTotalMinutes = parseTimeToMinutes(startTime);
-        const endTotalMinutes = parseTimeToMinutes(endTime);
-
-        return timeTotalMinutes >= startTotalMinutes && timeTotalMinutes <= endTotalMinutes;
-    }
-
-    function itemHasDateBeforeOrEqual(display: string, itemDateStr: string): boolean {
-        const displayDateParsed = parseNormalDate(display);
-        const itemDates = itemDateStr.split(' ');
-
-        return itemDates.some(dateStr => {
-            const parsed = parseNormalDate(dateStr);
-            return parsed <= displayDateParsed;
-        });
-    }
-
-    function parseTimeToMinutes(time: string): number {
-        const [hours, minutes] = time.split(':').map(Number);
-        return hours * 60 + minutes;
-    }
 
 </script>
 
@@ -807,7 +825,7 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
         gap: 1em;
 
         min-width: 500px;
-        height: 150px !important;
+        height: 130px !important;
 
         padding: 1em;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -919,12 +937,18 @@ import { computed, nextTick, onMounted, Ref, ref, watch } from 'vue';
         }
 
         .menu-card{
-            min-width: 300px;
+            min-width: 250px;
+        }
+
+        .location-area-container{
+            flex-direction: column;
         }
 
         .icon-container-small{
             top: -15px;
             right: -15px;
+
+            border-radius: 0 0 0 .5em;
 
             overflow-y:visible;
 

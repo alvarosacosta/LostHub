@@ -106,8 +106,9 @@ import { ref } from 'vue';
         opacity: 0;
         animation: aparecer 1s forwards;
 
-        border-radius: 1em;
+        border-radius: .5em;
         box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
+        background-color: var(--second-color);
 
 
     }
@@ -181,7 +182,6 @@ import { ref } from 'vue';
     }
 
     .main-text {
-        background-color: var(--second-color);
         border-radius: 0em .5em .5em 0em;
         
         grid-column: 3;
@@ -505,6 +505,14 @@ import { ref } from 'vue';
 
         .reward {
             width: 70%;
+        }
+
+        .date-label {
+            top: 59%;
+        }
+
+        .time-label {
+            top: 74%;
         }
 
     }

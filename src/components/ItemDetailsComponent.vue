@@ -563,14 +563,14 @@ import { nextTick, Ref, ref, watch } from 'vue';
 
     .resume-article {
         grid-column: 2;
-        gap: 2em;
+        gap: 1em;
 
         display: flex;
         align-self: center;
         flex-direction: column;
 
         padding: 0 3em 0 1em;
-        height: 20em;
+        height: auto;
 
         grid-column: 2;
         grid-row: 2;
@@ -609,8 +609,7 @@ import { nextTick, Ref, ref, watch } from 'vue';
         justify-content: center;
 
         width: 100%;
-        gap: 2em;
-        padding-top: .8em;
+        gap: 1em;
     }
 
     .category, .subcategory {

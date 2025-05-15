@@ -438,7 +438,7 @@ import isEqual from 'lodash/isEqual';
 
     @media (max-width: 1220px){
         .ProfileComponent {
-            padding: 5em 0 5em 0;
+            padding: 4em 0 1em 0;
 
             height: auto;
         }
@@ -449,12 +449,14 @@ import isEqual from 'lodash/isEqual';
         }
     }
 
-    @media (max-width: 660px){
+    @media (max-width: 900px){
         .profile-card {
-            width: 60%;
+            width: 90%;
 
         }
+    }
 
+    @media (max-width: 660px){
         .email-phone, .region-province, .municipality-update-button {
             flex-direction: column;
             gap: 0em

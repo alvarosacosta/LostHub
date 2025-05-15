@@ -33,7 +33,7 @@
                 <p class="info-text" v-if="notification?.findingTime"><strong>Hora:</strong> {{ notification?.findingTime }}</p>
                 <p class="info-text"><strong>Lugar donde se encontró:</strong> {{ notification?.finding_location }}</p>
                 <p class="info-text" v-if="notification?.deliveryLocation"><strong>Lugar donde se ha entregado:</strong> {{ notification?.deliveryLocation }}</p>
-                <p class="info-text"><strong>Correo del remitente:</strong> {{ notification?.sender_email }}</p>
+                <p class="info-text" v-if="notification?.sender_email"><strong>Correo del remitente:</strong> {{ notification?.sender_email }}</p>
                 <p class="info-text" v-if="notification?.sender_phone"><strong>Teléfono del remitente:</strong> {{ notification.sender_phone }}</p>
             </section>
         </template>

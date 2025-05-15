@@ -15,7 +15,7 @@
             <v-window class="window" v-model="step" :touch="false" >
                 <v-window-item :value="1">
                     <v-form class="window-step" ref="firstForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
-                        <section class="upper-right">
+                        <section class="principal-data">
                             <article class="image-container">
                                 <figure class="preview-container">
                                     <img :src="previewUrl ? previewUrl : noImage" alt="Preview" class="profile-preview" />
@@ -172,6 +172,7 @@
                             <v-switch
                                 v-model="isPublicProfile"
                                 label='¿Compartir datos con otros usuarios?'
+                                class="final-data-field"
                                 append-icon="mdi-information-outline"
                                 @click:append="showInfoDialog = true"
                                 color="var(--first-accent-color)"
@@ -201,6 +202,7 @@
                                 :rules="dataLaw"
                                 required
                                 color="var(--first-accent-color)"
+                                class="final-data-field"
                             >
                                 <template v-slot:label>
                                     ¿Aceptas la&nbsp;<a class="data-law" href="https://www.aepd.es/" target="_blank">ley de protección de datos</a>? *
@@ -446,7 +448,7 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         animation: aparecer 1s forwards;
     }
 
-    .upper-right {
+    .principal-data {
         display: flex;
 
         gap: 2em;
@@ -614,6 +616,33 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         color: var(--second-accent-color);
         transform: scale(1.2);
 
+    }
+
+    @media (max-width: 750px) {
+
+        .window-step {
+            padding: 16px 12px 16px 12px;
+            width: 100%;
+        }
+
+        .principal-data {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .basic-information{
+            width: 100%;
+            gap: 1em;
+        }
+
+        .password-section{
+            width: 95%;
+        }
+
+        .final-data-field ::v-deep(.v-label){
+            font-size: 12px !important;
+        }
     }
 
 </style>
