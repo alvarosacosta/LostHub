@@ -10,7 +10,7 @@
             </section>
 
             <section class="username">
-                <label class="label">Nombre</label>
+                <span class="label">Nombre</span>
                 <v-text-field 
                     class="field"
                     v-model=profileShown.username
@@ -26,7 +26,7 @@
 
             <section class="email-phone">
                 <section class="email">
-                    <label class="label">Email</label>
+                    <span class="label">Email</span>
                     <v-text-field 
                         class="field"
                         v-model=profileShown.email
@@ -41,7 +41,7 @@
                 </section>
 
                 <section v-if="isEditable || profileShown.phone" class="phone">
-                    <label class="label">Teléfono</label>
+                    <span class="label">Teléfono</span>
                     <v-text-field 
                         class="field"
                         v-model=profileShown.phone
@@ -57,7 +57,7 @@
 
             <section class="region-province">
                 <section v-if="isEditable || profileShown.region" class="region">
-                    <label class="label">Comunidad</label>
+                    <span class="label">Comunidad</span>
                     <v-autocomplete  
                         class="field"
                         v-model=selectedRegion
@@ -75,7 +75,7 @@
                 </section>
 
                 <section v-if="isEditable || profileShown.province" class="province">
-                    <label class="label">Provincia</label>
+                    <span class="label">Provincia</span>
                     <v-autocomplete  
                         class="field"
                         v-model=selectedProvince
@@ -95,7 +95,7 @@
 
             <section class="municipality-update-button">
                 <section v-if="isEditable || profileShown.municipality" class="municipality">
-                    <label class="label">Población</label>
+                    <span class="label">Población</span>
                     <v-autocomplete 
                         class="field"
                         v-model=selectedMunicipality
@@ -125,7 +125,7 @@
                     <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
                         <template v-slot>
                             <section class="info-dialog">
-                                <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                <v-icon color="var(--first-color)">mdi-penguin</v-icon>
                                 <p class="info">
                                     Si no accedes a compartir tus datos
                                     no se mostrará a otros usuarios tu correo, teléfono y ubicación. 
@@ -136,7 +136,6 @@
                                     Tus datos podrán ser consultados por administradores de igual manera 
                                     si fuera necesario, pero no serán públicos.
                                 </p>
-                                <br>
                             </section>
                         </template>
                     </v-dialog>
@@ -331,7 +330,7 @@ import isEqual from 'lodash/isEqual';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 40%;
+        width: 50%;
 
         border-radius: 1em;
         border: 3px solid var(--first-color);
@@ -433,29 +432,13 @@ import isEqual from 'lodash/isEqual';
         background-color: var(--second-accent-color);
     }
 
-    .info-dialog{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-
-        background-color: var(--second-color);
-        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
-        color: var(--text-color);
-        border-radius: 1em;
-        border: 3px solid var(--first-color);
-        font-family: var(--font-poppins);
-        padding: 24px;
-        gap: 1em;
-    }
-
     .info{
         text-align: justify;
     }
 
     @media (max-width: 1220px){
         .ProfileComponent {
-            padding: 5em 0 5em 0;
+            padding: 4em 0 1em 0;
 
             height: auto;
         }
@@ -466,12 +449,14 @@ import isEqual from 'lodash/isEqual';
         }
     }
 
-    @media (max-width: 660px){
+    @media (max-width: 900px){
         .profile-card {
-            width: 60%;
+            width: 90%;
 
         }
+    }
 
+    @media (max-width: 660px){
         .email-phone, .region-province, .municipality-update-button {
             flex-direction: column;
             gap: 0em

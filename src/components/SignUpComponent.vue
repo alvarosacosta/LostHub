@@ -15,7 +15,7 @@
             <v-window class="window" v-model="step" :touch="false" >
                 <v-window-item :value="1">
                     <v-form class="window-step" ref="firstForm" @submit.prevent="onSubmit" v-slot="{ isValid }">
-                        <section class="upper-right">
+                        <section class="principal-data">
                             <article class="image-container">
                                 <figure class="preview-container">
                                     <img :src="previewUrl ? previewUrl : noImage" alt="Preview" class="profile-preview" />
@@ -172,6 +172,7 @@
                             <v-switch
                                 v-model="isPublicProfile"
                                 label='¿Compartir datos con otros usuarios?'
+                                class="final-data-field"
                                 append-icon="mdi-information-outline"
                                 @click:append="showInfoDialog = true"
                                 color="var(--first-accent-color)"
@@ -182,7 +183,7 @@
                             <v-dialog v-model="showInfoDialog" max-width="450" max-height="600" scroll-strategy="close">
                                 <template v-slot>
                                     <section class="info-dialog">
-                                        <v-icon color="var(--fourth-color)">mdi-penguin</v-icon>
+                                        <v-icon color="var(--first-color)">mdi-penguin</v-icon>
                                         <p class="info">
                                             Si no accedes a compartir tus datos
                                             no se mostrará a otros usuarios tu correo, teléfono y ubicación. 
@@ -193,7 +194,6 @@
                                             Tus datos podrán ser consultados por administradores de igual manera 
                                             si fuera necesario, pero no serán públicos.
                                         </p>
-                                        <br>
                                     </section>
                                 </template>
                             </v-dialog>
@@ -202,6 +202,7 @@
                                 :rules="dataLaw"
                                 required
                                 color="var(--first-accent-color)"
+                                class="final-data-field"
                             >
                                 <template v-slot:label>
                                     ¿Aceptas la&nbsp;<a class="data-law" href="https://www.aepd.es/" target="_blank">ley de protección de datos</a>? *
@@ -447,7 +448,7 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         animation: aparecer 1s forwards;
     }
 
-    .upper-right {
+    .principal-data {
         display: flex;
 
         gap: 2em;
@@ -590,22 +591,6 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         color: var(--first-accent-color);
     }
 
-    .info-dialog{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-
-        background-color: var(--second-color);
-        box-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
-        color: var(--text-color);
-        border-radius: 1em;
-        border: 3px solid var(--first-color);
-        font-family: var(--font-poppins);
-        padding: 24px;
-        gap: 1em;
-    }
-
     .info{
         text-align: justify;
     }
@@ -631,6 +616,33 @@ import { User, UserDetails, UserProfileImage } from '@/interfaces/user';
         color: var(--second-accent-color);
         transform: scale(1.2);
 
+    }
+
+    @media (max-width: 750px) {
+
+        .window-step {
+            padding: 16px 12px 16px 12px;
+            width: 100%;
+        }
+
+        .principal-data {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .basic-information{
+            width: 100%;
+            gap: 1em;
+        }
+
+        .password-section{
+            width: 95%;
+        }
+
+        .final-data-field ::v-deep(.v-label){
+            font-size: 12px !important;
+        }
     }
 
 </style>

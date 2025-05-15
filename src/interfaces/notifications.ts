@@ -1,6 +1,7 @@
 export interface ItemFoundNotification {
     id?: string;
     itemID: string;
+    itemName: string;
     senderID: string | null;
     anonID?: string;
     receiverID: string;
@@ -12,11 +13,6 @@ export interface ItemFoundNotification {
 
     sender_email: string;
     sender_phone?: string;
-
-    url_images?: string[];
+    
     latLong: number[];
-}
-
-export interface NotificationImages {
-    notificationImages?: File[];
 }

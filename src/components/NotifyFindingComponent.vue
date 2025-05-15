@@ -22,6 +22,7 @@
                             class="field under-map"
                             style="pointer-events: none;"
                             v-model=location
+                            :rules="requiredField"
                             placeholder="Ubicación"
                             label="Ubicación"
                             color="var(--first-color)"
@@ -73,8 +74,8 @@
                         <section class="time-container">
                             <v-text-field 
                                 class="time"    
-                                v-model="startTime"
-                                label="Entre las" 
+                                v-model="time"
+                                label="Hora" 
                                 color="var(--first-color)"
                                 bg-color="var(--fourth-color)"
                                 variant="solo-filled"
@@ -82,19 +83,6 @@
                                 prepend-icon="mdi-clock-time-four-outline"
                                 clearable
 
-                            ></v-text-field>
-
-                            <v-text-field 
-                                class="time"    
-                                v-model="endTime"
-                                :rules="endTimeRules"
-                                label="y las" 
-                                type="time"
-                                variant="solo-filled"
-                                color="var(--first-color)"
-                                bg-color="var(--fourth-color)"
-                                :disabled="!startTime"
-                                clearable
                             ></v-text-field>
                         </section>
                     </v-form>
@@ -137,23 +125,6 @@
                             density="comfortable"
                             required
                         ></v-textarea>
-
-                        <section class="file-uploader">
-                            <v-file-upload 
-                                class="field"
-                                v-model=files
-                                color="var(--fourth-color)"
-                                density="compact"
-                                variant="compact"
-                                clearable 
-                                multiple
-                                accept="image/*"
-                                show-size
-                                icon="mdi-upload"
-                                title="¡Arrastra tus imágenes aquí!"
-                            ></v-file-upload>
-
-                        </section>
 
                     </v-form>
                 </v-window-item>
@@ -200,14 +171,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, ref, watch, nextTick } from 'vue'
-import L from 'leaflet';
-import { reverseGeocode } from '@/utils/nominatim';
-import { ItemFoundNotification, NotificationImages } from '@/interfaces/notifications';
+import { computed, Ref, ref, watch, nextTick, onMounted } from 'vue'
+import { ItemFoundNotification } from '@/interfaces/notifications';
 import { UserDetails } from '@/interfaces/user';
+import { MixedItem } from '@/interfaces/items';
+import { storeToRefs } from 'pinia';
+import { useLeafletStore } from '@/stores/LeafletStore';
 
     const props = defineProps<{
-        itemID: string
+        item: MixedItem | undefined
         sender: UserDetails | null
         receiver: UserDetails | null
     }>()
@@ -220,24 +192,19 @@ import { UserDetails } from '@/interfaces/user';
         displayDate.value = val.map(formatDate).join(' ')
     }
 
-    const startTime = ref()
-    const endTime = ref()
+    const time = ref()
     const displayDate : Ref<string> = ref('')
 
     const itemDelivered : Ref<boolean> = ref(false)
     const deliveryLocation : Ref<string> = ref('');
 
-    const location : Ref<string> = ref('');
-    const latLong : Ref<number[]> = ref([40.4168, -3.7038]);
-
     const message : Ref<string> = ref('');
-    const files: Ref<File[] | undefined> = ref(undefined);
 
     const phone : Ref<string> = ref('');
     const email : Ref<string> = ref('');
     
     const emit = defineEmits<{
-        (e: 'success', notification: ItemFoundNotification, images: NotificationImages): void
+        (e: 'success', notification: ItemFoundNotification): void
         (e: 'failure', error: string): void
     }>()
         
@@ -264,69 +231,17 @@ import { UserDetails } from '@/interfaces/user';
         return (step.value / totalSteps) * 100
     })
 
-    const map = ref<L.Map | null>(null);
-    let userMarker: L.Marker | null = null;
-    const markerIcon = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
-        shadowSize: [41, 41]
+    onMounted(() => {
+        LeafletStore.cleanVariables();
     });
 
-    async function onMapClick(e: L.LeafletMouseEvent) {
-        const { lat, lng } = e.latlng;
-
-        if (userMarker) {
-            userMarker.setLatLng([lat, lng]);
-        } else {
-            userMarker = L.marker([lat, lng], { icon: markerIcon }).addTo(map.value as L.Map);
-        }
-        latLong.value = [lat, lng]
-        location.value = await reverseGeocode(lat, lng);
-    }
-
-    async function initMap() {
-        const mapContainer = document.getElementById('map');
-        if (mapContainer && !map.value) {
-            map.value = L.map(mapContainer, {
-                doubleClickZoom: false,
-            }).setView([40.4168, -3.7038], 10);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            }).addTo(map.value as L.Map);
-            
-            map.value.locate({
-                setView: true,
-                maxZoom: 18,
-                timeout: 10000,
-            });
-            
-            map.value.on('locationfound', async function (e) {
-                if (!userMarker) {
-                    userMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: markerIcon }).addTo(map.value as L.Map);
-                }
-
-                (map.value as L.Map).setView([e.latlng.lat, e.latlng.lng], 18);
-
-                latLong.value = [e.latlng.lat, e.latlng.lng]
-                location.value = await reverseGeocode(e.latlng.lat, e.latlng.lng);
-            });
-
-            map.value.on('locationerror', function (e) {
-                console.error('Error obtaining  ubication:', e.message);
-            });
-
-            map.value.on('click', onMapClick);
-        }
-    }
+    const LeafletStore = useLeafletStore()
+    const {location, latLng} = storeToRefs(LeafletStore)
 
     watch(step, async (newStep) => {
         if (newStep === 1) {
             await nextTick();
-            initMap();
+            LeafletStore.initInteractuableMapWithUserLocation('map');
         }
     }, { immediate: true });
 
@@ -336,27 +251,6 @@ import { UserDetails } from '@/interfaces/user';
             return 'Campo obligatorio.'
         }
     ]
-
-    const endTimeRules = [
-        (value: string) => {
-            if (startTime.value && !value) {
-                return 'Hora final es obligatoria.';
-            }
-            if (!value) return true;
-
-            const [startHours, startMinutes] = startTime.value.split(':').map(Number);
-            const [endHours, endMinutes] = value.split(':').map(Number);
-            
-            const startTotalMinutes = startHours * 60 + startMinutes;
-            const endTotalMinutes = endHours * 60 + endMinutes;
-            
-            if (endTotalMinutes < startTotalMinutes) {
-                return 'Hora final inválida';
-            }
-            
-            return true;
-        }
-    ];
 
     const emailRules = [
         (value: string) => {
@@ -406,27 +300,6 @@ import { UserDetails } from '@/interfaces/user';
                     break;
                 }
 
-                if (files.value) {
-                    const fileList = Array.isArray(files.value) ? files.value : [files.value];
-
-                    if (fileList.length > 5) {
-                        emit('failure', `Solo se pueden introducir como máximo 5 imágenes.`);
-                        return;
-                    }
-
-                    for (const file of fileList) {
-                        if (file.size > 5 * 1024 * 1024) {
-                            emit('failure', 'Al menos una de las imágenes pesa más de 5MB.');
-                            return;
-                        }
-
-                        if (!file.type.startsWith('image/')) {
-                            emit('failure', `Al menos uno de los archivos no es una imagen.`);
-                            return;
-                        }
-                    }
-                }
-
                 if(!props.sender?.isPublic){
                     break;
                 }
@@ -465,39 +338,37 @@ import { UserDetails } from '@/interfaces/user';
 
         if(props.sender?.isPublic) {
             notification = {
-                itemID: props.itemID,
+                itemID: props.item?.id!,
+                itemName: props.item?.name!,
                 senderID: props.sender?.id || 'not-logged-user',
                 receiverID: props.receiver?.id || '',
                 findingDate: displayDate.value,
-                findingTime: startTime.value && endTime.value ? startTime.value + ' - ' + endTime.value  :  '',
+                findingTime: time.value,
                 message: message.value,
                 finding_location: location.value,
                 deliveryLocation: deliveryLocation.value,
                 sender_email: props.sender?.email, 
                 sender_phone: props.sender?.phone,
     
-                latLong: latLong.value,
+                latLong: latLng.value,
             }
 
         } else {
             notification = {
-                itemID: props.itemID,
+                itemID: props.item?.id!,
+                itemName: props.item?.name!,
                 senderID: props.sender?.id || 'not-logged-user',
                 receiverID: props.receiver?.id || '',
                 findingDate: displayDate.value,
-                findingTime: startTime.value && endTime.value ? startTime.value + ' - ' + endTime.value  :  '',
+                findingTime: time.value,
                 message: message.value,
                 finding_location: location.value,
                 deliveryLocation: deliveryLocation.value,
                 sender_email: email.value, 
                 sender_phone: phone.value,
     
-                latLong: latLong.value,
+                latLong: latLng.value,
             }
-        }
-
-        const images : NotificationImages = {
-            notificationImages: files.value
         }
 
         if (notification.senderID === 'not-logged-user') {
@@ -505,7 +376,7 @@ import { UserDetails } from '@/interfaces/user';
             notification.senderID = null;
         }
 
-        emit('success', notification, images)
+        emit('success', notification)
     }
 
 </script>

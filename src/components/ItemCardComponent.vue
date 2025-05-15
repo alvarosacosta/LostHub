@@ -45,17 +45,26 @@
                     <span class="name">{{ item?.name }}</span>
                 </section>
 
-                <label class="description-label">Descripción</label>
+                <span class="description-label">Descripción</span>
                 <p class="small-description">{{ item?.detailedDescription }}</p>
                 
-                <label class="location-label">Ubicación de pérdida</label>
+                <span class="location-label">Ubicación de pérdida</span>
                 <p class="location">{{ item?.location }}</p>
                 
-                <label v-if="item?.type === 'Perdido' && item?.reward" class="reward-label">Recompensa de búsqueda</label>
+                <span v-if="item?.type === 'Perdido' && item?.reward" class="reward-label">Recompensa de búsqueda</span>
                 <p v-if="item?.type === 'Perdido' && item?.reward" class="reward">{{ item?.reward + " €" }}</p>
 
+                <section v-else class="date-time">
+                    <span class="date-label">Fecha(s) de pérdida</span>
+                    <p class="date">{{ item?.date }}</p>
+
+                    <span class="time-label">Hora de pérdida</span>
+                    <p v-if="item?.time" class="time">{{ item?.time }}</p>
+                    <p v-else class="time">Hora no especificada</p>
+                </section>
+
                 <router-link class="view-details-arrow-container" :to="{ name: 'item-details', params: { id: item?.id },  }">
-                    <label class="tooltip-arrow" for="view-details-arrow">Ver detalles</label>
+                    <span class="tooltip-arrow">Ver detalles</span>
                     <v-icon class="view-details-arrow" size="90">mdi-arrow-right-thick</v-icon>
                 </router-link>
             </section>
@@ -97,8 +106,9 @@ import { ref } from 'vue';
         opacity: 0;
         animation: aparecer 1s forwards;
 
-        border-radius: 1em;
+        border-radius: .5em;
         box-shadow: 5px 5px 10px rgba(0, 0, 0, 1);
+        background-color: var(--second-color);
 
 
     }
@@ -172,7 +182,6 @@ import { ref } from 'vue';
     }
 
     .main-text {
-        background-color: var(--second-color);
         border-radius: 0em .5em .5em 0em;
         
         grid-column: 3;
@@ -188,7 +197,7 @@ import { ref } from 'vue';
         position: relative
     }
 
-    .name, .location, .reward, .small-description {
+    .name, .location, .reward, .small-description, .date, .time {
         background-color: var(--first-color);
         border-radius: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -205,7 +214,7 @@ import { ref } from 'vue';
         
     }
 
-    .location, .small-description{
+    .location, .small-description, .date, .time {
         max-width: 390px; 
     }
 
@@ -266,7 +275,15 @@ import { ref } from 'vue';
         
     }
 
-    .description-label, .location-label, .reward-label {
+    .date-time {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+
+        width: 70%;
+    }
+
+    .description-label, .location-label, .reward-label, .date-label, .time-label {
         position: absolute;
         background-color: var(--second-color);
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 1);
@@ -293,6 +310,14 @@ import { ref } from 'vue';
         top: 63%;
         opacity: 1;
         font-size: 13px;
+    }
+
+    .time-label {
+        top: 80.5%;
+    }
+
+    .date-label {
+        top: 63%;
     }
 
     .view-details-arrow-container{
@@ -480,6 +505,14 @@ import { ref } from 'vue';
 
         .reward {
             width: 70%;
+        }
+
+        .date-label {
+            top: 59%;
+        }
+
+        .time-label {
+            top: 74%;
         }
 
     }

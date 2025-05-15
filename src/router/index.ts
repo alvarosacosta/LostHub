@@ -14,6 +14,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { hasSidebar: true }
   },
   {
+    path: '/notifications',
+    name: 'notifications',
+    component: () => import('@/views/NotificationListView.vue'),
+    meta: { hasSidebar: true }
+  },
+  {
     path: '/own-items',
     name: 'own-items',
     component: () => import('@/views/OwnItemsView.vue'),
