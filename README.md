@@ -21,16 +21,22 @@ Se ha construido la estructura de proyecto siguiendo la estructura:
 De manera que la lógica propia de front así como la mayoría de estilo, se encuentra encapsulado en el `Component`. Si hubiera que conectar dicho componente con el back, haciendo uso de Pinia, se haría en el `Container` y lo que el usuario vería sería el `View`.
 
 ```plaintext
-`src/
+src/
 ├── assets/
 ├── components/
 ├── containers/
+├── enums/
+├── interfaces/
 ├── views/
-├── stores/            # Pinia
-├── router/
+├── stores/             # Pinia
+├── json/                 
+├── utils/              # Utilidades matemáticas, de texto y API Externas
+├── router/              
 ├── App.vue
 ├── main.ts
-├── supabase.ts			# Supabase
+├── main.css/
+└── supabase.ts         # Supabase
+.env
 ```
 
 ## 📦 Instalación y configuración
