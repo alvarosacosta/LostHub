@@ -2,7 +2,7 @@
 
 Portal web dedicado a apoyar la búsqueda de objetos perdidos, con el objetivo de crear una comunidad activa en el proceso. Es posible publicar objetos que uno haya perdido, y cooperar para encontrar lo que otros han extraviado. Se puede usar filtros avanzados que, por ejemplo, permiten ver los objetos que se han perdido cerca de la zona elegida.
 
-## 🚀 Tecnologías utilizadas
+## 🚀 Tecnologías primordiales utilizadas
 
 - **Vue 3** - Instalado con **Vue CLI**.
 - **TypeScript** - Tipado estático.
